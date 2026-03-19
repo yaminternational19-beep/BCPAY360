@@ -1,0 +1,49 @@
+{
+  "users": [
+    {
+      "organisationName": "TechFlow Solutions",
+      "employeeId": "EMP001",
+      "department": "Engineering",
+      "joiningDate": "2023-05-15",
+      "name": "John Doe",
+      "email": "john.doe@techflow.com",
+      "designation": "Senior Developer",
+      "phone": "+91 98765 43210",
+      "address": "123, Tech Park, Bangalore, India",
+      "permanentAddress": "456, Hometown Street, Kerala, India",
+      "password": "password123",
+      "otp": "1234",
+      "documents": ["Aadhar_Card.pdf", "Degree_Certificate.pdf"]
+    },
+    {
+      "organisationName": "TechFlow Solutions",
+      "employeeId": "EMP002",
+      "department": "Operations",
+      "joiningDate": "2022-11-01",
+      "name": "Jane Smith",
+      "email": "jane.smith@techflow.com",
+      "designation": "Project Manager",
+      "phone": "+91 88888 77777",
+      "address": "789, Business Bay, Mumbai, India",
+      "permanentAddress": "789, Business Bay, Mumbai, India",
+      "password": "admin",
+      "otp": "5555",
+      "documents": ["Passport.pdf", "Experience_Letter.pdf"]
+    },
+    {
+      "organisationName": "TechFlow Solutions",
+      "employeeId": "EMP003",
+      "department": "Human Resources",
+      "joiningDate": "2024-01-10",
+      "name": "Robert Brown",
+      "email": "robert.b@techflow.com",
+      "designation": "HR Specialist",
+      "phone": "+91 99999 11111",
+      "address": "456, Cyber City, Gurgaon, India",
+      "permanentAddress": "12, Old Town, Delhi, India",
+      "password": "test",
+      "otp": "9999",
+      "documents": ["PAN_Card.pdf", "Resume.pdf"]
+    }
+  ]
+}

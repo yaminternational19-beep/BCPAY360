@@ -1,0 +1,60 @@
+.profile-container {
+    max-width: 700px;
+    margin: auto;
+    padding: 30px;
+}
+
+.profile-container h1 {
+    margin-bottom: 20px;
+}
+
+.profile-card {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.profile-card h2 {
+    margin-bottom: 15px;
+}
+
+.profile-card label {
+    display: block;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+.profile-card input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.primary-btn {
+    margin-top: 20px;
+    padding: 10px 16px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.danger-btn {
+    margin-top: 20px;
+    padding: 10px 16px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.primary-btn:hover,
+.danger-btn:hover {
+    opacity: 0.9;
+}

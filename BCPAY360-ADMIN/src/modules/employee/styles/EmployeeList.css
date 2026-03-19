@@ -1,0 +1,291 @@
+/* ===================================================================================
+   EMPLOYEE LIST CONTAINER
+   =================================================================================== */
+.employee-list-container {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ===================================================================================
+   TABLE CORE
+   =================================================================================== */
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-primary);
+}
+
+/* HEADER STYLE: Dark Theme with Uppercase */
+.employee-table thead th {
+    background: var(--bg-dark);
+    /* Near black / Dark blue */
+    color: var(--text-inverse);
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* ROW STYLE: Compact and Clean */
+.employee-table tbody tr {
+    border-bottom: 1px solid var(--bg-muted);
+    transition: background-color var(--transition-normal);
+}
+
+.employee-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.employee-table tbody td {
+    padding: 8px 10px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* ALIGNMENT */
+.employee-table .right {
+    text-align: right;
+}
+
+/* ===================================================================================
+   COMPONENTS IN TABLE
+   =================================================================================== */
+
+/* CHECKBOX */
+.checkbox-cell {
+    width: 40px;
+    text-align: center;
+}
+
+.checkbox-cell input {
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    accent-color: var(--primary);
+}
+
+/* AVATAR: 32px Circular */
+.avatar-wrapper-32 {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--bg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-default);
+}
+
+.avatar-img-32 {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-fallback-32 {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    color: var(--text-dim);
+}
+
+/* TEXT STYLES */
+.emp-code {
+    color: var(--text-primary);
+}
+
+.email-text {
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+}
+
+.salary {
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+}
+
+/* SHIFT BADGE */
+.shift-cell {
+    text-align: center;
+}
+
+.shift-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+}
+
+.shift-badge.active {
+    background: var(--success-bg);
+    color: var(--success-hover);
+}
+
+.shift-badge.inactive {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+/* STATUS PILL */
+.status-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+}
+
+.pill-active {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.pill-inactive {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+/* ===================================================================================
+   ACTIONS: Dark Themed Buttons
+   =================================================================================== */
+.action-btns-dark {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.dark-icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    background: var(--text-secondary);
+    color: var(--text-inverse);
+    transition: all var(--transition-normal);
+    text-decoration: none;
+}
+
+.dark-icon-btn:hover:not(:disabled) {
+    background: var(--text-primary);
+    box-shadow: 0 0 8px rgba(30, 41, 59, 0.4);
+    transform: translateY(-1px);
+}
+
+.dark-icon-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ACTION VARIANTS (OPTIONAL HOVER) */
+.dark-icon-btn.view:hover {
+    color: var(--primary);
+}
+
+.dark-icon-btn.edit:hover {
+    color: var(--primary-gradient-hover);
+    /* used purple/indigo from theme */
+}
+
+.dark-icon-btn.activate:hover {
+    color: var(--success);
+}
+
+.dark-icon-btn.deactivate:hover {
+    color: var(--warning);
+}
+
+.dark-icon-btn.delete:hover {
+    color: var(--danger);
+}
+
+/* ===================================================================================
+   FOOTER & PAGINATION
+   =================================================================================== */
+.table-footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fcfcfc;
+    border-top: 1px solid var(--bg-muted);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.pagination {
+    display: flex;
+    gap: 4px;
+}
+
+.pagination button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-default);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-size: var(--text-xs);
+}
+
+.pagination button:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--text-disabled);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+}
+
+/* ===================================================================================
+   MISC
+   =================================================================================== */
+.no-data-msg,
+.empty-row {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.row-selected {
+    background-color: var(--primary-light) !important;
+}
+
+.row-inactive {
+    opacity: 0.7;
+}

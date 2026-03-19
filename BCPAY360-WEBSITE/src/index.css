@@ -1,0 +1,22 @@
+/* src/index.css */
+
+:root {
+  --bg-main: #ffffff;
+  --text-main: #1a1c1e;
+  --card-bg: #f8fafc;
+  --border-color: #e2e8f0;
+}
+
+body.dark-theme {
+  --bg-main: #121212;
+  --text-main: #ffffff;
+  --card-bg: #1e1e1e;
+  --border-color: #2d3748;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* background-size: ; */
+}

@@ -1,0 +1,96 @@
+/* =====================================================
+   APP ROOT STRUCTURE - ENTERPRISE HRIS
+   Standardized Spacing and High-Fidelity Theming
+   ===================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg-page);
+}
+
+.app-root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-page);
+}
+
+/* MAIN WRAPPER (Sidebar + Content) */
+.main-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-page);
+}
+
+/* SIDEBAR STRUCTURE (Managed in Sidebar.css) */
+.sidebar {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CONTENT SCROLL AREA */
+.main-content {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-page);
+  scroll-behavior: smooth;
+  padding: 32px;
+}
+
+/* Custom Scrollbar for Main Content */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* =========================================
+   Responsive Fixes
+   ========================================= */
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    /* Matching new Navbar height */
+    bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.05);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    width: 280px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+}

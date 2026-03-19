@@ -1,0 +1,39 @@
+import express from "express";
+import { allowRoles, verifyToken } from "../../middlewares/auth.middleware.js";
+import { upload, handleUploadError } from "../../middlewares/upload.middleware.js";
+
+import {
+  create_employee,
+  list_employees,
+  get_employee_by_id,
+  update_employee,
+  toggle_employee_status,
+  activate_employee,
+  delete_employee,
+  getLastEmployeeCode,
+  update_employee_by_code,
+  getAvailableCompanyForms
+} from "../../controllers/admin/employee.controller.js";
+
+const router = express.Router();
+
+
+
+router.get("/last-code", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), getLastEmployeeCode);
+
+// File uploads for employee creation and update
+router.post("/", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), upload.any(), handleUploadError, create_employee);
+router.get("/", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), list_employees);
+router.get("/:id", verifyToken, allowRoles("COMPANY_ADMIN", "HR", "EMPLOYEE"), get_employee_by_id);
+router.put("/:id", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), upload.any(), handleUploadError, update_employee);
+router.put("/code/:employee_code", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), upload.any(), handleUploadError, update_employee_by_code);
+router.patch("/:id/status", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), toggle_employee_status);
+router.patch("/:id/activate", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), activate_employee);
+router.delete("/:id", verifyToken, allowRoles("COMPANY_ADMIN"), delete_employee);
+router.get("/company/forms/available", verifyToken, allowRoles("COMPANY_ADMIN", "HR"), getAvailableCompanyForms);
+
+
+
+
+
+export default router;

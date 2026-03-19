@@ -1,0 +1,155 @@
+/* ==========================================================================
+   ATTENDANCE FILTERS STYLES
+   Description: Specialized styles for the attendance filter bar, designed to
+   match the Employee module's look and feel while supporting inline scrolling.
+   ========================================================================== */
+
+.attendance-filters-container {
+  background: var(--attendance-white);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--attendance-gray-200);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+  width: 100%;
+  animation: filterFadeIn 0.3s ease-out;
+}
+
+@keyframes filterFadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filters-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b; /* var(--text-secondary) */
+}
+
+/* MATCHES .filters-grid-new FROM EMPLOYEE MODULE */
+.attendance-filters-grid {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.attendance-filters-grid::-webkit-scrollbar {
+  height: 5px;
+}
+.attendance-filters-grid::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+/* Shared Input/Select Styles */
+.filter-item-wrapper {
+  position: relative;
+  min-width: 180px;
+  flex-shrink: 0;
+}
+
+.filter-item-wrapper.search {
+  min-width: 260px;
+  flex: 2;
+}
+
+.search-ico-fixed {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.attendance-filter-input,
+.attendance-filter-select {
+  height: 40px;
+  width: 100% !important;
+  padding: 0 12px; /* Fixed: Removed vertical padding which caused clipping */
+  font-size: 13px;
+  border-radius: 12px;
+  border: 1px solid var(--attendance-gray-200);
+  background-color: var(--attendance-white) !important;
+  color: #1e293b !important;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: var(--font-primary);
+  outline: none;
+  vertical-align: middle;
+}
+
+
+.attendance-filter-input.with-icon {
+  padding-left: 38px !important;
+}
+
+.attendance-filter-input:focus,
+.attendance-filter-select:focus {
+  border-color: var(--attendance-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Inline Back Button */
+.btn-back-inline {
+  padding: 8px 16px;
+  height: 40px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-back-inline:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Mode Toggle Styles */
+.attendance-view-toggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  flex-shrink: 0;
+  height: 40px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.toggle-button {
+  padding: 0 16px;
+  height: 32px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-button.active {
+  background: var(--attendance-white);
+  color: var(--attendance-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}

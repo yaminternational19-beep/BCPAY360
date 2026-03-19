@@ -1,0 +1,90 @@
+.accounts-page {
+  padding: 24px;
+}
+
+.accounts-search {
+  padding: 8px;
+  width: 260px;
+  margin-bottom: 14px;
+}
+
+.accounts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.accounts-table th,
+.accounts-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-preview {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+.btn-approve {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+}
+
+.btn-reject {
+  background: #fef2f2 !important;
+  color: #ef4444 !important;
+}
+
+.btn-close {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+/* MODAL */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #fff;
+  width: 600px;
+  max-width: 90%;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}

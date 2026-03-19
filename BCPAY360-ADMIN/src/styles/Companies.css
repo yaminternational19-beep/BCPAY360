@@ -1,0 +1,187 @@
+/* ===============================
+   PAGE
+================================ */
+.companies-page {
+  padding: 24px;
+  background: radial-gradient(circle at top, #f8fafc, #eef2f7);
+  animation: fadeInPage 0.6s ease-out;
+}
+
+@keyframes fadeInPage {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.companies-page h2 {
+  margin-bottom: 24px;
+  font-size: 20px;
+  color: #0f172a;
+  letter-spacing: 0.3px;
+}
+
+/* ===============================
+   COMPANY CARD
+================================ */
+.company-card {
+  background: linear-gradient(180deg, #ffffff, #fafafa);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 18px;
+  cursor: pointer;
+
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+
+  transform: translateY(12px) scale(0.98);
+  opacity: 0;
+  animation: cardEnter 0.5s ease forwards;
+  transition:
+    transform 0.35s cubic-bezier(.2,.8,.2,1),
+    box-shadow 0.35s ease,
+    border 0.35s ease;
+}
+
+/* staggered feel */
+.company-card:nth-child(2) { animation-delay: 0.05s; }
+.company-card:nth-child(3) { animation-delay: 0.1s; }
+.company-card:nth-child(4) { animation-delay: 0.15s; }
+
+@keyframes cardEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* hover lift */
+.company-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);
+  border-color: #bfdbfe;
+}
+
+/* ===============================
+   ACTIVE (OWN COMPANY)
+================================ */
+.company-card.active {
+  position: relative;
+  border: 2px solid #2563eb;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.25);
+}
+
+.company-card.active::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  background: linear-gradient(
+    120deg,
+    rgba(37,99,235,0.35),
+    rgba(255,255,255,0)
+  );
+  animation: glowPulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes glowPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+
+/* ===============================
+   HEADER
+================================ */
+.company-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.company-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #0f172a;
+  transition: color 0.25s ease;
+}
+
+.company-card:hover .company-header h3 {
+  color: #2563eb;
+}
+
+/* ===============================
+   BADGES
+================================ */
+.editable-badge,
+.readonly-badge {
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.editable-badge {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+}
+
+.readonly-badge {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* ===============================
+   DEPARTMENTS
+================================ */
+.dept-block {
+  margin-top: 14px;
+}
+
+.dept-block strong {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.roles {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.roles span {
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.company-card:hover .roles span {
+  background: #e0e7ff;
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   BILLING INFO
+================================ */
+.billing-info {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed #e5e7eb;
+  font-size: 12px;
+  color: #475569;
+}
+
+/* ===============================
+   MOBILE
+================================ */
+@media (max-width: 768px) {
+  .company-card {
+    padding: 16px;
+  }
+}

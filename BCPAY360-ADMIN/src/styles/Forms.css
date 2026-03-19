@@ -1,0 +1,210 @@
+/* Base card and form container styles */
+.card {
+  max-width: 100px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out;
+  transition: box-shadow 0.3s ease;
+  will-change: transform, opacity; /* Added for smoother animation performance */
+}
+
+.card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Removed redundant .fade-in class (it was empty and not needed; animation is on .card) */
+
+.form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Input and select styles */
+.form-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #2c3e50;
+  background: #ffffff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  box-sizing: border-box;
+  outline: none;
+  will-change: transform; /* Added for smoother focus/hover transforms */
+}
+
+.form-input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  transform: translateY(-1px);
+}
+
+.form-input:hover {
+  border-color: #bdc3c7;
+}
+
+.form-input:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Password field wrapper */
+.password-field {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.eye-toggle {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  color: #7f8c8d;
+  font-size: 1.2rem;
+  will-change: transform; /* Added for smoother hover/active transforms */
+}
+
+.eye-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.eye-toggle:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.eye-toggle:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* Button styles */
+.form-button {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: #3498db;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  outline: none;
+  will-change: transform, box-shadow; /* Added for smoother hover/active effects */
+}
+
+.form-button:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.form-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.form-button:focus {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  .form-title {
+    font-size: 1.25rem;
+  }
+  .form-input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  .form-button {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+  .eye-toggle {
+    right: 0.75rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  .form-title {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+  .form-input {
+    padding: 0.625rem 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .form-button {
+    padding: 0.625rem 0.75rem;
+  }
+}
+
+/* Accessibility enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .card, .form-input, .form-button, .eye-toggle {
+    animation: none;
+    transition: none;
+    will-change: auto; /* Reset will-change for reduced motion */
+  }
+}
+
+@media (prefers-contrast: high) {
+  .form-input:focus {
+    border-color: #000000;
+    box-shadow: 0 0 0 2px #000000;
+  }
+  .form-button:focus {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+  .eye-toggle:focus {
+    outline: 2px solid #000000;
+  }
+}
+
+/* Keyframe animations (no layout shift) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

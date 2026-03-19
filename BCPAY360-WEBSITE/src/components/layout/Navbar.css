@@ -1,0 +1,32 @@
+/* Navbar.css */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.navbar-left, .navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* --- RESPONSIVE DROPDOWN FIX --- */
+/* This overrides the inline styles on mobile screens only */
+@media (max-width: 768px) {
+  .responsive-dropdown {
+    position: fixed !important;
+    top: 75px !important; /* Just below navbar */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
+    max-width: 360px !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
+}

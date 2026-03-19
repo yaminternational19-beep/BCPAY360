@@ -1,0 +1,30 @@
+@font-face {
+  font-family: "Merriweather";
+  src: url("../assets/fonts/Merriweather-VariableFont_opsz\,wdth\,wght.ttf") format("truetype");
+  font-weight: 400;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f9fafb;
+  font-family: "Merriweather", serif;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+body.dark {
+  background-color: #111827;
+  color: #f5f5f5;
+}
+
+body.light {
+  background-color: #f5f5f5;
+  color: #111827;
+}

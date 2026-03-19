@@ -1,0 +1,853 @@
+/* =====================================================
+   HRIS ADMIN - EMPLOYEE FORM STYLES
+   Uses theme.css variables for all colors
+   ===================================================== */
+
+.emp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease;
+}
+
+.emp-modal {
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    background-color: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    animation: modalSlideUp 0.3s ease;
+}
+
+.emp-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-card);
+}
+
+.emp-modal-header h3 {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.emp-modal-header span {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    background-color: var(--bg-muted);
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-default);
+    font-weight: var(--weight-medium);
+}
+
+.emp-modal-header button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    padding: 0;
+}
+
+.emp-modal-header button:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-muted);
+}
+
+.emp-step-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-default);
+    padding: 0 2rem;
+    gap: 2rem;
+    background: var(--bg-card);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 0;
+    color: var(--text-muted);
+    font-weight: var(--weight-medium);
+    cursor: default;
+    position: relative;
+    transition: color var(--transition-normal);
+    border-bottom: 2px solid transparent;
+    font-family: var(--font-primary);
+}
+
+.step svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--text-muted);
+}
+
+.step.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--primary);
+}
+
+.step.active svg {
+    color: var(--primary);
+}
+
+.emp-form-section {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+    background: var(--bg-card);
+}
+
+.emp-form-section h4 {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+}
+
+.emp-form-section h4:first-child {
+    margin-top: 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-grid>div {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Document Upload Section - Production Grade Layout */
+.document-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 20px 0 32px 0;
+}
+
+.document-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.document-item label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.emp-modal .emp-form-section input:not([type="checkbox"]):not([type="file"]),
+.emp-modal .emp-form-section select,
+.emp-modal .emp-form-section textarea {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-card) !important;
+    /* Force White with Priority */
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    font-size: var(--text-base);
+    transition: all var(--transition-normal);
+}
+
+.emp-form-section input:focus,
+.emp-form-section select:focus,
+.emp-form-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.emp-form-section select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23334155'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 3rem;
+    background-color: var(--bg-card);
+    /* Redundant but safe */
+}
+
+.emp-form-section label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.75rem 0;
+    margin-bottom: 1.5rem;
+}
+
+.emp-form-section input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--input-border);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    appearance: none;
+    margin: 0;
+    position: relative;
+}
+
+.emp-form-section input[type="checkbox"]:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.emp-form-section input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 4px;
+    height: 8px;
+    border: solid var(--text-inverse);
+    border-width: 0 2px 2px 0;
+}
+
+.password-field {
+    position: relative;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.password-field input {
+    padding-right: 3.5rem;
+    margin-bottom: 0;
+}
+
+.password-field button {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-field button:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-muted);
+}
+
+.password-field button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Old Upload styles removed in favor of production-grade FileField */
+
+.existing-file {
+    color: var(--primary);
+    text-decoration: underline;
+    font-weight: var(--weight-medium);
+}
+
+.new-file {
+    color: var(--success);
+    font-weight: var(--weight-semibold);
+}
+
+.upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 2px dashed var(--input-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-muted);
+    margin-bottom: 1.5rem;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    position: relative;
+    gap: 0.75rem;
+}
+
+.upload-box:hover {
+    border-color: var(--text-muted);
+    background-color: var(--bg-hover);
+}
+
+.upload-box svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--text-muted);
+}
+
+.upload-box p {
+    margin: 0;
+    font-weight: var(--weight-medium);
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.upload-box input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-list li {
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-muted);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.emp-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-default);
+    background-color: var(--bg-card);
+}
+
+.footer-left,
+.footer-right {
+    display: flex;
+    gap: 12px;
+}
+
+/* Use .btn-primary, .btn-secondary in JSX instead of custom classes */
+.emp-form-footer .btn-primary {
+    background: #2563eb;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.emp-form-footer .btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.emp-form-footer .btn-secondary {
+    background: #ffffff;
+    color: #475569;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.emp-form-footer .btn-secondary:hover {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+}
+
+.emp-form-footer button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .emp-modal {
+        max-height: 95vh;
+        border-radius: var(--radius-md);
+    }
+
+    .emp-modal-header,
+    .emp-step-tabs,
+    .emp-form-section,
+    .emp-form-footer {
+        padding: 1.25rem;
+    }
+
+    .emp-step-tabs {
+        gap: 1rem;
+        overflow-x: auto;
+    }
+
+    .step {
+        font-size: var(--text-sm);
+        white-space: nowrap;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .document-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .emp-form-footer {
+        flex-direction: column-reverse;
+        gap: 1rem;
+    }
+
+    .emp-form-footer button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .emp-modal-backdrop {
+        padding: 0.5rem;
+    }
+
+    .emp-modal-header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .emp-modal-header button {
+        position: static;
+        transform: none;
+        align-self: flex-end;
+    }
+}
+
+/* Validation & UX Styles */
+.error-border {
+    border-color: var(--input-error) !important;
+    background-color: var(--danger-light) !important;
+}
+
+.error-border:focus {
+    border-color: var(--input-error) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.error-text {
+    color: var(--danger);
+    font-size: var(--text-sm);
+    margin-top: -1.25rem;
+    margin-bottom: 1.25rem;
+    display: block;
+    font-weight: var(--weight-medium);
+}
+
+.helper-text {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+    font-style: italic;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+/* File Field Components - Production Grade */
+.file-field-container {
+    position: relative;
+    background: #ffffff;
+    border: 2px dashed #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    text-align: center;
+}
+
+.file-field-container:hover,
+.file-field-container.dragging {
+    border-color: #3b82f6;
+    background: #f8faff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -10px rgba(59, 130, 246, 0.2);
+}
+
+.file-field-container.dragging {
+    border-style: solid;
+    background: #eff6ff;
+}
+
+.file-trigger-zone {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.file-field-icon {
+    width: 52px;
+    height: 52px;
+    background: #f1f5f9;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.file-field-container:hover .file-field-icon {
+    background: #eff6ff;
+    color: #3b82f6;
+    transform: scale(1.1);
+}
+
+.file-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+.file-placeholder {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* Selected File State */
+.file-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.file-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    font-size: 11px;
+    font-weight: 800;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 3px 12px;
+    border-radius: 20px;
+}
+
+/* Actions in Card */
+.file-field-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.view-link,
+.replace-btn {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 10px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.view-link {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.view-link:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.remove-btn-danger {
+    width: 38px;
+    height: 38px;
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #fecdd3;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-btn-danger:hover {
+    background: #ffe4e6;
+    color: #be123c;
+    border-color: #fda4af;
+    transform: scale(1.05);
+}
+
+.replace-btn {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.replace-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+/* Profile Upload Box */
+.profile-upload-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-card);
+}
+
+.preview-bubble {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background-color: var(--bg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.preview-bubble img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-photo {
+    color: var(--text-muted);
+}
+
+.upload-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 18px;
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+}
+
+.file-upload-label:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+.file-ready-text {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+#profile-photo-input {
+    display: none;
+}
+
+/* Phone Input Premium Overrides */
+.phone-input-wrapper-premium {
+    margin-bottom: 1.5rem;
+}
+
+.phone-input-wrapper-premium label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.phone-input-wrapper-premium .react-tel-input .form-control {
+    width: 100% !important;
+    height: 48px !important;
+    font-size: var(--text-base) !important;
+    font-family: var(--font-primary) !important;
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-md) !important;
+    padding-left: 58px !important;
+    transition: all var(--transition-normal) !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .form-control:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .flag-dropdown {
+    background-color: var(--bg-muted) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .selected-flag {
+    width: 48px !important;
+    padding: 0 0 0 12px !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .selected-flag:hover,
+.phone-input-wrapper-premium .react-tel-input .selected-flag:focus {
+    background-color: var(--bg-hover) !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .country-list {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-lg) !important;
+    border: 1px solid var(--border-default) !important;
+    font-family: var(--font-primary) !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .country-list .country:hover {
+    background-color: var(--bg-muted) !important;
+}
+
+.phone-input-wrapper-premium .react-tel-input .country-list .country.highlight {
+    background-color: var(--bg-muted) !important;
+}
+
+/* Error state for phone input */
+.phone-input-wrapper-premium .phone-error .form-control {
+    border-color: var(--input-error) !important;
+    background-color: var(--danger-light) !important;
+}

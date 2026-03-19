@@ -1,0 +1,151 @@
+/* src/modules/auth/auth.css */
+
+/* ---------- OVERLAY ---------- */
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* ---------- PAGE WRAPPER ---------- */
+
+.login-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  /* flex-direction: row; */
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter", sans-serif;
+  background: #ffffff;
+  padding: 20px;
+}
+
+/* ---------- LOGIN CARD ---------- */
+
+.login-card {
+  display: flex;
+  width: 85%;
+  max-width: 1000px;
+  min-height: 550px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* ---------- LEFT PANEL ---------- */
+
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.login-image {
+  width: 80%;
+  max-width: 350px;
+  height: auto;
+  margin-bottom: 30px;
+}
+
+/* ---------- RIGHT PANEL ---------- */
+
+.login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 360px;
+}
+
+/* ---------- HEADER ---------- */
+
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.login-subtitle {
+  color: #6c757d;
+  font-size: 14px;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ---------- FORGOT PASSWORD ---------- */
+
+.forgot-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.forgot-link {
+  cursor: pointer;
+  color: #2b5876;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+
+  .login-card {
+    flex-direction: column;
+    width: 95%;
+    min-height: auto;
+  }
+
+  .login-left {
+    padding: 30px 20px;
+  }
+
+  .login-right {
+    padding: 30px 20px;
+  }
+
+  .login-image {
+    width: 60%;
+    max-width: 250px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .login-image {
+    display: none;
+  }
+
+  .login-title {
+    font-size: 22px;
+  }
+
+}

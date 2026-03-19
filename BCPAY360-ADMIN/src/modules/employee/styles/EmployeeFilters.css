@@ -1,0 +1,93 @@
+/* ===============================
+   FILTER BAR
+================================ */
+.filters-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding: 12px 0;
+    margin-bottom: 8px;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+    animation: filterFade 0.35s ease;
+}
+
+@keyframes filterFade {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.filters-left,
+.filters-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+}
+
+/* ===============================
+   FILTER CHIPS
+================================ */
+.filter-chip {
+    padding: 6px 14px;
+    border-radius: 999px;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-secondary);
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+/* Hover */
+.filter-chip:hover {
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Active */
+.filter-chip.active {
+    background: var(--primary-light);
+    border-color: var(--primary-light);
+    color: var(--primary-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 820px) {
+    .filters-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .filters-left,
+    .filters-right {
+        flex-wrap: wrap;
+    }
+}

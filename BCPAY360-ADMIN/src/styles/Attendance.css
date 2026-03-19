@@ -1,0 +1,517 @@
+/* ==========================================================================
+   ATTENDANCE MODULE - MASTER STYLES
+   Description: Comprehensive styles for Header, Summary, Tables, and Exports.
+   Includes "Inline" focus for filters and row data.
+   ========================================================================== */
+
+/* 1. VARIABLES & DEFAULTS */
+:root {
+  --attendance-primary: #2563eb;
+  --attendance-primary-light: #eff6ff;
+  --attendance-success: #10b981;
+  --attendance-success-light: #ecfdf5;
+  --attendance-danger: #ef4444;
+  --attendance-danger-light: #fef2f2;
+  --attendance-warning: #f59e0b;
+  --attendance-warning-light: #fffbeb;
+  --attendance-info: #3b82f6;
+  --attendance-info-light: #eff6ff;
+  --attendance-slate: #64748b;
+  --attendance-gray-50: #f8fafc;
+  --attendance-gray-100: #f1f5f9;
+  --attendance-gray-200: #e2e8f0;
+  --attendance-gray-300: #cbd5e1;
+  --attendance-gray-700: #334155;
+  --attendance-gray-900: #0f172a;
+  --attendance-white: #ffffff;
+  --attendance-border: #d1d5db;
+}
+
+.attendance-container {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 2. ATTENDANCE SUMMARY (CARDS) */
+.stats-grid-premium {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.stat-card-premium {
+  background: var(--attendance-white);
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--attendance-gray-100);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  min-width: 160px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-content-premium {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label-premium {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--attendance-slate);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.stat-value-premium {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--attendance-gray-900);
+  line-height: 1.2;
+}
+
+/* Color Themes for Cards */
+.stat-card-premium.total .stat-icon-wrapper { background: var(--attendance-primary-light); color: var(--attendance-primary); }
+.stat-card-premium.active .stat-icon-wrapper { background: var(--attendance-success-light); color: var(--attendance-success); }
+.stat-card-premium.inactive .stat-icon-wrapper { background: var(--attendance-danger-light); color: var(--attendance-danger); }
+.stat-card-premium.purple .stat-icon-wrapper { background: #f5f3ff; color: #7c3aed; }
+.stat-card-premium.orange .stat-icon-wrapper { background: var(--attendance-warning-light); color: var(--attendance-warning); }
+.stat-card-premium.warning .stat-icon-wrapper { background: #fff7ed; color: #ea580c; }
+
+/* 3. ATTENDANCE HEADER (FILTERS) - Styles moved to AttendanceFilters.css 
+   to match Employee module pattern. */
+
+
+
+
+
+.monthly-range-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.monthly-range-form span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--attendance-slate);
+}
+
+/* 4. BUTTONS - MATCHING EMPLOYEE MODULE */
+.btn-reset,
+.btn-export-excel, 
+.btn-export-pdf {
+  height: 40px; /* Matching Employee height */
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px; /* Matching Employee radius */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+.btn-reset {
+  background: var(--attendance-white);
+  color: #64748b;
+  border: 1px solid var(--attendance-gray-200);
+}
+.btn-reset:hover {
+  background: var(--attendance-gray-50);
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.btn-export-excel { 
+  background: #10b981; 
+  color: var(--attendance-white); 
+  border-color: #10b981;
+}
+.btn-export-pdf { 
+  background: #ef4444; 
+  color: var(--attendance-white); 
+  border-color: #ef4444;
+}
+
+.btn-export-excel:hover { 
+  background: #059669; 
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+.btn-export-pdf:hover { 
+  background: #dc2626; 
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.attendance-mode-toggle {
+  display: flex;
+  background: var(--attendance-gray-100);
+  padding: 3px;
+  border-radius: 12px;
+  gap: 3px;
+  flex-shrink: 0;
+  height: 40px;
+  box-sizing: border-box;
+  align-items: center;
+}
+.mode-btn {
+  padding: 0 16px;
+  height: 32px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--attendance-slate);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mode-btn.active {
+  background: var(--attendance-white);
+  color: var(--attendance-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-history {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: var(--attendance-primary-light);
+  color: var(--attendance-primary);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-history:hover {
+  background: var(--attendance-primary);
+  color: var(--attendance-white);
+  transform: translateY(-1px);
+}
+
+.btn-back {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--attendance-slate);
+  background: var(--attendance-gray-50);
+  border: 1px solid var(--attendance-gray-200);
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+/* 5. ATTENDANCE TABLE STYLES */
+.attendance-table-container {
+  background: var(--attendance-white);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--attendance-gray-200);
+}
+
+.attendance-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.attendance-table th {
+  background: var(--attendance-gray-900);
+  color: var(--attendance-white);
+  padding: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.attendance-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--attendance-gray-100);
+  color: var(--attendance-gray-700);
+  vertical-align: middle;
+}
+
+.attendance-table tr:hover {
+  background-color: var(--attendance-gray-50);
+}
+
+.attendance-table tr.row-selected {
+  background-color: var(--attendance-primary-light);
+}
+
+/* INLINE ROW CELLS - REVERTED TO VERTICAL STACK PER REQUEST */
+.attendance-avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--attendance-gray-200);
+}
+
+.employee-info {
+  display: flex;
+  flex-direction: column; /* Stacked: Name on top, ID below */
+  gap: 2px;
+  line-height: 1.25;
+}
+.employee-name {
+  font-weight: 600;
+  color: var(--attendance-gray-900);
+  white-space: nowrap;
+  font-size: 13px;
+}
+.employee-code {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b; /* var(--text-secondary) */
+}
+
+.shift-cell {
+  display: flex;
+  flex-direction: column; /* Stacked: Shift name on top, Timing below */
+  gap: 2px;
+  line-height: 1.25;
+}
+.shift-cell span {
+  font-weight: 600;
+  color: var(--attendance-gray-900);
+  font-size: 13px;
+}
+.shift-cell small {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+}
+.shift-cell small::before {
+  display: none; /* Removed the dot separator */
+}
+
+
+/* 6. STATUS BADGES */
+.status-badge {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+.status-badge.present { background: var(--attendance-success-light); color: var(--attendance-success); }
+.status-badge.checked_in { background: #fef9c3; color: #854d0e; }
+.status-badge.unmarked { background: var(--attendance-gray-100); color: var(--attendance-slate); }
+.status-badge.absent { background: var(--attendance-danger-light); color: var(--attendance-danger); }
+
+/* 7. FOOTER & PAGINATION */
+.table-footer {
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--attendance-gray-50);
+  border-top: 1px solid var(--attendance-gray-200);
+}
+
+.footer-left {
+  font-size: 12px;
+  color: var(--attendance-slate);
+  font-weight: 500;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--attendance-gray-300);
+  background: var(--attendance-white);
+  color: var(--attendance-slate);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.pagination button:hover:not(:disabled) {
+  border-color: var(--attendance-primary);
+  color: var(--attendance-primary);
+  background: var(--attendance-primary-light);
+}
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--attendance-gray-900);
+  padding: 0 4px;
+}
+
+/* 10. HISTORY DRAWER STYLES */
+.history-drawer {
+  padding: 24px;
+  background: var(--attendance-white);
+  min-height: 100%;
+}
+
+.history-header-new {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.profile-section {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.employee-avatar-large {
+  width: 86px;
+  height: 86px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 4px solid var(--attendance-gray-50);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.status-pill-floating {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 100px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.status-pill-floating.pill-active { background: #22c55e; color: white; }
+.status-pill-floating.pill-inactive { background: #94a3b8; color: white; }
+
+.profile-info-main h2 {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--attendance-gray-900);
+}
+
+.code-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--attendance-gray-100);
+  color: var(--attendance-slate);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.quick-meta {
+  display: flex;
+  gap: 18px; /* Fixed: Added gap to prevent Dept/Shift crowding */
+  font-size: 13px;
+  color: var(--attendance-gray-700);
+}
+.quick-meta span strong {
+  color: var(--attendance-slate);
+  margin-right: 4px;
+}
+
+.history-controls {
+  flex-shrink: 0;
+}
+
+.filter-card {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.history-table-wrapper {
+  background: var(--attendance-white);
+  border-radius: 16px;
+  border: 1px solid var(--attendance-gray-200);
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+/* RESPONSIVE QUERIES */
+@media (max-width: 1024px) {
+  .attendance-header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .history-header-new {
+    flex-direction: column;
+  }
+  .stat-card-premium {
+    min-width: calc(50% - 12px);
+  }
+}

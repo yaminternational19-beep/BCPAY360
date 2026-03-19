@@ -1,0 +1,613 @@
+/* =====================================================
+   HRIS ADMIN - GLOBAL THEME SYSTEM
+   SINGLE SOURCE OF TRUTH FOR ALL COLORS & DESIGN TOKENS
+   ===================================================== */
+
+/* =====================================================
+   DO NOT DEFINE COLORS IN ANY OTHER FILE
+   All components must use var(--...) references
+   ===================================================== */
+
+:root {
+    /* ===============================
+     CORE BACKGROUNDS
+     =============================== */
+    --bg-page: #ffffff;
+    /* Main page background (Slate-50) */
+    --bg-card: #ffffff;
+    /* Card/panel background */
+    --bg-muted: #f1f5f9;
+    /* Muted background (Slate-100) */
+    --bg-hover: #f8fafc;
+    /* Hover state background */
+    --bg-glass: rgba(255, 255, 255, 0.07);
+    /* Glass morphism */
+    --bg-dark: #020617;
+    /* Dark background (Slate-950) */
+    --bg-input: rgba(2, 6, 23, 0.7);
+    /* Input background (dark mode - used by login) */
+    --input-bg: #ffffff;
+    /* Standard Input background (light mode) */
+
+    /* ===============================
+     BRAND COLORS
+     =============================== */
+    --primary: #2563eb;
+    /* Primary brand color (Blue-600) */
+    --primary-hover: #1d4ed8;
+    /* Primary hover (Blue-700) */
+    --primary-light: #eff6ff;
+    /* Primary light background (Blue-50) */
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #a855f7 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #9333ea 100%);
+
+    --secondary: #64748b;
+    /* Secondary color (Slate-500) */
+    --secondary-hover: #475569;
+    /* Secondary hover (Slate-600) */
+
+    /* ===============================
+     TEXT COLORS
+     =============================== */
+    --text-primary: #0f172a;
+    /* Primary text (Slate-900) */
+    --text-secondary: #334155;
+    /* Secondary text (Slate-700) */
+    --text-muted: #64748b;
+    /* Muted text (Slate-500) */
+    --text-dim: #94a3b8;
+    /* Dim text (Slate-400) */
+    --text-inverse: #ffffff;
+    /* White text for dark backgrounds */
+    --text-disabled: #cbd5e1;
+    /* Disabled text (Slate-300) */
+    --text-on-primary: #7383c2;
+    /* Text on primary background */
+
+    /* ===============================
+     BORDER COLORS
+     =============================== */
+    --border-default: #e2e8f0;
+    /* Default border (Slate-200) */
+    --border-light: rgba(255, 255, 255, 0.08);
+    /* Light border for dark mode */
+    --border-hover: rgba(99, 102, 241, 0.3);
+    /* Hover border */
+    --border-focus: #2563eb;
+    /* Focus border (same as primary) */
+    --border-error: #ef4444;
+    /* Error border */
+    --border-success: #16a34a;
+    /* Success border */
+    --border-glass: 1px solid rgba(99, 102, 241, 0.25);
+
+    /* ===============================
+     STATUS COLORS
+     =============================== */
+    --success: #16a34a;
+    /* Success green (Green-600) */
+    --success-bg: #ecfdf5;
+    /* Success background (Green-50) */
+    --success-hover: #15803d;
+    /* Success hover (Green-700) */
+
+    --warning: #f59e0b;
+    /* Warning amber (Amber-500) */
+    --warning-bg: #fffbeb;
+    /* Warning background (Amber-50) */
+    --warning-hover: #d97706;
+    /* Warning hover (Amber-600) */
+
+    --danger: #ef4444;
+    /* Danger red (Red-500) */
+    --danger-bg: #fef2f2;
+    /* Danger background (Red-50) */
+    --danger-hover: #dc2626;
+    /* Danger hover (Red-600) */
+    --danger-light: #fef2f2;
+    /* Danger light (Red-50) */
+
+    --info: #0284c7;
+    /* Info blue (Sky-600) */
+    --info-bg: #f0f9ff;
+    /* Info background (Sky-50) */
+
+    /* ===============================
+     BUTTON SYSTEM
+     =============================== */
+    --btn-primary-bg: var(--primary);
+    --btn-primary-text: var(--text-inverse);
+    --btn-primary-hover: var(--primary-hover);
+
+    --btn-secondary-bg: var(--secondary);
+    --btn-secondary-text: var(--text-inverse);
+    --btn-secondary-hover: var(--secondary-hover);
+
+    --btn-ghost-bg: transparent;
+    --btn-ghost-text: var(--text-primary);
+    --btn-ghost-border: var(--border-default);
+    --btn-ghost-hover-bg: rgba(99, 102, 241, 0.08);
+
+    --btn-danger-bg: var(--danger);
+    --btn-danger-text: var(--text-inverse);
+    --btn-danger-hover: var(--danger-hover);
+
+    /* ===============================
+     INPUT SYSTEM
+     =============================== */
+    /* --input-bg is defined above with CORE BACKGROUNDS */
+    --input-border: var(--border-default);
+    --input-focus: var(--primary);
+    --input-error: var(--danger);
+    --input-disabled-bg: #f9fafb;
+    --input-disabled-text: var(--text-muted);
+    --input-placeholder: #64748b;
+
+    /* ===============================
+     SHADOWS
+     =============================== */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-primary: 0 8px 24px rgba(99, 102, 241, 0.2);
+    --shadow-primary-hover: 0 10px 28px rgba(99, 102, 241, 0.25);
+    --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.4);
+    --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    /* ===============================
+     SPACING SYSTEM
+     =============================== */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* ===============================
+     TYPOGRAPHY
+     =============================== */
+    --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+
+    --text-xs: 12px;
+    --text-sm: 13px;
+    --text-base: 14px;
+    --text-lg: 16px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 32px;
+
+    --weight-regular: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+    --weight-extrabold: 800;
+
+    /* ===============================
+     BORDER RADIUS
+     =============================== */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* ===============================
+     TRANSITIONS
+     =============================== */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.2s ease;
+    --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ===============================
+     DIMENSIONS
+     =============================== */
+    --header-height: 64px;
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+
+    /* ===============================
+     EFFECTS
+     =============================== */
+    --glass-blur: blur(26px);
+}
+
+/* =====================================================
+   GLOBAL RESET & BASE STYLES
+   ===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-primary);
+    color: var(--text-primary);
+    background: var(--bg-page);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =====================================================
+   STANDARDIZED BUTTON SYSTEM
+   All buttons must use these classes
+   ===================================================== */
+
+.btn-primary {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: 1px solid var(--btn-primary-bg);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: var(--font-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--btn-secondary-bg);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: var(--font-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--btn-secondary-hover);
+    border-color: var(--btn-secondary-hover);
+}
+
+.btn-ghost {
+    background: var(--btn-ghost-bg);
+    color: var(--btn-ghost-text);
+    border: 1px solid var(--btn-ghost-border);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: var(--font-primary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--btn-ghost-hover-bg);
+    border-color: var(--border-hover);
+}
+
+.btn-danger {
+    background: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+    border: 1px solid var(--btn-danger-bg);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: var(--font-primary);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--btn-danger-hover);
+    border-color: var(--btn-danger-hover);
+}
+
+/* =====================================================
+   STANDARDIZED INPUT SYSTEM
+   ===================================================== */
+
+.input-field,
+input[type="text"]:not(.custom),
+input[type="email"]:not(.custom),
+input[type="password"]:not(.custom),
+input[type="number"]:not(.custom),
+input[type="date"]:not(.custom),
+input[type="tel"]:not(.custom),
+select:not(.custom),
+textarea:not(.custom) {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    background-color: var(--input-bg);
+    transition: all var(--transition-normal);
+    font-family: var(--font-primary);
+}
+
+.input-field:focus,
+input:not(.custom):focus,
+select:not(.custom):focus,
+textarea:not(.custom):focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-field::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: var(--input-placeholder);
+}
+
+.input-field:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: var(--input-disabled-bg);
+    color: var(--input-disabled-text);
+    cursor: not-allowed;
+}
+
+.input-field.error,
+input.error,
+select.error,
+textarea.error {
+    border-color: var(--input-error);
+    background-color: var(--danger-light);
+}
+
+/* =====================================================
+   UTILITY CLASSES
+   ===================================================== */
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-inverse {
+    color: var(--text-inverse);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+.text-info {
+    color: var(--info);
+}
+
+.bg-page {
+    background: var(--bg-page);
+}
+
+.bg-card {
+    background: var(--bg-card);
+}
+
+.bg-muted {
+    background: var(--bg-muted);
+}
+
+.bg-primary {
+    background: var(--primary);
+}
+
+.bg-success {
+    background: var(--success-bg);
+}
+
+.bg-warning {
+    background: var(--warning-bg);
+}
+
+.bg-danger {
+    background: var(--danger-bg);
+}
+
+.bg-info {
+    background: var(--info-bg);
+}
+
+.border-default {
+    border: 1px solid var(--border-default);
+}
+
+.border-primary {
+    border: 1px solid var(--primary);
+}
+
+.border-error {
+    border: 1px solid var(--border-error);
+}
+
+.border-success {
+    border: 1px solid var(--border-success);
+}
+
+.shadow-sm {
+    box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+    box-shadow: var(--shadow-xl);
+}
+
+.rounded-sm {
+    border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+    border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+    border-radius: var(--radius-lg);
+}
+
+.rounded-xl {
+    border-radius: var(--radius-xl);
+}
+
+.rounded-full {
+    border-radius: var(--radius-full);
+}
+
+/* =====================================================
+   VALIDATION STYLES
+   ===================================================== */
+
+.error-border {
+    border-color: var(--border-error) !important;
+    background-color: var(--danger-light) !important;
+}
+
+.error-border:focus {
+    border-color: var(--border-error) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.error-text {
+    color: var(--danger);
+    font-size: var(--text-sm);
+    margin-top: 0.25rem;
+    display: block;
+    font-weight: var(--weight-medium);
+}
+
+.success-text {
+    color: var(--success);
+    font-size: var(--text-sm);
+    margin-top: 0.25rem;
+    display: block;
+    font-weight: var(--weight-medium);
+}
+
+/* =====================================================
+   ANIMATIONS
+   ===================================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE UTILITIES
+   ===================================================== */
+
+@media (max-width: 768px) {
+    :root {
+        --text-base: 13px;
+        --text-lg: 15px;
+        --text-xl: 18px;
+        --text-2xl: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --space-md: 12px;
+        --space-lg: 20px;
+        --space-xl: 28px;
+    }
+}
+
+/* =====================================================
+   ACCESSIBILITY
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}

@@ -1,0 +1,301 @@
+/* =====================================================
+   HP PERMISSIONS – MODERN PREMIUM DESIGN (Isolated)
+   ===================================================== */
+
+:root {
+    --hp-primary: #6366f1;
+    --hp-primary-dark: #4f46e5;
+    --hp-bg: #f8fafc;
+    --hp-card: #ffffff;
+    --hp-border: #e2e8f0;
+    --hp-text-main: #0f172a;
+    --hp-text-muted: #64748b;
+    --hp-success: #10b981;
+    --hp-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --hp-radius: 12px;
+}
+
+.hp-permissions-container {
+    min-height: 100vh;
+    background-color: var(--hp-bg);
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--hp-text-main);
+}
+
+/* Header Section */
+.hp-header-section {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.hp-back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--hp-border);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--hp-text-muted);
+}
+
+.hp-back-btn:hover {
+    background: var(--hp-primary);
+    color: white;
+    border-color: var(--hp-primary);
+    transform: translateX(-4px);
+}
+
+.hp-title-group h2 {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+.hp-title-group p {
+    margin: 0.25rem 0 0;
+    color: var(--hp-text-muted);
+}
+
+/* Meta Card */
+.hp-meta-card {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    background: white;
+    padding: 1.25rem 2rem;
+    border-radius: var(--hp-radius);
+    border: 1px solid var(--hp-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--hp-shadow);
+}
+
+.hp-meta-info {
+    display: flex;
+    gap: 2rem;
+}
+
+.hp-meta-info span {
+    color: var(--hp-text-muted);
+    font-size: 0.9rem;
+}
+
+.hp-meta-info strong {
+    color: var(--hp-text-main);
+    margin-left: 0.5rem;
+}
+
+.hp-select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--hp-primary);
+    padding: 0.5rem 1rem;
+    background: #eef2ff;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.hp-select-all-label:hover {
+    background: #e0e7ff;
+}
+
+/* Permissions Grid */
+.hp-permissions-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+}
+
+.hp-group-card {
+    background: white;
+    border-radius: var(--hp-radius);
+    border: 1px solid var(--hp-border);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.hp-group-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.hp-group-header {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--hp-border);
+}
+
+.hp-group-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--hp-text-main);
+}
+
+.hp-items-list {
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hp-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.95rem;
+}
+
+.hp-item:hover {
+    background: #f1f5f9;
+}
+
+.hp-item.active {
+    background: #f0fdf4;
+    color: #166534;
+}
+
+/* Premium Checkbox Reset */
+.hp-permissions-container input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--hp-border);
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.hp-permissions-container input[type="checkbox"]:checked {
+    background: var(--hp-primary);
+    border-color: var(--hp-primary);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.hp-permissions-container input[type="checkbox"]:checked::after,
+.hp-permissions-container input[type="checkbox"]:indeterminate::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.hp-permissions-container input[type="checkbox"]:indeterminate {
+    background: var(--hp-primary);
+    border-color: var(--hp-primary);
+}
+
+.hp-permissions-container input[type="checkbox"]:indeterminate::after {
+    content: '—';
+    font-size: 16px;
+}
+
+.hp-permissions-container input[type="checkbox"]:hover {
+    border-color: var(--hp-primary);
+    transform: scale(1.1);
+}
+
+/* Footer Actions */
+.hp-footer-actions {
+    max-width: 1200px;
+    margin: 3rem auto 0;
+    display: flex;
+    justify-content: center;
+}
+
+.hp-btn-save {
+    background: var(--hp-primary);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 12px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+    transition: all 0.2s;
+}
+
+.hp-btn-save:hover:not(:disabled) {
+    background: var(--hp-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.hp-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--hp-text-muted);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hp-group-card {
+    animation: fadeIn 0.4s ease-out both;
+}
+
+@media (max-width: 640px) {
+    .hp-permissions-container {
+        padding: 1rem;
+    }
+
+    .hp-meta-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .hp-permissions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hp-btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+}

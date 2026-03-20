@@ -1,5 +1,6 @@
 import db from "../../config/db.js";
 import logger from "../../utils/logger.js";
+import { getS3SignedUrl } from "../../utils/s3.util.js";
 
 const MODULE_NAME = "ADMIN_DASHBOARD_CONTROLLER";
 
@@ -42,7 +43,7 @@ export const getDashboard = async (req, res) => {
 
       // Company
       db.query(
-        `SELECT id, company_name AS name FROM companies WHERE id = ?`,
+        `SELECT id, company_name AS name, logo_url FROM companies WHERE id = ?`,
         [company_id]
       ),
 
@@ -185,8 +186,8 @@ export const getDashboard = async (req, res) => {
 
       const [[attendanceAgg]] = await db.query(`
         SELECT
-          SUM(status NOT IN ('ABSENT','NOT_STARTED')) AS present,
-          SUM(status='ABSENT') AS absent
+          SUM(attendance_status IN ('PRESENT', 'HALF_DAY')) AS present,
+          SUM(attendance_status = 'ABSENT') AS absent
         FROM attendance a
         JOIN employees e ON e.id = a.employee_id
         WHERE e.company_id = ?
@@ -245,12 +246,12 @@ export const getDashboard = async (req, res) => {
 
     /* ================= RESPONSE (UNCHANGED STRUCTURE) ================= */
 
-    res.json({
+    const response = {
       success: true,
       company: {
         id: company.id,
         name: company.name,
-        logo_url: null
+        logo_url: company.logo_url
       },
       logged_in: { role, user_id },
       period,
@@ -287,7 +288,21 @@ export const getDashboard = async (req, res) => {
         }
       },
       branch_breakdown: branchBreakdown
-    });
+    };
+
+    // Generate signed URL if logo exists
+    if (company.logo_url && company.logo_url.includes("s3.amazonaws.com")) {
+      try {
+        const urlObj = new URL(company.logo_url);
+        const key = urlObj.pathname.substring(1);
+        const signed = await getS3SignedUrl(key);
+        if (signed) response.company.logo_url = signed;
+      } catch (err) {
+        // keep original
+      }
+    }
+
+    res.json(response);
 
   } catch (err) {
     logger.error(MODULE_NAME, "Dashboard failed", err);

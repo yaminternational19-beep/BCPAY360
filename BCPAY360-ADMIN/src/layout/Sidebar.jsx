@@ -28,6 +28,7 @@ import {
   FaHardHat,
   FaIndustry,
   FaHandHoldingUsd,
+  FaUser,
 } from "react-icons/fa";
 import "../styles/Sidebar.css";
 import { FORMS_CONFIG } from "../modules/forms/config/forms.config";
@@ -56,6 +57,7 @@ const VALID_ROUTES = [
   "help-support",
   "faq",
   "manage-broadcast",
+  "profile",
 ];
 
 const FORM_ICONS = {

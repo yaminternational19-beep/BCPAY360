@@ -105,14 +105,17 @@ ORDER BY attendance_date
     /* ---------------------------------
        3️⃣ TODAY ATTENDANCE SHAPE
     --------------------------------- */
-    const formatTime = (val) => {
+    const formatToRawTime = (val) => {
       if (!val) return null;
       const d = new Date(val);
+      // If it's already a time string "HH:MM:SS", return it
+      if (typeof val === 'string' && val.includes(':') && !val.includes('-')) return val;
       if (isNaN(d.getTime())) return val;
-      const h = d.getHours();
+      
+      const h = String(d.getHours()).padStart(2, "0");
       const m = String(d.getMinutes()).padStart(2, "0");
-      const ampm = h >= 12 ? "PM" : "AM";
-      return `${h % 12 || 12}:${m} ${ampm}`;
+      const s = String(d.getSeconds()).padStart(2, "0");
+      return `${h}:${m}:${s}`;
     };
 
     const todayAttendance = attendance
@@ -120,8 +123,8 @@ ORDER BY attendance_date
         attendance_id: attendance.id,
         date: attendance.attendance_date,
         status: attendance.status,
-        check_in_time: formatTime(attendance.check_in_time),
-        check_out_time: formatTime(attendance.check_out_time),
+        check_in_time: formatToRawTime(attendance.check_in_time),
+        check_out_time: formatToRawTime(attendance.check_out_time),
         shift_start: attendance.shift_start,
         shift_end: attendance.shift_end,
         worked_minutes: attendance.worked_minutes,

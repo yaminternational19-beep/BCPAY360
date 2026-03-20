@@ -74,11 +74,11 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
 
       // 🔥 REMOVED TOAST HERE (So no interruption)
 
-      if (flow === "forgot") {
+        if (flow === "forgot") {
         toast.success("Verified! Please set new password."); // Keep for forgot flow
         setShowReset(true); 
       } else {
-        onOtpVerified?.(response.data.token); // Instant callback
+        onOtpVerified?.(response.data); // Instant callback with full data
       }
     } catch (error) {
       setIsError(true);

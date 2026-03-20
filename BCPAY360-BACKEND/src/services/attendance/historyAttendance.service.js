@@ -1,5 +1,5 @@
 import db from "../../config/db.js";
-import { getS3SignedUrl } from "../../utils/s3.util.js";
+import { getS3SignedUrl, signFullUrl } from "../../utils/s3.util.js";
 
 export const getHistoryAttendance = async ({
   companyId,
@@ -192,9 +192,7 @@ export const getHistoryAttendance = async ({
       id: employee.id,
       code: employee.employee_code,
       name: employee.full_name,
-      profile_photo_url: employee.profile_photo_url
-        ? await getS3SignedUrl(employee.profile_photo_url)
-        : null,
+      profile_photo_url: await signFullUrl(employee.profile_photo_url),
       department: employee.department || "-",
       designation: employee.designation || "-",
       shift: employee.shift_name || "-",

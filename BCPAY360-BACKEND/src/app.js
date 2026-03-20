@@ -32,6 +32,7 @@ import generatedocs from "./routes/admin/generateDocs.routes.js";
 import adminFormsRoutes from "./routes/admin/adminForms.routes.js";
 import holidays from "./routes/admin/holidays.route.js";
 import dashboardRoutes from "./routes/admin/dashboard.routes.js";
+import companyAdminProfileRoutes from "./routes/admin/company.routes.js";
 
 /* --- EMPLOYEE MODULE ROUTES --- */
 import employeeAuthRoutes from "./routes/employee/employeeAuth.routes.js";
@@ -79,7 +80,10 @@ const allowedOrigins = [
   // Production
   "http://13.51.196.99",
   "http://bcpay360.auby.in",
-  "https://bcpay360.auby.in"
+  "https://bcpay360.auby.in",
+
+  "http://bcpay360.com",
+  "https://bcpay360.com"
 ];
 
 app.use(
@@ -194,6 +198,7 @@ app.use("/api/admin", helpsupport);
 app.use("/api/admin", FandQ);
 app.use("/api/admin", broadcastRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin/company-profile", companyAdminProfileRoutes);
 
 /* --- EMPLOYEE MODULE --- */
 app.use("/api/employee/auth", employeeAuthRoutes);

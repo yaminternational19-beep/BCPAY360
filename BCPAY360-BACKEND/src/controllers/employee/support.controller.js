@@ -184,7 +184,16 @@ export const getContactInformation = async (req, res) => {
       });
     }
 
-    const content = JSON.parse(page.content);
+    let content;
+    try {
+      content = JSON.parse(page.content);
+    } catch (e) {
+      logger.warn(MODULE_NAME, "Contact page is not valid JSON, returning empty contacts", { company_id });
+      return res.json({
+        success: true,
+        contacts: { hr: [], admin: [] }
+      });
+    }
 
     const hrContacts = (content.hr || [])
       .filter(c => Number(c.branch_id) === branch_id)

@@ -265,14 +265,45 @@ export const getEmployeeByIdService = async (id, company_id) => {
   // Sign profile photo
   row.profile_photo_url = await signUrl(row.profile_photo_url);
 
-  const [documents] = await db.query(`SELECT * FROM ${TABLES.EMPLOYEE_DOCUMENTS} WHERE employee_id = ?`, [id]);
+  // 1. Core Documents (Personal/Statutory)
+  const [documents] = await db.query(
+    `SELECT ed.*, cd.document_name 
+     FROM ${TABLES.EMPLOYEE_DOCUMENTS} ed
+     LEFT JOIN ${TABLES.COMPANY_DOCUMENTS} cd ON cd.document_code = ed.document_type
+     WHERE ed.employee_id = ?`, 
+    [id]
+  );
   
-  // Sign documents
+  // Sign core documents
   for (const doc of documents) {
     doc.file_url = await signUrl(doc.file_url);
+    // Use friendly name if available
+    if (doc.document_name) {
+      doc.friendly_name = doc.document_name;
+    }
   }
 
-  return { employee: row, documents };
+  // 2. Periodic Form Documents (FY/MONTH based)
+  let [formDocs] = await db.query(
+    `SELECT * FROM ${TABLES.EMPLOYEE_FORM_DOCUMENTS} WHERE employee_id = ?`, 
+    [id]
+  );
+
+  // Sign form documents
+  for (const doc of formDocs) {
+    if (doc.storage_object_key) {
+      doc.view_url = await getS3SignedUrl(doc.storage_object_key, SIGNED_URL_TTL, INLINE);
+    } else if (doc.file_url) {
+      doc.view_url = await signUrl(doc.file_url);
+    }
+    doc.download_url = doc.view_url;
+  }
+
+  return { 
+    employee: row, 
+    upload: documents, // user specifically called this 'upload'
+    form_documents: formDocs 
+  };
 };
 
 /**

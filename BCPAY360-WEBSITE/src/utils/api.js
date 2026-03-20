@@ -1,8 +1,8 @@
 import axios from "axios";
 
 // 🔥 Read the variable from .env (Vite uses import.meta.env)
-// If the .env is missing, it falls back to the hardcoded string
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api/employee";
+export const BASE_ROOT = BASE_URL.replace("/employee", "");
 
 const api = axios.create({
   baseURL: BASE_URL,

@@ -58,6 +58,23 @@ export const getS3SignedUrl = async (key, expiresIn = 3600) => {
 };
 
 /**
+ * Higher-level helper that signs a URL if it's stored as a full URL
+ */
+export const signFullUrl = async (storedUrl, expiresIn = 3600) => {
+    if (!storedUrl) return null;
+    try {
+        // Handle both full URLs and raw keys
+        // Extract key from https://bucket.s3.region.amazonaws.com/key
+        const parts = storedUrl.split('.com/');
+        const key = parts.length > 1 ? parts[1] : storedUrl;
+        
+        return await getS3SignedUrl(key, expiresIn);
+    } catch (err) {
+        return storedUrl;
+    }
+};
+
+/**
  * Get raw file buffer from S3
  */
 export const getS3Object = async (key) => {

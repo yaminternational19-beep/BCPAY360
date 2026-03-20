@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdInfoOutline } from "react-icons/md";
 import colors from "../../styles/colors";
+import { BASE_ROOT } from "../../utils/api";
 
-const SupportGrid = ({ isDarkTheme }) => {
+const SupportGrid = ({ isDarkTheme, companyId: propCompanyId }) => {
   const navigate = useNavigate();
   const [contentData, setContentData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -12,13 +13,26 @@ const SupportGrid = ({ isDarkTheme }) => {
     const fetchContent = async () => {
       setLoading(true);
       try {
+        const userStr = localStorage.getItem("user");
+        const user = userStr ? JSON.parse(userStr) : {};
+        
+        // 🔥 Use prop first, then state
+        const companyId = propCompanyId || user.company_id || user.companyId || user.id;
+
+        if (!companyId) return;
+
         const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
-        const response = await fetch("http://13.51.196.99:5000/api/public/content?company_id=1", {
+
+        const url = `${BASE_ROOT}/public/content?company_id=${companyId}`;
+        console.log("SupportGrid: Fetching from URL:", url);
+
+        const response = await fetch(url, {
           method: "GET",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
         });
 
         const data = await response.json();
+        console.log("SupportGrid: API Response Data:", data);
         if (data.success) {
           setContentData(data.content_arr || []);
         }
@@ -29,7 +43,7 @@ const SupportGrid = ({ isDarkTheme }) => {
       }
     };
     fetchContent();
-  }, []);
+  }, [propCompanyId]);
 
   const theme = {
     text: isDarkTheme ? colors.textLight : colors.textMain,

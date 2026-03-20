@@ -9,21 +9,21 @@ const StaticContent = ({ data, slug, isDarkTheme, loading }) => {
 
   if (loading) return <div style={{ color: theme.muted, padding: "20px", textAlign: "center" }}>Loading content...</div>;
 
-  // 🔥 ID backup for 100% accurate matching
-  const slugMap = {
-    "about-us": 1,
-    "terms-conditions": 2,
-    "privacy-policy": 3
-  };
-
-  const item = data.find(c => 
-    (c.content_url && c.content_url.includes(slug)) || 
-    c.content_id === slugMap[slug]
-  );
+  // 🔥 Case-insensitive Slug Match (Robust)
+  const item = data.find(c => c.slug && c.slug.toLowerCase() === (slug || "").toLowerCase());
   
-  const textContent = item ? item.content : null;
+  if (!item) {
+    if (data.length > 0) {
+      console.warn("StaticContent: Page Slug not found in data. Data provided:", data);
+      return <div style={{ color: theme.muted, padding: "20px", textAlign: "center" }}>Page not discovered. Contact Support.</div>;
+    }
+    return <div style={{ color: theme.muted, padding: "20px", textAlign: "center" }}>No content found for this company.</div>;
+  }
 
-  if (!textContent) return <div style={{ color: theme.muted, padding: "20px", textAlign: "center" }}>Content not available.</div>;
+  const textContent = item.content;
+
+  // 🔥 Flexible HTML vs PlainText renderer
+  const isHtml = /<[a-z][\s\S]*>/i.test(textContent);
 
   return (
     <div
@@ -31,11 +31,12 @@ const StaticContent = ({ data, slug, isDarkTheme, loading }) => {
         color: theme.text,
         whiteSpace: "pre-wrap", 
         lineHeight: "1.6",
-        padding: "10px"
+        padding: "10px",
+        overflow: "hidden"
       }}
-      dangerouslySetInnerHTML={/<[a-z][\s\S]*>/i.test(textContent) ? { __html: textContent } : undefined}
+      dangerouslySetInnerHTML={isHtml ? { __html: textContent } : undefined}
     >
-      {!/<[a-z][\s\S]*>/i.test(textContent) ? textContent : null}
+      {!isHtml ? textContent : null}
     </div>
   );
 };

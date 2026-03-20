@@ -43,6 +43,8 @@ export const getPublicContentAll = async (req, res) => {
 
   try {
     const { company_id, slug } = req.query;
+    // 🔥 DEBUG LOG
+    logger.info(MODULE_NAME, `Fetching public content for company_id: ${company_id}`, { slug });
 
     if (!company_id) {
       return res.status(400).json({
@@ -66,6 +68,7 @@ export const getPublicContentAll = async (req, res) => {
       );
 
       if (!rows.length) {
+        logger.warn(MODULE_NAME, `Page not found for company_id: ${company_id}, slug: ${slug}`);
         return res.status(404).json({
           success: false,
           message: ["Page not found"]
@@ -91,8 +94,13 @@ export const getPublicContentAll = async (req, res) => {
       [company_id]
     );
 
+    if (!rows.length) {
+      logger.warn(MODULE_NAME, `No public content found for company_id: ${company_id}`);
+    }
+
     const content_arr = rows.map(row => ({
       content_id: row.id,
+      slug: row.slug, // 🔥 Added this
       content_type: row.content_type === "JSON" ? 2 : 1,
       content: processContent(row.content, row.content_type),
       content_url: `${req.protocol}://${req.get("host")}/api/public/content?company_id=${company_id}&slug=${row.slug}`,
@@ -101,7 +109,7 @@ export const getPublicContentAll = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Data Found Successfully",
+      message: rows.length ? "Data Found Successfully" : "No content configured",
       content_arr
     });
 

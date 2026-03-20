@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaBars, FaBell, FaSignOutAlt, FaUser } from "react-icons/fa";
 import "../styles/Navbar.css";
 import logo from "../assets/Logo.png";
 
 const Navbar = ({ user, onToggleSidebar, onLogout }) => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   // 🔹 Outside click handler
@@ -142,7 +144,12 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
                 <FaUser className="menu-icon" />
                 Profile
               </div> */}
-<div
+<button
+  type="button"
+  onClick={() => {
+    setOpen(false);
+    navigate("/profile");
+  }}
   style={{
     display: "flex",
     alignItems: "center",
@@ -150,7 +157,11 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
     borderRadius: "12px",
     fontSize: "15px",
     fontWeight: 700,
-    color: "#1e293b"
+    color: "#1e293b",
+    width: "100%",
+    border: "none",
+    background: "transparent",
+    cursor: "pointer"
   }}
 >
   {/* ICON CONTAINER */}
@@ -181,7 +192,7 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
   >
     <span style={{ lineHeight: 1 }}>Profile</span>
   </div>
-</div>
+</button>
 
               <div className="menu-divider" />
 

@@ -14,7 +14,20 @@ const getCurrentTime = () =>
   new Date().toLocaleTimeString("en-GB", { hour12: false });
 
 const timeToMinutes = (timeString) => {
-  const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  if (!timeString) return 0;
+  if (typeof timeString !== "string") {
+    // If it's a Date object or other, try to convert it
+    if (timeString instanceof Date) {
+      return timeString.getHours() * 60 + timeString.getMinutes() + timeString.getSeconds() / 60;
+    }
+    // Try to stringify and parse
+    timeString = String(timeString);
+  }
+  const parts = timeString.split(':');
+  if (parts.length < 2) return 0;
+  const hours = Number(parts[0]) || 0;
+  const minutes = Number(parts[1]) || 0;
+  const seconds = Number(parts[2]) || 0;
   return hours * 60 + minutes + seconds / 60;
 };
 
@@ -37,13 +50,15 @@ export const checkIn = async (req, res) => {
   try {
     const { latitude, longitude, device_type } = req.body;
     const employeeId = req.user.id;
-    const employeeCode = req.user.employee_code;
+    // req.user might not have employee_code if it wasn't in the JWT
+    // But it's needed for the audit logs (actually we use employeeId there)
+    const employeeCode = req.user.employee_code || "EMP_UNKNOWN";
     const ipAddress = req.ip || null;
 
     if (latitude == null || longitude == null) {
       return res.status(400).json({
         success: false,
-        message: "Latitude and longitude are required"
+        message: "Latitude and longitude are required for attendance tracking. Please enable location services."
       });
     }
 
@@ -87,7 +102,13 @@ export const checkIn = async (req, res) => {
     );
 
 
-    if (!emp) throw new Error("Shift not configured");
+    if (!emp) {
+      await conn.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Your shift is not configured. Please contact HR/Admin."
+      });
+    }
 
     if (today < emp.joining_date) {
       await conn.rollback();
@@ -100,16 +121,17 @@ export const checkIn = async (req, res) => {
     const nowMin = timeToMinutes(nowTime);
     const shiftStartMin = timeToMinutes(emp.shift_start);
 
-    /* 🚫 No early check-in */
-    if (nowMin < shiftStartMin) {
+    /* ⏱ Early check-in window: allow up to 60 minutes early */
+    const EARLY_CHECKIN_WINDOW = 60; 
+    if (nowMin < (shiftStartMin - EARLY_CHECKIN_WINDOW)) {
       await conn.rollback();
       return res.status(403).json({
         success: false,
-        message: "Check-in allowed only after shift start"
+        message: `Check-in allowed only within ${EARLY_CHECKIN_WINDOW} minutes of shift start`
       });
     }
 
-    /* ⏱ Late logic: after 30 mins only */
+    /* ⏱ Late logic: after 30 mins (or shift start) only */
     let status = "CHECKED_IN";
     if (nowMin > shiftStartMin + 30) {
       status = "LATE";
@@ -118,6 +140,9 @@ export const checkIn = async (req, res) => {
     let attendanceId;
 
     /* 3️⃣ Insert or update */
+    // Use full DATETIME instead of just TIME string
+    const nowDateTime = `${today} ${nowTime}`;
+    
     if (!rows.length) {
       const [result] = await conn.query(
         `INSERT INTO attendance (
@@ -139,7 +164,7 @@ export const checkIn = async (req, res) => {
           emp.branch_id,
           employeeId,
           today,
-          nowTime,
+          nowDateTime,
           emp.shift_id,
           latitude,
           longitude,
@@ -156,7 +181,7 @@ export const checkIn = async (req, res) => {
          SET check_in_time = ?, check_in_lat = ?, check_in_lng = ?,
              source = ?, attendance_status = 'PRESENT', is_late = ?, session_status = 'IN_PROGRESS'
          WHERE id = ? AND check_in_time IS NULL`,
-        [nowTime, latitude, longitude, source, status === "LATE" ? 1 : 0, attendanceId]
+        [nowDateTime, latitude, longitude, source, status === "LATE" ? 1 : 0, attendanceId]
       );
     }
 
@@ -170,7 +195,7 @@ export const checkIn = async (req, res) => {
         attendanceId,
         employeeId,
         source,
-        device_type?.toUpperCase() || "UNKNOWN",
+        (device_type?.toUpperCase() === "WEB" ? "DESKTOP" : device_type?.toUpperCase()) || "UNKNOWN",
         JSON.stringify({ check_in_time: nowTime, status }),
         ipAddress
       ]
@@ -192,13 +217,14 @@ export const checkIn = async (req, res) => {
     });
   } catch (err) {
     if (conn) await conn.rollback();
-    logger.error(MODULE_NAME, "Check-in failed", err);
+    logger.error(MODULE_NAME, "Check-in failed", { error: err.message, stack: err.stack, employee_id: req.user.id });
     return res.status(500).json({
       success: false,
-      message: "Unable to check in"
+      message: "Unable to check in. Please try again or contact support.",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined
     });
   } finally {
-    conn.release();
+    if (conn) conn.release();
   }
 };
 
@@ -229,10 +255,13 @@ export const checkOut = async (req, res) => {
 
     await conn.beginTransaction();
 
-    /* 1️⃣ Lock row */
+    /* 1️⃣ Lock row and Join with Shift for data */
     const [[att]] = await conn.query(
-      `SELECT * FROM attendance
-       WHERE employee_id = ? AND attendance_date = ?
+      `SELECT a.*, s.start_time AS shift_start, s.end_time AS shift_end,
+              s.min_half_day_minutes, s.min_full_day_minutes
+       FROM attendance a
+       JOIN shifts s ON s.id = a.shift_id
+       WHERE a.employee_id = ? AND a.attendance_date = ?
        FOR UPDATE`,
       [employeeId, today]
     );
@@ -253,11 +282,14 @@ export const checkOut = async (req, res) => {
       });
     }
 
-    /* 2️⃣ Worked minutes */
-    let workedMinutes =
-      Math.max(1, Math.floor(
-        timeToMinutes(nowTime) - timeToMinutes(att.check_in_time)
-      ));
+    /* 2️⃣ Worked minutes calculation */
+    const checkInTimeStr = att.check_in_time instanceof Date 
+      ? att.check_in_time.toLocaleTimeString("en-GB", { hour12: false }) 
+      : String(att.check_in_time);
+
+    let workedMinutes = Math.max(1, Math.floor(
+      timeToMinutes(nowTime) - timeToMinutes(checkInTimeStr)
+    ));
 
     if (workedMinutes < 0) workedMinutes += 1440;
 
@@ -297,6 +329,7 @@ export const checkOut = async (req, res) => {
     }
 
     /* 5️⃣ Update */
+    const nowDateTime = `${today} ${nowTime}`;
     await conn.query(
       `UPDATE attendance
        SET check_out_time = ?,
@@ -309,7 +342,7 @@ export const checkOut = async (req, res) => {
            session_status = 'COMPLETED'
        WHERE id = ?`,
       [
-        nowTime,
+        nowDateTime,
         workedMinutes,
         overtimeMinutes,
         latitude,
@@ -330,7 +363,7 @@ export const checkOut = async (req, res) => {
         att.id,
         employeeId,
         source,
-        device_type?.toUpperCase() || "UNKNOWN",
+        (device_type?.toUpperCase() === "WEB" ? "DESKTOP" : device_type?.toUpperCase()) || "UNKNOWN",
         JSON.stringify({
           check_out_time: nowTime,
           worked_minutes: workedMinutes,
@@ -464,8 +497,8 @@ export const getMyAttendance = async (req, res) => {
       SELECT
         id,
         DATE_FORMAT(attendance_date, '%Y-%m-%d') AS attendance_date,
-        DATE_FORMAT(check_in_time, '%l:%i %p') AS check_in_time,
-        DATE_FORMAT(check_out_time, '%l:%i %p') AS check_out_time,
+        DATE_FORMAT(check_in_time, '%H:%i:%S') AS check_in_time,
+        DATE_FORMAT(check_out_time, '%H:%i:%S') AS check_out_time,
         worked_minutes,
         overtime_minutes,
         CASE
@@ -611,8 +644,8 @@ const [recordsFromDB] = await db.query(
   `
   SELECT
     DATE_FORMAT(attendance_date, '%Y-%m-%d') AS attendance_date,
-    DATE_FORMAT(check_in_time, '%l:%i %p') AS check_in_time,
-    DATE_FORMAT(check_out_time, '%l:%i %p') AS check_out_time,
+    DATE_FORMAT(check_in_time, '%H:%i:%S') AS check_in_time,
+    DATE_FORMAT(check_out_time, '%H:%i:%S') AS check_out_time,
     worked_minutes,
     overtime_minutes,
     CASE

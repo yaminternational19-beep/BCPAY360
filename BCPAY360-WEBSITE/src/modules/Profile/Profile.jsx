@@ -57,6 +57,7 @@ const mapEmployeeData = (data) => {
     employeeId: data.employee_code || "—",
     joiningDate: data.joining_date ? new Date(data.joining_date).toLocaleDateString('en-GB') : "—",
     organisationName: data.company_name || "—",
+    company_id: data.company_id, // 🔥 Added this
     profilePhotoUrl: data.profile_photo_url || null,
     documents: mappedDocs
   };
@@ -80,6 +81,9 @@ const Profile = ({ isDarkTheme }) => {
       const res = await api.get("/profile");
       const data = res?.data?.employee;
       if (data) {
+        // 🔥 Refresh session with latest data (crucial for company_id sync)
+        localStorage.setItem("user", JSON.stringify(data));
+        
         const mappedData = mapEmployeeData(data);
         setEmployee(mappedData);
         setProfilePhoto(mappedData.profilePhotoUrl);
@@ -180,7 +184,7 @@ const Profile = ({ isDarkTheme }) => {
         </div>
       </div>
 
-      <SupportGrid isDarkTheme={isDarkTheme} />
+      <SupportGrid isDarkTheme={isDarkTheme} companyId={employee?.company_id} />
 
       {/* MODALS */}
       {showDocsListModal && <DocumentListModal theme={theme} docs={employee.documents} onClose={() => setShowDocsListModal(false)} onPreview={setPreviewDoc} isDarkTheme={isDarkTheme} />}

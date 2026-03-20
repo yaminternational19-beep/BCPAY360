@@ -6,7 +6,7 @@ export default defineConfig({
 
   server: {
     proxy: {
-      "/api": "http://13.51.196.99:5000/api/employee",
+      "/api": "http://localhost:5000/api/employee",
     },
   },
 

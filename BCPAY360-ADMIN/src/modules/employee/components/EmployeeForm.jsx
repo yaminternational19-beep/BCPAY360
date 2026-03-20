@@ -263,8 +263,12 @@ const EmployeeForm = ({ initial, onSave, onClose }) => {
 
   const dynamicDocuments = companyForms.filter(
     (f) =>
-      f.status === "ACTIVE" &&
-      !DEFAULT_DOCUMENTS.some((d) => d.form_code === f.form_code)
+      // Show if status is missing OR explicitly ACTIVE
+      (!f.status || f.status === "ACTIVE") &&
+      // Don't show if it's already in the hardcoded DEFAULT_DOCUMENTS list
+      !DEFAULT_DOCUMENTS.some(
+        (d) => String(d.form_code).trim().toLowerCase() === String(f.form_code).trim().toLowerCase()
+      )
   );
 
   const ALL_DOCUMENTS = [...DEFAULT_DOCUMENTS, ...dynamicDocuments];

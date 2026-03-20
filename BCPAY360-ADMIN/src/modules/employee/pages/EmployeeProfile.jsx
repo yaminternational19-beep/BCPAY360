@@ -106,11 +106,11 @@ const EmployeeProfile = () => {
         organization: res.organization || null,
         profile: res.profile || null,
         auth: res.auth || null,
-        documents: Array.isArray(res.documents) ? res.documents : [],
+        // The API now returns core documents in 'upload' and periodic ones in 'form_documents'
+        documents: Array.isArray(res.upload) ? res.upload : [],
         form_documents: Array.isArray(res.form_documents) ? res.form_documents : [],
-        companyForms: [], // No longer using dynamic forms here
-        generatedMap: (Array.isArray(res.documents) ? res.documents : []).reduce((acc, doc) => {
-          if (doc.form_code) acc[doc.form_code] = doc;
+        generatedMap: (Array.isArray(res.upload) ? res.upload : []).reduce((acc, doc) => {
+          if (doc.document_type) acc[doc.document_type] = doc;
           return acc;
         }, {})
       });
@@ -595,7 +595,7 @@ const EmployeeProfile = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
                         <FileText size={16} className="text-muted" />
                         <span style={{ fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {(doc.document_type || doc.type || "").replace(/_/g, " ")}
+                          {doc.friendly_name || (doc.document_type || doc.type || "").replace(/_/g, " ")}
                         </span>
                       </div>
                       <a

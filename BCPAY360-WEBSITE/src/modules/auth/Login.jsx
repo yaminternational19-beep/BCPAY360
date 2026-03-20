@@ -225,9 +225,10 @@ const Login = () => {
           employeeId={tempData?.employee_id}
           employeeCode={tempData?.employee_code || employeeId}
           onClose={() => setShowOtp(false)}
-          onOtpVerified={(token) => {
-            if (token) {
-              localStorage.setItem("authToken", token);
+          onOtpVerified={(data) => {
+            if (data?.token) {
+              localStorage.setItem("authToken", data.token);
+              localStorage.setItem("user", JSON.stringify(data.employee || {}));
               sessionStorage.setItem("showWelcomeToast", "true");
 
               setShowOtp(false);

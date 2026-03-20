@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
-import api from "../../utils/api";
+import api, { BASE_ROOT } from "../../utils/api";
 import colors from "../../styles/colors";
 
 import FAQs from "./FAQs"; // Ensure the path is correct based on your folder structure
@@ -21,7 +21,7 @@ const SupportPage = ({ isDarkTheme }) => {
   };
 
   const [contentData, setContentData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(activeTab.type === "Dynamic Content");
 
   useEffect(() => {
     // Sirf Dynamic content ke liye API call zaroori hai
@@ -29,13 +29,30 @@ const SupportPage = ({ isDarkTheme }) => {
       const fetchContent = async () => {
         setLoading(true);
         try {
+          const userStr = localStorage.getItem("user");
+          const userProfileStr = localStorage.getItem("userProfile"); // Backup
+          
+          const user = userStr ? JSON.parse(userStr) : {};
+          const profile = userProfileStr ? JSON.parse(userProfileStr) : {};
+          
+          const companyId = user.company_id || profile.company_id || user.id || 1;
+          
+          if (!companyId) return;
+
           const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
-          const response = await fetch("http://13.51.196.99:5000/api/public/content?company_id=1", {
+
+          console.log("SupportPage: Starting fetch for company_id:", companyId);
+          const response = await fetch(`${BASE_ROOT}/public/content?company_id=${companyId}`, {
             method: "GET",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+            headers: { 
+              "Content-Type": "application/json", 
+              "Authorization": `Bearer ${token}` 
+            }
           });
 
           const data = await response.json();
+          console.log("SupportPage: API Success:", data.success, "Items:", data.content_arr?.length);
+          
           if (data.success) {
             setContentData(data.content_arr || []);
           }
@@ -46,8 +63,10 @@ const SupportPage = ({ isDarkTheme }) => {
         }
       };
       fetchContent();
+    } else {
+      setLoading(false);
     }
-  }, [activeTab.type]);
+  }, [activeTab.type, activeTab.slug]);
 
   const theme = {
     bg: isDarkTheme ? colors.darkBg : colors.background,

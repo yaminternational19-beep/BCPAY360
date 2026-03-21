@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom"; // useNavigate hata diya hai kyunki hard reload best hai
 import {
   MdDashboard, 
@@ -15,6 +16,31 @@ import logo from "../../assets/images/AppLogo1.png";
 
 const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset }) => {
   const location = useLocation();
+  const [user, setUser] = useState({ companyName: "", companyLogo: null });
+
+  useEffect(() => {
+    const updateBranding = () => {
+      const storedUser = localStorage.getItem("userProfile");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setUser({
+          companyName: parsed.companyName || "BCPAY360",
+          companyLogo: parsed.companyLogo || logo
+        });
+      }
+    };
+
+    updateBranding();
+    // Listen for storage changes if other tabs/components update it
+    window.addEventListener("storage", updateBranding);
+    // Custom event check (optional but good for same-tab updates)
+    const interval = setInterval(updateBranding, 2000); 
+
+    return () => {
+      window.removeEventListener("storage", updateBranding);
+      clearInterval(interval);
+    };
+  }, []);
 
   const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: <MdDashboard size={22} /> },
@@ -65,22 +91,34 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset }) => {
             height: "72px",
             display: "flex",
             alignItems: "center",
-            padding: isOpen ? "0 20px" : "0", 
+            padding: isOpen ? "0 15px" : "0", 
             justifyContent: isOpen ? "flex-start" : "center",
             borderBottom: `1px solid #333333`,
             marginBottom: "10px",
             flexShrink: 0 
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", transition: "all 0.2s" }}>
-            <img src={logo} alt="logo" style={{ width: "30px", height: "30px", objectFit: "contain" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", transition: "all 0.2s", overflow: "hidden" }}>
+            <img 
+              src={user.companyLogo || logo} 
+              alt="logo" 
+              style={{ width: "32px", height: "32px", objectFit: "contain", flexShrink: 0 }} 
+            />
             {isOpen && (
-              <div style={{ lineHeight: "1.1" }}>
-                <span style={{ fontWeight: "800", fontSize: "14px", color: "#ffffff", display: "block" }}>
-                  BCPay
+              <div style={{ overflow: "hidden" }}>
+                <span style={{ 
+                  fontWeight: "800", 
+                  fontSize: "14px", 
+                  color: "#ffffff", 
+                  display: "block",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  width: "100%"
+                }}>
+                  {user.companyName || "BCPay 360"}
                 </span>
-                <span style={{ fontSize: "11px", fontWeight: "600", color: "#ffffff" }}>
-                  360
+                <span style={{ fontSize: "9px", fontWeight: "600", color: "#888", display: "block", marginTop: "-2px" }}>
+                  Employee Portal
                 </span>
               </div>
             )}

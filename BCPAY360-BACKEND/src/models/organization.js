@@ -400,15 +400,9 @@ const TABLES = [
 
 const initOrganization = async () => {
     try {
-        console.log("🚀 Starting organization tables initialization...");
-
         for (const table of TABLES) {
-            console.log(`   Initializing table: ${table.name}...`);
             await db.query(table.query);
-            console.log(`   ✅ ${table.name} is ready.`);
         }
-
-        console.log("✅ All organization tables are ready.");
         process.exit(0);
     } catch (error) {
         console.error("❌ Organization initialization failed:", error.message);

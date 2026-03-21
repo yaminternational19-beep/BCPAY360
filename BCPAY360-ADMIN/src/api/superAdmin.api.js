@@ -24,10 +24,11 @@ const request = async (url, options = {}) => {
 export const superAdminApi = {
     // Companies
     getCompanies: () => request("/api/companies"),
+    getCompanyById: (id) => request(`/api/companies/${id}`),
     createCompany: (data) => request("/api/companies", { method: "POST", body: JSON.stringify(data) }),
     getCompanySummary: (id) => request(`/api/super-admin/companies/${id}/summary`),
     getCompanyAdmins: (id) => request(`/api/super-admin/companies/${id}/admins`),
-    updateCompany: (id, data) => request(`/api/super-admin/companies/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    updateCompany: (id, data) => request(`/api/companies/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     toggleCompanyStatus: (id, isActive) => request(`/api/super-admin/companies/${id}/status`, {
         method: "PATCH",
         body: JSON.stringify({ is_active: isActive ? 1 : 0 })

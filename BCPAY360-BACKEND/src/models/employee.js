@@ -272,12 +272,9 @@ const TABLES = [
 
 const initEmployeeTables = async () => {
     try {
-        console.log("🚀 Starting employee tables initialization...");
         for (const table of TABLES) {
-            console.log(`   Initializing ${table.name}...`);
             await db.query(table.query);
         }
-        console.log("✅ All employee tables are ready.");
         process.exit(0);
     } catch (error) {
         console.error("❌ Initialization failed:", error.message);

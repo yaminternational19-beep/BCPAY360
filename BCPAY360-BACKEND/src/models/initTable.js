@@ -97,14 +97,9 @@ const TABLES = [
 
 const initDatabase = async () => {
     try {
-        console.log("🚀 Starting database initialization...");
-        
         for (const table of TABLES) {
-            console.log(`   Initializing ${table.name}...`);
             await db.query(table.query);
         }
-
-        console.log("✅ All tables are ready.");
         process.exit(0);
     } catch (error) {
         console.error("❌ Initialization failed:", error.message);

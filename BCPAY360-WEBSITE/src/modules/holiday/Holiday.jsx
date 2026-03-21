@@ -20,7 +20,6 @@ const Holiday = ({ isDarkTheme }) => {
       if (!res.data.success) throw new Error("API failed");
 
       const months = res.data.months;
-console.log("Fetched Holidays:", months); // Debug log
       const allHolidays = Object.entries(months).flatMap(([month, holidays]) =>
         holidays.map((h, index) => ({
           id: `${month}-${index}`,

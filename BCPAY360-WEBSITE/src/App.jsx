@@ -36,7 +36,6 @@ const App = () => {
         const id = await OneSignal.User.PushSubscription.id;
 
         if (id) {
-          console.log("OneSignal Player ID:", id);
           localStorage.setItem("onesignal_player_id", id);
         }
 
@@ -44,7 +43,6 @@ const App = () => {
           const newId = event?.current?.id;
 
           if (newId) {
-            console.log("Player ID updated:", newId);
             localStorage.setItem("onesignal_player_id", newId);
           }
         });

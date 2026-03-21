@@ -141,13 +141,9 @@ const TABLES = [
 
 const initLeaveTables = async () => {
   try {
-    console.log("🚀 Starting leave tables initialization...");
-
     for (const table of TABLES) {
-      console.log(`   Initializing ${table.name}...`);
       await db.query(table.query);
     }
-    console.log("✅ All leave tables are ready (Schema updated).");
     process.exit(0);
   } catch (error) {
     console.error("❌ Initialization failed:", error.message);

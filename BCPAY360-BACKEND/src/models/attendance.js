@@ -124,12 +124,9 @@ const TABLES = [
 
 const initAttendanceTables = async () => {
     try {
-        console.log("🚀 Starting attendance tables initialization...");
         for (const table of TABLES) {
-            console.log(`   Initializing ${table.name}...`);
             await db.query(table.query);
         }
-        console.log("✅ All attendance tables are ready.");
         process.exit(0);
     } catch (error) {
         console.error("❌ Initialization failed:", error.message);

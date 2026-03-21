@@ -24,7 +24,6 @@ const SupportGrid = ({ isDarkTheme, companyId: propCompanyId }) => {
         const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
 
         const url = `${BASE_ROOT}/public/content?company_id=${companyId}`;
-        console.log("SupportGrid: Fetching from URL:", url);
 
         const response = await fetch(url, {
           method: "GET",
@@ -32,7 +31,6 @@ const SupportGrid = ({ isDarkTheme, companyId: propCompanyId }) => {
         });
 
         const data = await response.json();
-        console.log("SupportGrid: API Response Data:", data);
         if (data.success) {
           setContentData(data.content_arr || []);
         }

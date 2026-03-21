@@ -41,7 +41,6 @@ const SupportPage = ({ isDarkTheme }) => {
 
           const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
 
-          console.log("SupportPage: Starting fetch for company_id:", companyId);
           const response = await fetch(`${BASE_ROOT}/public/content?company_id=${companyId}`, {
             method: "GET",
             headers: { 
@@ -51,7 +50,6 @@ const SupportPage = ({ isDarkTheme }) => {
           });
 
           const data = await response.json();
-          console.log("SupportPage: API Success:", data.success, "Items:", data.content_arr?.length);
           
           if (data.success) {
             setContentData(data.content_arr || []);

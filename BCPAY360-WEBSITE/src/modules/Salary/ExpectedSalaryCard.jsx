@@ -100,7 +100,7 @@ const ExpectedSalaryCard = ({ data, loading }) => {
             letterSpacing: "-0.5px"
           }}
         >
-          AED {loading ? "..." : netPay.toLocaleString("en-IN")}
+          {loading ? "..." : netPay.toLocaleString("en-IN")}
         </h1>
         <div style={{ display: "flex", alignItems: "center", gap: "5px", opacity: 0.7, fontSize: "11px" }}>
           <MdCalendarToday size={12} />
@@ -110,9 +110,9 @@ const ExpectedSalaryCard = ({ data, loading }) => {
 
       {/* Compact Summary Row */}
       <div style={{ display: "flex", justifyContent: "space-between", background: "rgba(255,255,255,0.06)", borderRadius: "8px", padding: "10px 12px", zIndex: 1, marginBottom: 12 }}>
-        <DetailItem icon={<MdWorkHistory />} label="Incentives" value={`AED ${incentives}`} />
-        <DetailItem icon={<MdWarningAmber color="#fbbf24" />} label="Gross" value={`AED ${gross}`} />
-        <DetailItem icon={<MdTimer />} label="Deductions" value={`AED ${deductions}`} />
+        <DetailItem icon={<MdWorkHistory />} label="Incentives" value={`${incentives}`} />
+        <DetailItem icon={<MdWarningAmber color="#fbbf24" />} label="Gross" value={`${gross}`} />
+        <DetailItem icon={<MdTimer />} label="Deductions" value={`${deductions}`} />
       </div>
 
       {/* Bottom Row - Compact */}

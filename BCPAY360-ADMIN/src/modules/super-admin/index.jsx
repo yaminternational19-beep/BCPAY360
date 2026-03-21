@@ -43,6 +43,7 @@ export default function SuperAdminRoutes() {
       <Route element={<SuperAdminLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="create" element={<CreateOrganization />} />
+        <Route path="edit/:id" element={<CreateOrganization />} />
         
         {/* DEFAULT */}
         <Route path="*" element={<Navigate to="/super-admin/dashboard" replace />} />

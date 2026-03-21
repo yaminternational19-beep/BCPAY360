@@ -32,6 +32,5 @@ const s3Client = new S3Client({
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 export const AWS_REGION = process.env.AWS_REGION;
 
-console.log(`✅ S3 Client initialized for bucket: ${S3_BUCKET_NAME} in region: ${AWS_REGION}`);
 
 export default s3Client;

@@ -172,7 +172,11 @@ const EmployeeForm = ({ initial, onSave, onClose }) => {
     const ef = initial.employee || initial;
     // In some API responses, bio metadata is inside 'profile', in others it's flattened in 'employee'
     const pf = initial.profile || ef || {}; 
-    const docs = initial.documents || [];
+    const docs = [
+      ...(Array.isArray(initial.documents) ? initial.documents : []),
+      ...(Array.isArray(initial.form_documents) ? initial.form_documents : []),
+      ...(Array.isArray(initial.upload) ? initial.upload : [])
+    ];
 
     setEmployeeForm({
       employee_code: ef.employee_code || ef.employeeCode || "",
@@ -609,7 +613,7 @@ const EmployeeForm = ({ initial, onSave, onClose }) => {
 
       // 1. Include existing documents so they are not deleted on PUT
       (documentsForm.existing || []).forEach(doc => {
-        const type = doc.document_type || doc.type;
+        const type = doc.document_type || doc.type || doc.form_code || doc.doc_type;
         if (type && type !== 'profile_photo') {
           documentsMeta[type] = "UPLOADED";
         }
@@ -648,7 +652,9 @@ const EmployeeForm = ({ initial, onSave, onClose }) => {
 
 
   const FileField = ({ label, field, accept }) => {
-    const existing = documentsForm.existing?.find(d => (d.document_type || d.type) === field);
+    const existing = documentsForm.existing?.find(
+      (d) => (d.document_type || d.type || d.form_code || d.doc_type) === field
+    );
     const uploadedFile = documentsForm.files?.[field];
     const [isDragging, setIsDragging] = useState(false);
 

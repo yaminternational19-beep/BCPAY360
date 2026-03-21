@@ -85,12 +85,9 @@ const TABLES = [
 
 const initSettingsTables = async () => {
   try {
-    console.log("🚀 Starting settings tables initialization...");
     for (const table of TABLES) {
-      console.log(`   Initializing ${table.name}...`);
       await db.query(table.query);
     }
-    console.log("✅ All settings tables are ready.");
     process.exit(0);
   } catch (error) {
     console.error("❌ Initialization failed:", error.message);

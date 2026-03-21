@@ -23,7 +23,6 @@ const Dashboard = ({ isDarkTheme }) => {
       setLoading(false);
     }
   };
-// console.log(dashboardData);
 
  useEffect(() => {
   fetchDashboardData();

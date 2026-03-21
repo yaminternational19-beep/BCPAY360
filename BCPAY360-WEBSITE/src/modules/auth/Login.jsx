@@ -49,9 +49,7 @@ const Login = () => {
 
     if (storedPlayerId) {
       setPlayerId(storedPlayerId);
-      console.log("Player ID from storage:", storedPlayerId);
     } else {
-      console.log("Player ID not found yet");
     }
   }, []);
 
@@ -74,7 +72,6 @@ const Login = () => {
 
     try {
       const finalPlayerId = playerId || generateUUID();
-      console.log("Player ID used in login:", finalPlayerId);
 
       const response = await api.post("/auth/login", {
         employee_code: employeeId,

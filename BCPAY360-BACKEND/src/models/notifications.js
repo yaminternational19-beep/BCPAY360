@@ -63,12 +63,9 @@ const TABLES = [
 
 const initNotificationTables = async () => {
   try {
-    console.log("🚀 Starting notification tables initialization...");
     for (const table of TABLES) {
-      console.log(`   Initializing ${table.name}...`);
       await db.query(table.query);
     }
-    console.log("✅ All notification tables are ready.");
     process.exit(0);
   } catch (error) {
     console.error("❌ Initialization failed:", error.message);

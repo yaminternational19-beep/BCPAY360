@@ -49,7 +49,6 @@ const AttendancePage = ({ isDarkTheme }) => {
     }
   };
 
-  console.log(attendanceData,"Attendace")
 
   useEffect(() => {
     const { firstDay, lastDay } = getMonthRange();

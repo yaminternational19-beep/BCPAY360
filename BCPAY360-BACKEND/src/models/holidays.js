@@ -85,12 +85,9 @@ const TABLES = [
 
 const initHolidayTables = async () => {
   try {
-    console.log("🚀 Starting holiday tables initialization...");
     for (const table of TABLES) {
-      console.log(`   Initializing ${table.name}...`);
       await db.query(table.query);
     }
-    console.log("✅ All holiday tables are ready.");
     process.exit(0);
   } catch (error) {
     console.error("❌ Initialization failed:", error.message);

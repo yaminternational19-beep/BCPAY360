@@ -15,9 +15,9 @@ function StatCard({ label, value }) {
   );
 }
 
-function CompanyCard({ company }) {
+function CompanyCard({ company, onEdit }) {
   return (
-    <div className="company-card">
+    <div className="company-card" onClick={() => onEdit(company.id)} style={{ cursor: 'pointer' }}>
       <div className="card-top">
         <h3 className="company-name">{company.company_name || company.name}</h3>
         <span className={`status-badge ${company.is_active ? "active" : "inactive"}`}>
@@ -29,7 +29,7 @@ function CompanyCard({ company }) {
   );
 }
 
-function CompanyCards({ companies }) {
+function CompanyCards({ companies, onEdit }) {
   if (!companies.length) {
     return (
       <div className="company-empty">
@@ -42,7 +42,7 @@ function CompanyCards({ companies }) {
   return (
     <div className="company-grid">
       {companies.map(c => (
-        <CompanyCard key={c.id} company={c} />
+        <CompanyCard key={c.id} company={c} onEdit={onEdit} />
       ))}
     </div>
   );
@@ -115,7 +115,7 @@ export default function Dashboard() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h3 style={{ margin: 0, fontWeight: "700" }}>Manage Companies</h3>
         </div>
-        <CompanyCards companies={companies} />
+        <CompanyCards companies={companies} onEdit={(id) => navigate(`/super-admin/edit/${id}`)} />
       </div>
     </div>
   );

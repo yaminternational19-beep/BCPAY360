@@ -118,32 +118,65 @@ export const getCompaniesForLogin = async (req, res) => {
 };
 
 /* ============================
-   UPDATE COMPANY NAME
+   UPDATE COMPANY (SUPER ADMIN)
 ============================ */
-export const updateCompanyName = async (req, res) => {
+export const updateCompany = async (req, res) => {
   const companyId = req.params.id;
-  const { company_name } = req.body;
+  const { company_name, email, timezone, logo_url, is_active } = req.body;
 
-  if (!company_name) {
-    return res.status(400).json({ message: "Company name required" });
+  if (!company_name || !email) {
+    return res.status(400).json({ message: "Company name and email are required" });
   }
 
-  const sql = `
-    UPDATE ${TABLES.COMPANIES}
-    SET company_name = ?
-    WHERE id = ?
-  `;
-
   try {
-    const result = await dbExec(db, sql, [company_name, companyId]);
+    const sql = `
+      UPDATE ${TABLES.COMPANIES}
+      SET company_name = ?, email = ?, timezone = ?, logo_url = ?, is_active = ?
+      WHERE id = ?
+    `;
+
+    const result = await dbExec(db, sql, [
+      company_name, 
+      email, 
+      timezone || 'Asia/Kolkata', 
+      logo_url || null, 
+      is_active === undefined ? 1 : (is_active ? 1 : 0),
+      companyId
+    ]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    res.json({ message: "Company name updated successfully" });
+    res.json({ message: "Company updated successfully" });
   } catch (err) {
-    logger.error(MODULE_NAME, "Failed to update company name", err);
+    logger.error(MODULE_NAME, "Failed to update company", err);
+    res.status(500).json({ message: "DB error" });
+  }
+};
+
+/* ============================
+   GET COMPANY BY ID
+============================ */
+export const getCompanyById = async (req, res) => {
+  const companyId = req.params.id;
+
+  try {
+    const sql = `
+      SELECT id, company_name, email, timezone, logo_url, is_active
+      FROM ${TABLES.COMPANIES}
+      WHERE id = ?
+      LIMIT 1
+    `;
+
+    const rows = await dbExec(db, sql, [companyId]);
+    if (!rows.length) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    logger.error(MODULE_NAME, "Failed to get company by id", err);
     res.status(500).json({ message: "DB error" });
   }
 };

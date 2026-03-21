@@ -33,7 +33,6 @@ export const sendOneSignalPush = async (
       }
     );
 
-    console.log("Push sent:", response.data);
     return response.data;
 
   } catch (error) {
@@ -98,7 +97,6 @@ export const sendNotification = async ({
 const playerIds = devices
   .map(d => d.player_id)
   .filter(id => id && isValidUUID(id));
-      // console.log("Sending push to:", playerIds);
       const pushResponse = await sendOneSignalPush(
         playerIds,
         title,

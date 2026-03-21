@@ -23,7 +23,13 @@ const Navbar = ({ onOpen, leftPosition, navbarHeight }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [user, setUser] = useState({ name: "", designation: "", photo: null });
+  const [user, setUser] = useState({ 
+    name: "", 
+    designation: "", 
+    photo: null,
+    companyName: "",
+    companyLogo: null 
+  });
 
   const profileRef = useRef(null);
   const notifRef = useRef(null);
@@ -71,7 +77,9 @@ const Navbar = ({ onOpen, leftPosition, navbarHeight }) => {
         const userData = {
           name: empData.full_name || empData.name || "User",
           designation: empData.designation || "Employee",
-          photo: empData.profile_photo_url || null
+          photo: empData.profile_photo_url || null,
+          companyName: empData.company_name || "",
+          companyLogo: empData.company_logo_url || null
         };
         setUser(userData);
         localStorage.setItem("userProfile", JSON.stringify(userData));

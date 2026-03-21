@@ -12,9 +12,6 @@ const AttendanceOverview = ({ isDarkTheme, data }) => {
   ];
 
 const total = Number(data?.total_days) || 0;
-// console.log("Attendance Overview Data:", data);
-// console.log("Total Days:", total);
-// console.log("Attendance Overview Data:", attendanceData);
 
   const CHART_COLORS = [
     colors.status.present.dot,

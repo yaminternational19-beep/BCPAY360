@@ -63,12 +63,9 @@ const TABLES = [
 
 const initFormTables = async () => {
   try {
-    console.log("🚀 Starting employee form tables initialization...");
     for (const table of TABLES) {
-      console.log(`   Initializing ${table.name}...`);
       await db.query(table.query);
     }
-    console.log("✅ All form tables are ready.");
     process.exit(0);
   } catch (error) {
     console.error("❌ Initialization failed:", error.message);

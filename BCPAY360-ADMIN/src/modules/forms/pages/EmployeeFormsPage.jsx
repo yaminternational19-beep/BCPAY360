@@ -36,7 +36,6 @@ const MONTH_MAP = {
 };
 
 const EmployeeFormsPage = () => {
-    console.log("Forms Module Loaded - terminology: Upload");
     const { branches, selectedBranch, changeBranch, isSingleBranch } = useBranch();
     const { formType } = useParams();
 

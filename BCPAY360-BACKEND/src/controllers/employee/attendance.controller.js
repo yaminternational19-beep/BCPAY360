@@ -310,7 +310,7 @@ export const checkOut = async (req, res) => {
     
     // Overtime: diff between now and shift end
     const overtimeMinutes = Math.max(0, Math.floor((nowDT - endDT) / 60000));
-    const earlyCheckoutMinutes = Math.max(0, Math.floor((endDT - nowDT) / 60000));
+    const isOvertime = overtimeMinutes > 0 ? 1 : 0;
     
     // Working Hours Rule: < 3 hours (180 mins) is HALF_DAY, else PRESENT
     const finalAttendanceStatus = workedMinutes < 180 ? 'HALF_DAY' : 'PRESENT';
@@ -319,12 +319,12 @@ export const checkOut = async (req, res) => {
     await conn.query(
       `UPDATE attendance SET 
         check_out_time = ?, check_out_lat = ?, check_out_lng = ?,
-        worked_minutes = ?, overtime_minutes = ?, early_checkout_minutes = ?,
+        worked_minutes = ?, overtime_minutes = ?,
         is_overtime = ?, attendance_status = ?, session_status = 'COMPLETED'
        WHERE id = ?`,
       [
         nowDateTimeStr, latitude, longitude,
-        workedMinutes, overtimeMinutes, earlyCheckoutMinutes,
+        workedMinutes, overtimeMinutes,
         isOvertime, finalAttendanceStatus, att.id
       ]
     );
@@ -537,7 +537,6 @@ export const autoCheckoutEmployees = async () => {
           
           // In auto checkout at end of shift, OT is typically 0 and early checkout is 0
           const overtimeMinutes = 0; 
-          const earlyCheckoutMinutes = 0;
           
           // Working Hours Rule: < 3 hours (180 mins) is HALF_DAY
           const finalStatus = workedMinutes < 180 ? 'HALF_DAY' : 'PRESENT';
@@ -545,11 +544,10 @@ export const autoCheckoutEmployees = async () => {
           await conn.query(
             `UPDATE attendance SET 
               check_out_time = ?, worked_minutes = ?, overtime_minutes = ?,
-              early_checkout_minutes = ?, is_overtime = 0,
-              attendance_status = ?, session_status = 'COMPLETED',
+              is_overtime = 0, attendance_status = ?, session_status = 'COMPLETED',
               remarks = 'AUTO CHECKOUT'
              WHERE id = ?`,
-            [autoCheckoutStr, workedMinutes, overtimeMinutes, earlyCheckoutMinutes, finalStatus, att.id]
+            [autoCheckoutStr, workedMinutes, overtimeMinutes, finalStatus, att.id]
           );
 
           await conn.query(

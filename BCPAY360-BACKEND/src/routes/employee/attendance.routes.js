@@ -4,7 +4,6 @@ import {
   checkIn,
   checkOut,
   getMyAttendance,
-  raiseAttendanceRequest
 } from "../../controllers/employee/attendance.controller.js";
 
 const router = express.Router();
@@ -26,6 +25,6 @@ router.get("/my", verifyEmployeeToken, getMyAttendance);
 /* ✅ SUMMARY */
 
 
-router.post("/raise-request", verifyEmployeeToken, raiseAttendanceRequest);
+
 
 export default router;

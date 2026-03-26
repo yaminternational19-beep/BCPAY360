@@ -109,10 +109,10 @@ ORDER BY attendance_date
       if (!val) return null;
       const d = new Date(val);
       if (isNaN(d.getTime())) return val;
-      const h = d.getHours();
+      const h = String(d.getHours()).padStart(2, "0");
       const m = String(d.getMinutes()).padStart(2, "0");
-      const ampm = h >= 12 ? "PM" : "AM";
-      return `${h % 12 || 12}:${m} ${ampm}`;
+      const s = String(d.getSeconds()).padStart(2, "0");
+      return `${h}:${m}:${s}`;
     };
 
     const todayAttendance = attendance
@@ -156,9 +156,7 @@ ORDER BY attendance_date
 
       // ✅ CHECKED OUT (priority)
       if (attendance.check_out_time) {
-        const dateTime = new Date(
-          `${dateObj.toISOString().slice(0, 10)}T${attendance.check_out_time}`
-        );
+        const dateTime = new Date(attendance.check_out_time);
 
         const timeStr = dateTime.toLocaleTimeString("en-GB", {
           hour: "2-digit",
@@ -175,9 +173,7 @@ ORDER BY attendance_date
 
       // ✅ CHECKED IN
       else if (attendance.check_in_time) {
-        const dateTime = new Date(
-          `${dateObj.toISOString().slice(0, 10)}T${attendance.check_in_time}`
-        );
+        const dateTime = new Date(attendance.check_in_time);
 
         const timeStr = dateTime.toLocaleTimeString("en-GB", {
           hour: "2-digit",

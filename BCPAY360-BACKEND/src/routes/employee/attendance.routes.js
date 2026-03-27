@@ -4,6 +4,8 @@ import {
   checkIn,
   checkOut,
   getMyAttendance,
+  startOvertime,
+  stopOvertime
 } from "../../controllers/employee/attendance.controller.js";
 
 const router = express.Router();
@@ -17,6 +19,8 @@ router.options("*", (_, res) => res.sendStatus(200));
 /* ACTIONS */
 router.post("/check-in", verifyEmployeeToken, checkIn);
 router.post("/check-out", verifyEmployeeToken, checkOut);
+router.post("/overtime/start", verifyEmployeeToken, startOvertime);
+router.post("/overtime/stop", verifyEmployeeToken, stopOvertime);
 
 /* VIEWS */
 

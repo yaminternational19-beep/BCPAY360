@@ -18,16 +18,19 @@ const INLINE = { disposition: "inline" };
 const secondsToHMS = (seconds = 0) => {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-  return `${h.toString().padStart(2, "0")}:${m
-    .toString()
-    .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  return `${h}h ${m}m`;
 };
 
 const timeToSeconds = (t) => {
   if (!t) return 0;
-  const [h, m, s = 0] = t.split(":").map(Number);
-  return h * 3600 + m * 60 + s;
+  if (t instanceof Date) {
+    return t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds();
+  }
+  if (typeof t === 'string' && t.includes(':')) {
+    const [h, m, s = 0] = t.split(":").map(Number);
+    return h * 3600 + m * 60 + s;
+  }
+  return 0;
 };
 
 const extractS3Key = (value) => {
@@ -318,24 +321,29 @@ export const updateEmployeeProfile = async (req, res) => {
     /* ATTENDANCE */
 
     const [[attendance]] = await connection.query(
-      `SELECT attendance_date, check_in_time,
-              check_out_time, shift_start,
-              shift_end, status, is_checked_in_session
-       FROM attendance
-       WHERE employee_id = ?
-         AND attendance_date = CURDATE()
+      `SELECT a.attendance_date, a.check_in_time,
+              a.check_out_time, a.work_minutes, a.is_late, a.overtime_minutes,
+              s.start_time AS shift_start, s.end_time AS shift_end,
+              a.status, a.session_status = 1 AS is_checked_in_session
+       FROM attendance a
+       JOIN shifts s ON s.id = a.shift_id
+       WHERE a.employee_id = ?
+         AND a.attendance_date = CURDATE()
        LIMIT 1`,
       [employeeId]
     );
 
     let todayStatus = "NOT_MARKED";
     if (attendance) {
-      if (attendance.status === "ABSENT") todayStatus = "ABSENT";
+      if (attendance.status === 0) todayStatus = "ABSENT";
       else if (attendance.check_in_time && !attendance.check_out_time)
         todayStatus = "CHECKED_IN";
       else if (attendance.check_in_time && attendance.check_out_time)
         todayStatus = "CHECKED_OUT";
-      else todayStatus = attendance.status;
+      else {
+        const STATUS_MAP = {0: "ABSENT", 1: "PRESENT", 2: "LATE", 3: "HALF_DAY", 4: "LATE_PRESENT"};
+        todayStatus = STATUS_MAP[attendance.status] !== undefined ? STATUS_MAP[attendance.status] : "NOT_MARKED";
+      }
     }
 
     /* WORK METRICS */
@@ -351,13 +359,18 @@ export const updateEmployeeProfile = async (req, res) => {
       const shiftStartSec = timeToSeconds(attendance.shift_start);
       const shiftEndSec = timeToSeconds(attendance.shift_end);
 
+      const lateMins = Math.max(0, Math.floor((checkInSec - shiftStartSec) / 60));
+      const earlyMins = attendance.check_out_time
+        ? Math.max(0, Math.floor((shiftEndSec - checkOutSec) / 60))
+        : 0;
+
       workMetrics = {
         shift_duration: secondsToHMS(shiftEndSec - shiftStartSec),
         worked_duration: secondsToHMS(checkOutSec - checkInSec),
-        late_login_minutes: Math.max(0, Math.floor((checkInSec - shiftStartSec) / 60)),
-        early_logout_minutes: attendance.check_out_time
-          ? Math.max(0, Math.floor((shiftEndSec - checkOutSec) / 60))
-          : 0,
+        late_login_minutes: lateMins,
+        formatted_late_login: `${Math.floor(lateMins / 60)}h ${lateMins % 60}m`,
+        early_logout_minutes: earlyMins,
+        formatted_early_logout: `${Math.floor(earlyMins / 60)}h ${earlyMins % 60}m`,
         total_working_time: secondsToHMS(checkOutSec - checkInSec)
       };
     }
@@ -401,12 +414,12 @@ export const updateEmployeeProfile = async (req, res) => {
         company_name: employee.company_name,
         employee_status: employee.employee_status,
         employment_status: employee.employment_status,
-        joining_date: employee.joining_date,
+        joining_date: employee.joining_date ? new Date(employee.joining_date).toISOString().slice(0, 10) : null,
         department: employee.department_name,
         branch: employee.branch_name,
         designation: employee.designation_name,
         gender: employee.gender,
-        dob: employee.dob,
+        dob: employee.dob ? new Date(employee.dob).toISOString().slice(0, 10) : null,
         religion: employee.religion,
         father_name: employee.father_name,
         marital_status: employee.marital_status,
@@ -424,10 +437,15 @@ export const updateEmployeeProfile = async (req, res) => {
       },
       attendance_status: {
         today_status: todayStatus,
-        raw_status: attendance?.status || "NOT_MARKED",
+        raw_status: attendance?.status !== undefined ? {0: "ABSENT", 1: "PRESENT", 2: "LATE", 3: "HALF_DAY"}[attendance.status] || "UNMARKED" : "NOT_MARKED",
         check_in_time: attendance?.check_in_time || null,
         check_out_time: attendance?.check_out_time || null,
-        is_checked_in_session: !!attendance?.is_checked_in_session
+        is_checked_in_session: !!attendance?.is_checked_in_session,
+        is_late: attendance?.is_late || 0,
+        worked_minutes: attendance?.work_minutes || 0,
+        formatted_worked_time: attendance ? `${Math.floor((attendance.work_minutes || 0) / 60)}h ${(attendance.work_minutes || 0) % 60}m` : "0h 0m",
+        overtime_minutes: attendance?.overtime_minutes || 0,
+        formatted_overtime: attendance ? `${Math.floor((attendance.overtime_minutes || 0) / 60)}h ${(attendance.overtime_minutes || 0) % 60}m` : "0h 0m"
       },
       work_metrics: workMetrics,
       leave_summary

@@ -281,29 +281,41 @@ const TABLES = [
     {
         name: "company_documents",
         query: `
-            CREATE TABLE IF NOT EXISTS company_documents (
+            CREATE TABLE IF NOT EXISTS shifts (
                 id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
                 company_id BIGINT NOT NULL,
+                branch_id BIGINT NOT NULL,
 
-                document_code VARCHAR(50) NOT NULL,
+                shift_name VARCHAR(100) NOT NULL,
+                start_time TIME NOT NULL,
+                end_time TIME NOT NULL,
 
-                document_name VARCHAR(150) NOT NULL,
+                grace_minutes INT NOT NULL DEFAULT 30,
+                late_after_minutes INT NOT NULL DEFAULT 30,
 
-                description TEXT NULL,
+                min_half_day_minutes INT NOT NULL DEFAULT 30,
+                min_full_day_minutes INT NOT NULL DEFAULT 240,
 
-                uploaded_by BIGINT NOT NULL,
+                auto_checkout_grace_minutes INT NOT NULL DEFAULT 5,
+
+                overtime_min_minutes INT NOT NULL DEFAULT 60,
+                overtime_max_minutes INT NOT NULL DEFAULT 240,
+
+                is_night_shift TINYINT(1) NOT NULL DEFAULT 0,
+
+                description VARCHAR(255),
+
+                is_active TINYINT(1) NOT NULL DEFAULT 1,
+
+                created_by_role VARCHAR(50) NOT NULL,
+                created_by_id BIGINT NOT NULL,
 
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    ON UPDATE CURRENT_TIMESTAMP,
 
-                UNIQUE KEY uq_company_document_code (company_id, document_code),
-
-                KEY idx_company_id (company_id),
-
-                CONSTRAINT fk_company_documents_company
-                    FOREIGN KEY (company_id)
-                    REFERENCES companies(id)
-                    ON DELETE CASCADE
+                CONSTRAINT uq_branch_shift UNIQUE (branch_id, shift_name)
             );
         `
     },

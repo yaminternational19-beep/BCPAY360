@@ -18,12 +18,10 @@ export const getEmployeeHome = async (req, res) => {
         check_out_time,
         NULL AS shift_start,
         NULL AS shift_end,
-        min_work_minutes,
-        full_day_minutes,
-        worked_minutes,
+        work_minutes,
         overtime_minutes,
-        attendance_status AS status,
-        session_status = 'IN_PROGRESS' AS is_checked_in_session
+        status,
+        session_status = 1 AS is_checked_in_session
       FROM attendance
       WHERE employee_id = ?
         AND attendance_date = CURDATE()
@@ -37,8 +35,8 @@ export const getEmployeeHome = async (req, res) => {
     const [[attendanceStats]] = await db.query(
       `SELECT
         COUNT(*) AS total_days,
-        SUM(attendance_status IN ('PRESENT','HALF_DAY')) AS present_days,
-        SUM(attendance_status = 'ABSENT') AS absent_days,
+        SUM(status IN (1, 3, 4)) AS present_days,
+        SUM(status = 0) AS absent_days,
         SUM(is_late = 1) AS late_days,
         SUM(overtime_minutes > 0) AS overtime_days
       FROM attendance
@@ -64,38 +62,35 @@ export const getEmployeeHome = async (req, res) => {
 
     const [performanceRows] = await db.query(
       `
-  SELECT
-  DATE_FORMAT(attendance_date, '%Y-%m-%d') AS date,
-  LOWER(DAYNAME(attendance_date)) AS weekday,
-  SUM(overtime_minutes) AS total_overtime_minutes
-FROM attendance
-WHERE employee_id = ?
-  AND attendance_date BETWEEN
-      DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
-      AND DATE_ADD(
-            DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY),
-            INTERVAL 6 DAY
-          )
-GROUP BY attendance_date
-ORDER BY attendance_date
-
-  `,
+        SELECT
+        DATE_FORMAT(attendance_date, '%Y-%m-%d') AS date,
+        LOWER(DAYNAME(attendance_date)) AS weekday,
+        SUM(work_minutes) AS total_worked_minutes
+        FROM attendance
+        WHERE employee_id = ?
+          AND attendance_date BETWEEN
+              DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+              AND DATE_ADD(
+                    DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY),
+                    INTERVAL 6 DAY
+                  )
+        GROUP BY attendance_date
+        ORDER BY attendance_date
+      `,
       [employeeId]
     );
-
-    for (const row of performanceRows) {
-      performance[row.weekday] = {
-        date: row.date,
-        total_overtime_minutes: Number(row.total_overtime_minutes) || 0
-      };
-    }
 
     if (performanceRows && performanceRows.length > 0) {
       for (const row of performanceRows) {
         if (performance.hasOwnProperty(row.weekday)) {
+          const totalMins = Number(row.total_worked_minutes) || 0;
+          const h = Math.floor(totalMins / 60);
+          const m = totalMins % 60;
+          
           performance[row.weekday] = {
-            date: row.date, // YYYY-MM-DD
-            total_overtime_minutes: Number(row.total_overtime_minutes) || 0
+            date: row.date, 
+            total_worked_minutes: totalMins,
+            formatted_worked_time: `${h}h ${m}m`
           };
         }
       }
@@ -115,24 +110,30 @@ ORDER BY attendance_date
       return `${h}:${m}:${s}`;
     };
 
+    const STATUS_MAP = {
+      0: "ABSENT",
+      1: "PRESENT",
+      2: "LATE",
+      3: "HALF_DAY",
+      4: "LATE_PRESENT"
+    };
+
     const todayAttendance = attendance
       ? {
         attendance_id: attendance.id,
         date: attendance.attendance_date,
-        status: attendance.status,
+        status: STATUS_MAP[attendance.status] !== undefined ? STATUS_MAP[attendance.status] : "UNMARKED",
         check_in_time: formatTime(attendance.check_in_time),
         check_out_time: formatTime(attendance.check_out_time),
         shift_start: attendance.shift_start,
         shift_end: attendance.shift_end,
-        worked_minutes: attendance.worked_minutes,
-        min_work_minutes: attendance.min_work_minutes,
-        full_day_minutes: attendance.full_day_minutes,
+        worked_minutes: attendance.work_minutes,
         overtime_minutes: attendance.overtime_minutes,
         is_checked_in_session: !!attendance.is_checked_in_session,
         is_present:
-          attendance.status !== "ABSENT" &&
-          attendance.status !== "NOT_STARTED",
-        is_late: attendance.status === "LATE"
+          attendance.status !== 0 &&
+          attendance.session_status !== 0,
+        is_late: attendance.status === 2 || attendance.status === 4
       }
       : null;
 

@@ -335,6 +335,9 @@
 .status-badge.checked_in { background: #fef9c3; color: #854d0e; }
 .status-badge.unmarked { background: var(--attendance-gray-100); color: var(--attendance-slate); }
 .status-badge.absent { background: var(--attendance-danger-light); color: var(--attendance-danger); }
+.status-badge.late { background: var(--attendance-warning-light); color: var(--attendance-warning); }
+.status-badge.half_day { background: #f0f9ff; color: #0ea5e9; }
+.status-badge.holiday { background: #f5f3ff; color: #7c3aed; }
 
 /* 7. FOOTER & PAGINATION */
 .table-footer {

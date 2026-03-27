@@ -80,6 +80,7 @@ const Profile = ({ isDarkTheme }) => {
       const res = await api.get("/profile");
       const data = res?.data?.employee;
       if (data) {
+        localStorage.setItem("userProfile", JSON.stringify(data));
         const mappedData = mapEmployeeData(data);
         setEmployee(mappedData);
         setProfilePhoto(mappedData.profilePhotoUrl);

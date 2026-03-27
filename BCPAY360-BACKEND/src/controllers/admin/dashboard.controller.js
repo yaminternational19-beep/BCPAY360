@@ -42,7 +42,7 @@ export const getDashboard = async (req, res) => {
 
       // Company
       db.query(
-        `SELECT id, company_name AS name FROM companies WHERE id = ?`,
+        `SELECT id, company_name AS name, logo_url FROM companies WHERE id = ?`,
         [company_id]
       ),
 
@@ -124,6 +124,12 @@ export const getDashboard = async (req, res) => {
 
     const company = companyRes[0][0];
     const orgSummary = orgRes[0][0];
+
+    // ✅ Handle Company Logo Signed URL
+    const { getS3SignedUrl } = await import("../../utils/s3.util.js");
+    if (company && company.logo_url && !company.logo_url.startsWith('http')) {
+        company.logo_url = await getS3SignedUrl(company.logo_url);
+    }
     const employeeStats = employeeRes[0][0];
     const leaveStats = leaveRes[0][0];
     const salaryStats = salaryRes[0][0];
@@ -250,7 +256,7 @@ export const getDashboard = async (req, res) => {
       company: {
         id: company.id,
         name: company.name,
-        logo_url: null
+        logo_url: company.logo_url || null
       },
       logged_in: { role, user_id },
       period,

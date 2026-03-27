@@ -96,6 +96,10 @@ export const getDailyAttendance = async ({
       a.overtime_minutes,
       a.late_minutes,
       a.is_late,
+      a.check_in_lat,
+      a.check_in_lng,
+      a.check_out_lat,
+      a.check_out_lng,
       a.status AS db_status,
       a.auto_checkout
     FROM employees e
@@ -187,6 +191,8 @@ export const getDailyAttendance = async ({
         formatted_overtime: minutesToHM(overtime_mins),
         late_minutes: late_mins,
         formatted_late: minutesToHM(late_mins),
+        check_in_location: row.check_in_lat && row.check_in_lng ? `${row.check_in_lat}, ${row.check_in_lng}` : null,
+        check_out_location: row.check_out_lat && row.check_out_lng ? `${row.check_out_lat}, ${row.check_out_lng}` : null,
         source: row.auto_checkout ? "AUTO_CHECKOUT" : "MANUAL"
       };
     })

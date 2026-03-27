@@ -16,6 +16,9 @@ const Dashboard = ({ isDarkTheme }) => {
     try {
       const response = await api.get(`/home`);
       const dashboardObj = response.data?.data?.[0] || {};
+      if (response.data?.employee) {
+        localStorage.setItem("userProfile", JSON.stringify(response.data.employee));
+      }
       setDashboardData(dashboardObj);
     } catch (error) {
       console.error("Dashboard Error:", error);

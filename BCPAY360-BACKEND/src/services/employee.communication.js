@@ -9,11 +9,11 @@ const MODULE_NAME = "EMPLOYEE_COMMUNICATION_SERVICE";
  */
 export const notifyEmployeeCreated = async (employee, password) => {
   try {
-    const subject = `Welcome to BCPAY360 - Your Account has been Created`;
+    const subject = `Welcome to BCPay360 - Your Account has been Created`;
     const html = `
       <div style="font-family: sans-serif; padding: 20px;">
         <h2>Hello ${employee.full_name},</h2>
-        <p>Your employee account has been successfully created at <b>BCPAY360</b>.</p>
+        <p>Your employee account has been successfully created at <b>BCPay360</b>.</p>
         <div style="background: #f4f4f4; padding: 15px; border-radius: 8px;">
           <p><b>Login URL:</b> <a href="https://app.bcpay360.com">app.bcpay360.com</a></p>
           <p><b>Employee Code:</b> ${employee.employee_code}</p>
@@ -21,7 +21,7 @@ export const notifyEmployeeCreated = async (employee, password) => {
           <p><b>Password:</b> ${password}</p>
         </div>
         <p>Please change your password after your first login.</p>
-        <p>Best Regards,<br/>Team BCPAY360</p>
+        <p>Best Regards,<br/>Team BCPay360</p>
       </div>
     `;
 
@@ -35,7 +35,7 @@ export const notifyEmployeeCreated = async (employee, password) => {
       branch_id: employee.branch_id,
       user_type: "EMPLOYEE",
       user_id: employee.id,
-      title: "Welcome to BCPAY360",
+      title: "Welcome to BCPay360",
       message: `Your account has been created with code ${employee.employee_code}`,
       notification_type: "SYSTEM",
       action_url: "/profile"
@@ -52,13 +52,13 @@ export const notifyEmployeeCreated = async (employee, password) => {
  */
 export const notifyProfileUpdated = async (employee) => {
   try {
-    const subject = `Your BCPAY360 Profile has been Updated`;
+    const subject = `Your BCPay360 Profile has been Updated`;
     const html = `
       <div style="font-family: sans-serif; padding: 20px;">
         <h2>Hi ${employee.full_name},</h2>
         <p>Your profile information was recently updated by the HR department.</p>
         <p>If you did not expect this change, please contact your HR manager.</p>
-        <p>Best Regards,<br/>Team BCPAY360</p>
+        <p>Best Regards,<br/>Team BCPay360</p>
       </div>
     `;
 
@@ -86,12 +86,12 @@ export const notifyProfileUpdated = async (employee) => {
  */
 export const notifyStatusChanged = async (employee, status) => {
   try {
-    const subject = `BCPAY360 Account Status: ${status}`;
+    const subject = `BCPay360 Account Status: ${status}`;
     const html = `
       <div style="font-family: sans-serif; padding: 20px;">
         <h2>Hi ${employee.full_name},</h2>
-        <p>Your BCPAY360 account status has been changed to <b>${status}</b>.</p>
-        <p>Best Regards,<br/>Team BCPAY360</p>
+        <p>Your BCPay360 account status has been changed to <b>${status}</b>.</p>
+        <p>Best Regards,<br/>Team BCPay360</p>
       </div>
     `;
 

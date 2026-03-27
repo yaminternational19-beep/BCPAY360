@@ -3,7 +3,6 @@ import { FaSearch, FaPaperPlane, FaUserCircle, FaCheckCircle, FaFilter, FaInbox,
 import { Badge, Button, EmptyState, Loader } from "./components";
 import { getSupportTickets, getSupportTicketById, respondToSupportTicket } from "../../api/master.api";
 import "./HelpSupport.css";
-import "../../styles/Attendance.css";
 import { useBranch } from "../../hooks/useBranch"; // Import Hook
 
 export default function HelpSupport() {
@@ -26,8 +25,7 @@ export default function HelpSupport() {
     const [serverTotalPages, setServerTotalPages] = useState(1);
     const [totalEntries, setTotalEntries] = useState(0);
 
-    // Fetch data on mount and when filters change
-    // Fetch data when filters change - Reset pagination
+    // Reset pagination when filters change
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, selectedBranch, statusFilter]);
@@ -57,23 +55,27 @@ export default function HelpSupport() {
                 }
             }
         } catch (error) {
-            alert("Failed to fetch tickets: " + error.message);
+            console.error("Failed to fetch tickets:", error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleTicketSelect = async (id) => {
+    const handleTicketSelect = async (ticket) => {
+        const id = ticket.id;
         setSelectedTicketId(id);
+        // Pre-populate with list data (name, profile, branch, etc.)
+        setSelectedTicket(ticket);
         setShowModal(true);
         setDetailLoading(true);
         try {
-            const response = await getSupportTicketById(id);
-            if (response.success) {
-                setSelectedTicket(response.data);
+            const res = await getSupportTicketById(id);
+            if (res.success) {
+                // Merge detail data (like response) with existing metadata
+                setSelectedTicket(prev => ({ ...prev, ...res.data }));
             }
         } catch (error) {
-            alert("Failed to fetch ticket details: " + error.message);
+            console.error("Failed to fetch ticket details:", error);
         } finally {
             setDetailLoading(false);
         }
@@ -86,10 +88,6 @@ export default function HelpSupport() {
         setReplyText("");
     };
 
-    // Pagination Data
-    const totalPages = serverTotalPages;
-    const paginatedTickets = tickets; // Data is already paginated from server
-
     const handleSendAndClose = async () => {
         if (!replyText.trim() || !selectedTicketId) return;
 
@@ -97,16 +95,14 @@ export default function HelpSupport() {
             const response = await respondToSupportTicket(selectedTicketId, { response: replyText });
             if (response.success) {
                 setReplyText("");
-                // Update local state to reflect closure
-                setSelectedTicket(prev => ({ ...prev, adminReply: replyText, status: "Closed" }));
+                setSelectedTicket(prev => ({ ...prev, response: replyText, status: "Closed" }));
                 setTickets(prev => prev.map(t =>
                     t.id === selectedTicketId ? { ...t, status: "Closed" } : t
                 ));
-                alert("Response sent and ticket closed successfully.");
                 setTimeout(handleCloseModal, 1500);
             }
         } catch (error) {
-            alert("Failed to send response: " + error.message);
+            console.error("Failed to send response:", error);
         }
     };
 
@@ -119,9 +115,11 @@ export default function HelpSupport() {
         }
     };
 
+    const totalPages = serverTotalPages;
+
     return (
         <div className="module-container">
-            <div className="module-header flex-between">
+            <div className="module-header flex-between" style={{ marginBottom: "20px" }}>
                 <div>
                     <h1 className="module-title">Help & Support</h1>
                     <p className="module-subtitle">Resolve employee queries with a single, efficient response mechanism.</p>
@@ -129,13 +127,13 @@ export default function HelpSupport() {
             </div>
 
             {/* Filters Section */}
-            <div className="filters-container glass-panel" style={{ display: "flex", gap: "16px", padding: "16px", marginBottom: "20px", borderRadius: "12px", background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+            <div className="filters-container glass-panel" style={{ display: "flex", gap: "16px", padding: "16px", marginBottom: "20px", borderRadius: "12px" }}>
                 <div style={{ flex: 1, position: "relative" }}>
                     <FaSearch style={{ position: "absolute", left: "12px", top: "12px", color: "#94a3b8" }} />
                     <input
                         className="form-control"
                         placeholder="Search employee, email or subject..."
-                        style={{ paddingLeft: "36px" }}
+                        style={{ paddingLeft: "36px", width: "100%" }}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -168,224 +166,204 @@ export default function HelpSupport() {
                 </select>
             </div>
 
-            {/* Tickets Table Panel */}
+            {/* Tickets Table Area */}
             <div className="support-table-container">
                 {loading && <Loader overlay />}
-                <div className="support-table-wrapper">
-                    <table className="attendance-table">
-                        <thead style={{ position: "sticky", top: 0, zIndex: 1, borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
-                            <tr>
-                                <th className="text-center" style={{ width: '60px' }}>Sl No</th>
-                                <th className="text-center">Profile</th>
-                                <th className="text-center">Emp ID</th>
-                                <th className="text-left">Employee Name</th>
-                                <th className="text-left">Email</th>
-                                <th className="text-center">Branch</th>
-                                <th className="text-center">Raised Date</th>
-                                <th className="text-center">Subject</th>
-                                <th className="text-center">Status</th>
-                                <th className="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedTickets.map((ticket, index) => {
-                                const branch = branches.find(b => b.id === ticket.branch_id);
-                                const slNo = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
-                                return (
-                                    <tr
-                                        key={ticket.id}
-                                        onClick={() => handleTicketSelect(ticket.id)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <td className="text-center" style={{ color: '#64748b' }}>{slNo}</td>
-                                        <td className="text-center">
-                                            <img
-                                                src={ticket.profile_image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ticket.employee_name || 'U')}&background=e2e8f0&color=475569`}
-                                                alt="avatar"
-                                                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
-                                                onError={(e) => {
-                                                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ticket.employee_name || 'U')}&background=e2e8f0&color=475569`;
-                                                }}
-                                            />
-                                        </td>
-                                        <td className="text-center" style={{ color: '#64748b', fontWeight: '500' }}>
-                                            {ticket.employee_code || 'N/A'}
-                                        </td>
-                                        <td className="text-left font-semibold" style={{ color: '#1e293b' }}>
-                                            {ticket.employee_name || 'N/A'}
-                                        </td>
-                                        <td className="text-left" style={{ fontSize: '12px', color: '#64748b' }}>
-                                            {ticket.employee_email}
-                                        </td>
-                                        <td className="text-center" style={{ color: '#64748b' }}>
-                                            {branch ? (branch.branch_name || branch.name) : `ID: ${ticket.branch_id}`}
-                                        </td>
-                                        <td className="text-center" style={{ color: '#64748b', fontSize: '13px' }}>
-                                            {ticket.created_at ? new Date(ticket.created_at).toLocaleDateString('en-GB') : '—'}
-                                        </td>
-                                        <td className="text-center" style={{ color: '#475569' }}>
-                                            <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600' }}>
-                                                {ticket.category}
-                                            </span>
-                                            {ticket.subject && <div style={{ fontSize: '12px', marginTop: '4px' }}>{ticket.subject}</div>}
-                                        </td>
-                                        <td className="text-center">
-                                            <Badge variant={getStatusVariant(ticket.status)}>{ticket.status}</Badge>
-                                        </td>
-                                        <td className="text-center">
-                                            {ticket.status?.toUpperCase() === 'OPEN' ? (
-                                                <button className="action-btn view">View Ticket</button>
-                                            ) : (
-                                                <button className="action-btn show">Show</button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {!loading && tickets.length === 0 && (
-                                <tr>
-                                    <td colSpan="10" className="table-empty text-center" style={{ padding: "40px" }}>
-                                        No tickets found matching your filters.
+                <table className="help-support-table">
+                    <thead>
+                        <tr>
+                            <th className="text-center" style={{ width: '60px' }}>SL NO</th>
+                            <th className="text-center">PROFILE</th>
+                            <th className="text-center">EMP ID</th>
+                            <th className="text-left">EMPLOYEE NAME</th>
+                            <th className="text-left">EMAIL</th>
+                            <th className="text-center">BRANCH</th>
+                            <th className="text-center">RAISED DATE</th>
+                            <th className="text-left">SUBJECT</th>
+                            <th className="text-center">STATUS</th>
+                            <th className="text-center">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tickets.map((ticket, index) => {
+                            const branch = branches.find(b => b.id === ticket.branch_id);
+                            const slNo = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
+                            return (
+                                <tr key={ticket.id}>
+                                    <td className="text-center" style={{ color: '#94a3b8', fontSize: '12px' }}>{slNo}</td>
+                                    <td className="text-center">
+                                        <img
+                                            src={ticket.profile_image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ticket.employee_name || 'U')}&background=e2e8f0&color=475569`}
+                                            alt="avatar"
+                                            className="support-avatar"
+                                            onError={(e) => {
+                                                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ticket.employee_name || 'U')}&background=e2e8f0&color=475569`;
+                                            }}
+                                        />
+                                    </td>
+                                    <td className="text-center" style={{ color: '#1e293b', fontWeight: 'bold', fontSize: '12px' }}>
+                                        {ticket.employee_code || 'N/A'}
+                                    </td>
+                                    <td className="text-left" style={{ fontWeight: '500', color: '#334155' }}>
+                                        {ticket.employee_name || 'N/A'}
+                                    </td>
+                                    <td className="text-left" style={{ fontSize: '13px', color: '#64748b' }}>
+                                        {ticket.employee_email}
+                                    </td>
+                                    <td className="text-center" style={{ fontSize: '13px', color: '#64748b' }}>
+                                        {branch ? (branch.branch_name || branch.name) : `ID: ${ticket.branch_id}`}
+                                    </td>
+                                    <td className="text-center" style={{ color: '#64748b', fontSize: '12px' }}>
+                                        {ticket.created_at ? new Date(ticket.created_at).toLocaleDateString('en-GB') : '—'}
+                                    </td>
+                                    <td className="text-left">
+                                        <span className="category-tag">{ticket.category}</span>
+                                        {ticket.subject && <div style={{ fontSize: '12px', marginTop: '2px', color: '#475569' }}>{ticket.subject}</div>}
+                                    </td>
+                                    <td className="text-center">
+                                        <Badge variant={getStatusVariant(ticket.status)}>{ticket.status}</Badge>
+                                    </td>
+                                    <td className="text-center">
+                                        <button 
+                                            className={`action-btn ${ticket.status?.toUpperCase() === 'OPEN' ? 'view' : 'show'}`}
+                                            onClick={() => handleTicketSelect(ticket)}
+                                        >
+                                            {ticket.status?.toUpperCase() === 'OPEN' ? 'View Ticket' : 'Show'}
+                                        </button>
                                     </td>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            );
+                        })}
+                    </tbody>
+                </table>
 
-                    {/* Pagination Area */}
-                    {tickets.length > 0 && (
-                        <div className="support-pagination-area">
-                            <div className="pagination-text">
-                                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalEntries)} of {totalEntries} entries
-                            </div>
-                            <div className="pagination-controls">
-                                <button
-                                    className="pagination-btn"
-                                    disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage(1)}
-                                >
-                                    First
-                                </button>
-                                <button
-                                    className="pagination-btn"
-                                    disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                >
-                                    Prev
-                                </button>
-                                <div className="page-numbers">
-                                    {[...Array(Math.max(1, totalPages))].map((_, i) => (
-                                        <button
-                                            key={i}
-                                            className={`page-number-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                                            onClick={() => setCurrentPage(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </button>
-                                    ))}
-                                </div>
-                                <button
-                                    className="pagination-btn"
-                                    disabled={currentPage === totalPages || totalPages === 0}
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                >
-                                    Next
-                                </button>
-                                <button
-                                    className="pagination-btn"
-                                    disabled={currentPage === totalPages || totalPages === 0}
-                                    onClick={() => setCurrentPage(totalPages)}
-                                >
-                                    Last
-                                </button>
-                            </div>
+                {!loading && tickets.length === 0 && (
+                    <div style={{ padding: "60px", textAlign: "center", color: "#94a3b8" }}>
+                        No records found.
+                    </div>
+                )}
+
+                {/* Pagination matching Screenshot 2 style */}
+                {tickets.length > 0 && (
+                    <div className="support-pagination-area">
+                        <div className="pagination-text">
+                            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} – {Math.min(currentPage * ITEMS_PER_PAGE, totalEntries)} of {totalEntries}
                         </div>
-                    )}
-                </div>
+                        <div className="pagination-controls">
+                            <button
+                                className="pagination-btn"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(1)}
+                                title="First Page"
+                            >
+                                {"<<"}
+                            </button>
+                            <button
+                                className="pagination-btn"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                title="Previous"
+                            >
+                                {"<"}
+                            </button>
+                            
+                            <span className="page-indicator">
+                                {currentPage} / {totalPages || 1}
+                            </span>
+
+                            <button
+                                className="pagination-btn"
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                title="Next"
+                            >
+                                {">"}
+                            </button>
+                            <button
+                                className="pagination-btn"
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                onClick={() => setCurrentPage(totalPages)}
+                                title="Last Page"
+                            >
+                                {">>"}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Modal Popup overlay for Detail Panel */}
+            {/* Detail Overlay */}
             {showModal && (
                 <div className="modal-overlay" onClick={handleCloseModal}>
                     <div className="detail-panel" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={handleCloseModal} className="detail-close-btn">✕</button>
+                        <div className="detail-header">
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Resolution Panel</h3>
+                                <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Provide feedback and close query</p>
+                            </div>
+                            <button className="btn-close" onClick={handleCloseModal}>✕</button>
+                        </div>
 
-                        {detailLoading && <Loader overlay />}
-                        {selectedTicket && (
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                <div className="detail-header">
-                                    <div className="detail-title-area" style={{ flex: 1 }}>
-                                        <h2 className="detail-title">
-                                            {selectedTicket.category} {selectedTicket.subject ? `- ${selectedTicket.subject}` : ''}
-                                        </h2>
-                                        <Badge variant={getStatusVariant(selectedTicket.status)}>{selectedTicket.status}</Badge>
-                                    </div>
-                                    <div className="detail-info-grid">
-                                        <div className="info-chip">
-                                            <FaUserCircle size={14} color="#94a3b8" /> {selectedTicket.employee_name}
-                                        </div>
-                                        {selectedTicket.employee_code && (
-                                            <div className="info-chip">
-                                                <FaIdBadge size={14} color="#94a3b8" /> {selectedTicket.employee_code}
+                        <div className="detail-body">
+                            {detailLoading ? <Loader /> : selectedTicket && (
+                                <>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                                        <div>
+                                            <label className="section-label">Employee</label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <img 
+                                                    src={selectedTicket.profile_image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTicket.employee_name || 'U')}`}
+                                                    className="support-avatar"
+                                                />
+                                                <div>
+                                                    <div style={{ fontWeight: '700', fontSize: '14px' }}>{selectedTicket.employee_name}</div>
+                                                    <div style={{ fontSize: '11px', color: '#64748b' }}>{selectedTicket.employee_code}</div>
+                                                </div>
                                             </div>
-                                        )}
-                                        <div className="info-chip">
-                                            <FaSitemap size={14} color="#94a3b8" /> {branches.find(b => b.id === selectedTicket.branch_id)?.branch_name || selectedTicket.branch_id}
                                         </div>
-                                        <div className="info-chip">
-                                            <FaIdBadge size={14} color="#94a3b8" /> {selectedTicket.department || 'General'}
-                                        </div>
-                                        <div className="info-chip">
-                                            <FaClock size={14} color="#94a3b8" /> {new Date(selectedTicket.created_at).toLocaleDateString()}
+                                        <div>
+                                            <label className="section-label">Ticket Details</label>
+                                            <div style={{ fontWeight: '700', fontSize: '14px' }}>{selectedTicket.category}</div>
+                                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                                                Branch: {branches.find(b => b.id === selectedTicket.branch_id)?.branch_name || 'Main Branch'}
+                                            </div>
+                                            <div style={{ fontSize: '11px', color: '#64748b' }}>Raised: {new Date(selectedTicket.created_at).toLocaleDateString()}</div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="message-section">
-                                    <label className="section-label">Employee Description</label>
+                                    <label className="section-label">Description</label>
                                     <div className="message-bubble">
                                         {selectedTicket.reason || selectedTicket.message || selectedTicket.description || 'No description provided.'}
                                     </div>
-                                </div>
 
-                                <div className="admin-resolution-container">
-                                    <label className="section-label">Admin Resolution</label>
+                                    <label className="section-label">Final Resolution</label>
                                     {selectedTicket.status?.toUpperCase() === "OPEN" ? (
                                         <>
                                             <textarea
                                                 className="resolution-textarea"
-                                                placeholder="Provide a final resolution to the employee..."
+                                                placeholder="Provide the resolution steps taken..."
                                                 value={replyText}
                                                 onChange={(e) => setReplyText(e.target.value)}
                                             />
-                                            <div style={{ display: "flex", justifyContent: "flex-end", gap: '12px' }}>
-                                                <button
-                                                    onClick={handleCloseModal}
-                                                    style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontWeight: '600', color: '#64748b' }}
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
+                                            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                                <Button 
                                                     onClick={handleSendAndClose}
                                                     disabled={!replyText.trim()}
-                                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', border: 'none', background: !replyText.trim() ? '#94a3b8' : '#3b82f6', color: '#fff', cursor: !replyText.trim() ? 'not-allowed' : 'pointer', fontWeight: '600' }}
+                                                    variant="primary"
                                                 >
-                                                    <FaPaperPlane /> Send & Close Ticket
-                                                </button>
+                                                    <FaPaperPlane style={{ marginRight: '8px' }} /> Resolve & Close
+                                                </Button>
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="closed-ticket-msg">
-                                            <div className="resolved-label">Resolved:</div>
-                                            <div style={{ fontSize: '14px' }}>{selectedTicket.adminReply}</div>
-                                            <div className="resolved-footer">
-                                                <FaCheckCircle /> This ticket has been resolved and closed.
-                                            </div>
+                                        <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                            <div style={{ fontWeight: '700', color: '#166534', fontSize: '13px', marginBottom: '4px' }}>Admin Response:</div>
+                                            <div style={{ fontSize: '14px', color: '#334155', fontWeight: '500' }}>{selectedTicket.response || selectedTicket.adminReply}</div>
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                        )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

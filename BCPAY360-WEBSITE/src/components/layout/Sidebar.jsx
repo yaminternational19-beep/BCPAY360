@@ -1,19 +1,19 @@
 import { Link, useLocation } from "react-router-dom"; // useNavigate hata diya hai kyunki hard reload best hai
 import {
-  MdDashboard, 
-  MdPeople, 
-  MdEventNote, 
-  MdAttachMoney, 
-  MdBeachAccess, 
-  MdPerson,     
-  MdFolder,     
+  MdDashboard,
+  MdPeople,
+  MdEventNote,
+  MdAttachMoney,
+  MdBeachAccess,
+  MdPerson,
+  MdFolder,
   MdLogout
 } from "react-icons/md";
 import colors from "../../styles/colors";
-import typography from "../../styles/typography"; 
+import typography from "../../styles/typography";
 import logo from "../../assets/images/AppLogo1.png";
 
-const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }) => {
+const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl, companyName }) => {
   const location = useLocation();
 
   const menuItems = [
@@ -29,35 +29,35 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }
   // --- 🔥 FIXED LOGOUT FUNCTIONALITY ---
   const handleLogout = () => {
     // 1. Clear all storage completely
-    localStorage.clear(); 
+    localStorage.clear();
     sessionStorage.clear();
 
     // 2. Hard redirect to login page (Prevents hanging/freezing)
-    window.location.replace("/login"); 
+    window.location.replace("/login");
   };
 
   // --- DYNAMIC STYLES FOR POSITIONING ---
   const sidebarStyle = {
     position: "fixed",
     left: 0,
-    top: isMobile ? topOffset : 0, 
-    bottom: 0, 
+    top: isMobile ? topOffset : 0,
+    bottom: 0,
     width: width,
-    backgroundColor: "#000000", 
-    borderRight: `1px solid #333333`, 
+    backgroundColor: "#000000",
+    borderRight: `1px solid #333333`,
     overflow: "hidden",
     display: "flex",
     flexDirection: "column",
     boxShadow: isOpen ? "4px 0 15px rgba(0,0,0,0.5)" : "none",
     whiteSpace: "nowrap",
-    zIndex: 1010, 
+    zIndex: 1010,
     transform: isMobile ? (isOpen ? "translateX(0)" : "translateX(-100%)") : "none",
     transition: isMobile ? "transform 0.3s ease" : "width 0.3s ease",
   };
 
   return (
     <div style={sidebarStyle}>
-      
+
       {/* HEADER */}
       {!isMobile && (
         <div
@@ -65,11 +65,11 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }
             height: "72px",
             display: "flex",
             alignItems: "center",
-            padding: isOpen ? "0 20px" : "0", 
+            padding: isOpen ? "0 20px" : "0",
             justifyContent: isOpen ? "flex-start" : "center",
             borderBottom: `1px solid #333333`,
             marginBottom: "10px",
-            flexShrink: 0 
+            flexShrink: 0
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", transition: "all 0.2s" }}>
@@ -80,12 +80,16 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }
               onError={(e) => { e.target.src = logo; }}
             />
             {isOpen && (
-              <div style={{ lineHeight: "1.1" }}>
-                <span style={{ fontWeight: "800", fontSize: "14px", color: "#ffffff", display: "block" }}>
-                  BCPay
-                </span>
-                <span style={{ fontSize: "11px", fontWeight: "600", color: "#ffffff" }}>
-                  360
+              <div style={{ lineHeight: "1.2", maxWidth: "160px" }}>
+                <span style={{ 
+                  fontWeight: "800", 
+                  fontSize: companyName?.length > 15 ? "11px" : "13.5px", 
+                  color: "#ffffff", 
+                  display: "block", 
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px"
+                }}>
+                  {companyName}
                 </span>
               </div>
             )}
@@ -101,13 +105,13 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }
             <Link
               key={item.name}
               to={item.path}
-              onClick={() => isMobile && onClose()} 
+              onClick={() => isMobile && onClose()}
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: isOpen ? "flex-start" : "center",
                 padding: "12px",
-                borderRadius: "4px", 
+                borderRadius: "4px",
                 textDecoration: "none",
                 color: "#ffffff",
                 backgroundColor: active ? "rgba(255,255,255,0.15)" : "transparent",
@@ -138,9 +142,9 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }
             alignItems: "center",
             justifyContent: isOpen ? "flex-start" : "center",
             padding: "12px",
-            borderRadius: "4px", 
+            borderRadius: "4px",
             cursor: "pointer",
-            color: "#ef4444", 
+            color: "#ef4444",
             transition: "all 0.2s ease",
           }}
           title={!isOpen ? "Logout" : ""}

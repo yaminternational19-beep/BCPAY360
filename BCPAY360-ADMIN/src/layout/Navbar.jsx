@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaBars, FaBell, FaSignOutAlt, FaUser } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 import logo from "../assets/Logo.png";
 
 const Navbar = ({ user, onToggleSidebar, onLogout }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   // 🔹 Outside click handler
   useEffect(() => {
@@ -53,7 +55,7 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
   >
     <img
   src={logo}
-  alt="BCPAY360"
+  alt="BCPay360"
   style={{
     height: "44px",
     width: "44px",
@@ -73,7 +75,7 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
         letterSpacing: "0.5px"
       }}
     >
-      BCPAY360
+      BCPay360
     </span>
   </div>
           <button
@@ -143,15 +145,24 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
                 Profile
               </div> */}
 <div
+  className="menu-item"
+  onClick={() => {
+    navigate("/profile");
+    setOpen(false);
+  }}
   style={{
     display: "flex",
     alignItems: "center",
-    padding: "14px 18px",
-    borderRadius: "12px",
+    padding: "12px 18px",
+    borderRadius: "8px",
     fontSize: "15px",
     fontWeight: 700,
-    color: "#1e293b"
+    color: "#1e293b",
+    cursor: "pointer",
+    transition: "background 0.2s"
   }}
+  onMouseEnter={(e) => e.target.style.background = "#f1f5f9"}
+  onMouseLeave={(e) => e.target.style.background = "transparent"}
 >
   {/* ICON CONTAINER */}
   <div
@@ -161,7 +172,7 @@ const Navbar = ({ user, onToggleSidebar, onLogout }) => {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      marginRight: "20px"   // 👈 manual spacing
+      marginRight: "12px"
     }}
   >
     <FaUser

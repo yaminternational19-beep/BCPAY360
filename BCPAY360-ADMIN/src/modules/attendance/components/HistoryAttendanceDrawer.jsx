@@ -1,6 +1,65 @@
+import React, { useState, useEffect } from "react";
 import "../../../styles/Attendance.css";
 import MonthlyAttendanceForm from "./MonthlyAttendanceForm";
 import { X } from "lucide-react";
+
+const LocationText = ({ coords }) => {
+  const [address, setAddress] = useState("Loading...");
+
+  useEffect(() => {
+    if (!coords) {
+      setAddress("-");
+      return;
+    }
+    const [lat, lng] = coords.split(',').map(c => c.trim());
+    
+    const cached = localStorage.getItem(`geo_${lat}_${lng}`);
+    if (cached) {
+      setAddress(cached);
+      return;
+    }
+
+    const fetchAddress = async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        
+        // Extract meaningful parts: area, suburb, or first 2 parts
+        const addrParts = data.address;
+        const area = addrParts.suburb || addrParts.neighbourhood || addrParts.commercial || addrParts.road || "";
+        const city = addrParts.city || addrParts.town || addrParts.state_district || "";
+        
+        const shortAddr = area && city ? `${area}, ${city}` : (data.display_name?.split(',').slice(0, 2).join(',') || "Unknown");
+        
+        setAddress(shortAddr);
+        localStorage.setItem(`geo_${lat}_${lng}`, shortAddr);
+      } catch (err) {
+        setAddress(coords); 
+      }
+    };
+
+    // Debounce/Delay to avoid hitting Nominatim too fast
+    const timer = setTimeout(fetchAddress, 500);
+    return () => clearTimeout(timer);
+  }, [coords]);
+
+  return (
+    <div title={coords} style={{ fontSize: '12px', lineHeight: '1.4' }}>
+      {address === "Loading..." || address === "-" ? (
+        <span>{address}</span>
+      ) : (
+        <>
+          <div style={{ fontWeight: '700', color: '#334155' }}>
+            {address.split(',')[0]}
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b' }}>
+            {address.split(',').slice(1).join(',')}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const statusLabelMap = {
   PRESENT: "Present",
@@ -8,6 +67,8 @@ const statusLabelMap = {
   CHECKED_IN: "Checked In",
   UNMARKED: "Unmarked",
   LEAVE: "Leave",
+  LATE: "Late",
+  HALF_DAY: "Half Day",
   H: "Holiday",
   "-": "N/A"
 };
@@ -27,6 +88,13 @@ const formatDate = (dateStr) => {
     month: "short",
     year: "numeric"
   });
+};
+
+const formatMinutes = (mins) => {
+  if (!mins || isNaN(mins) || mins === 0) return "0h 0m";
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h}h ${m}m`;
 };
 
 const HistoryAttendanceDrawer = ({ data, loading, onRefresh, onClose }) => {
@@ -93,10 +161,12 @@ const HistoryAttendanceDrawer = ({ data, loading, onRefresh, onClose }) => {
                 <th className="text-center">Shift</th>
                 <th className="text-center">Status</th>
                 <th className="text-center">Check In</th>
+                <th className="text-center">In Loc</th>
                 <th className="text-center">Check Out</th>
-                <th className="text-center">Late (min)</th>
-                <th className="text-center">Early Out (min)</th>
-                <th className="text-center">Overtime (min)</th>
+                <th className="text-center">Out Loc</th>
+                <th className="text-center">Worked</th>
+                <th className="text-center">Late</th>
+                <th className="text-center">Overtime</th>
               </tr>
             </thead>
 
@@ -110,9 +180,9 @@ const HistoryAttendanceDrawer = ({ data, loading, onRefresh, onClose }) => {
 
                     <td className="text-center">
                       <div className="shift-cell">
-                        <span>{row.shift_name}</span>
+                        <span className="text-center">{row.shift_name}</span>
                         {row.shift_start_time && row.shift_end_time && (
-                          <small>
+                          <small className="text-center">
                             {row.shift_start_time} – {row.shift_end_time}
                           </small>
                         )}
@@ -129,16 +199,23 @@ const HistoryAttendanceDrawer = ({ data, loading, onRefresh, onClose }) => {
                     </td>
 
                     <td className="text-center">{row.check_in_time || "-"}</td>
-                    <td className="text-center">{row.check_out_time || "-"}</td>
+                    <td className="text-center" style={{ color: '#64748b', minWidth: '120px' }}>
+                      <LocationText coords={row.check_in_location} />
+                    </td>
 
-                    <td className="text-center">{row.late_minutes || 0}</td>
-                    <td className="text-center">{row.early_checkout_minutes || 0}</td>
-                    <td className="text-center">{row.overtime_minutes || 0}</td>
+                    <td className="text-center">{row.check_out_time || "-"}</td>
+                    <td className="text-center" style={{ color: '#64748b', minWidth: '120px' }}>
+                      <LocationText coords={row.check_out_location} />
+                    </td>
+
+                    <td className="text-center">{formatMinutes(row.worked_minutes)}</td>
+                    <td className="text-center">{formatMinutes(row.late_minutes)}</td>
+                    <td className="text-center">{formatMinutes(row.overtime_minutes)}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="table-empty text-center">
+                  <td colSpan="10" className="table-empty text-center">
                     No attendance history available for this period
                   </td>
                 </tr>

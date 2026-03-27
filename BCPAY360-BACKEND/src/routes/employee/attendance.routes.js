@@ -3,10 +3,12 @@ import { verifyEmployeeToken } from "../../middlewares/auth.middleware.js";
 import {
   checkIn,
   checkOut,
-  getMyAttendance,
-  startOvertime,
-  stopOvertime
+  getMyAttendance
 } from "../../controllers/employee/attendance.controller.js";
+import { 
+  startOvertime, 
+  stopOvertime 
+} from "../../controllers/employee/overtime.controller.js";
 
 const router = express.Router();
 

@@ -20,7 +20,7 @@ export const sendSystemEmail = async ({ to, subject, body }) => {
  * Send OTP Email (Convenience wrapper)
  */
 export const sendOtpEmail = async (to, otp) => {
-    const subject = "Verification OTP - BCPAY360";
+    const subject = "Verification OTP - BCPay360";
     const body = `Your OTP code is: <strong>${otp}</strong>. It is valid for 5 minutes.`;
     const { html, text } = genericTemplate({ subject, body });
     return await sendMail({ to, subject, html, text });

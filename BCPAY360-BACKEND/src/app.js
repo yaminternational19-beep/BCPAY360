@@ -32,6 +32,7 @@ import generatedocs from "./routes/admin/generateDocs.routes.js";
 import adminFormsRoutes from "./routes/admin/adminForms.routes.js";
 import holidays from "./routes/admin/holidays.route.js";
 import dashboardRoutes from "./routes/admin/dashboard.routes.js";
+import adminProfileRoutes from "./routes/admin/profile.routes.js";
 
 /* --- EMPLOYEE MODULE ROUTES --- */
 import employeeAuthRoutes from "./routes/employee/employeeAuth.routes.js";
@@ -190,6 +191,7 @@ app.use("/api/admin/forms", adminFormsRoutes);
 app.use("/api/admin/holidays", holidays);
 app.use("/api/admin/company-documents", companyDocumentRoutes);
 app.use("/api/admin/content", contentPage);
+app.use("/api/admin/profile", adminProfileRoutes);
 app.use("/api/admin", helpsupport);
 app.use("/api/admin", FandQ);
 app.use("/api/admin", broadcastRoutes);

@@ -14,7 +14,7 @@ export const sendMail = async ({ to, subject, html, text }) => {
         if (!html && !text) throw new Error("Email body (html or text) is required");
 
         const info = await transporter.sendMail({
-            from: `"BCPAY360 Support" <${process.env.EMAIL_FROM}>`,
+            from: `"BCPay360 Support" <${process.env.EMAIL_FROM}>`,
             to,
             subject,
             text,

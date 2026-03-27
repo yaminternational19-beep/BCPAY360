@@ -155,7 +155,7 @@ const Dashboard = () => {
   >
     {/* LOGO */}
     <img
-      src={logo}
+      src={company?.logo_url || logo}
       alt="Company Logo"
       style={{
         width: "52px",

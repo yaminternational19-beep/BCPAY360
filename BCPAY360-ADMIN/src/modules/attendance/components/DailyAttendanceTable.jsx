@@ -1,5 +1,58 @@
+import React, { useState, useEffect } from "react";
 import "../../../styles/Attendance.css";
 import { FaHistory } from "react-icons/fa";
+
+const LocationText = ({ coords }) => {
+  const [address, setAddress] = useState("Loading...");
+
+  useEffect(() => {
+    if (!coords) {
+      setAddress("-");
+      return;
+    }
+    const [lat, lng] = coords.split(',').map(c => c.trim());
+    
+    const cached = localStorage.getItem(`geo_${lat}_${lng}`);
+    if (cached) {
+      setAddress(cached);
+      return;
+    }
+
+    const fetchAddress = async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        const addrParts = data.address;
+        const area = addrParts.suburb || addrParts.neighbourhood || addrParts.commercial || addrParts.road || "";
+        const city = addrParts.city || addrParts.town || addrParts.state_district || "";
+        const shortAddr = area && city ? `${area}, ${city}` : (data.display_name?.split(',').slice(0, 2).join(',') || "Unknown");
+        setAddress(shortAddr);
+        localStorage.setItem(`geo_${lat}_${lng}`, shortAddr);
+      } catch (err) {
+        setAddress(coords); 
+      }
+    };
+    const timer = setTimeout(fetchAddress, 300);
+    return () => clearTimeout(timer);
+  }, [coords]);
+
+  return (
+    <div title={coords} style={{ fontSize: '11px', lineHeight: '1.2' }}>
+      {address === "Loading..." || address === "-" ? (
+        <span>{address}</span>
+      ) : (
+        <>
+          <div style={{ fontWeight: '700', color: '#1e293b' }}>
+            {address.split(',')[0]}
+          </div>
+          <div style={{ fontSize: '10px', color: '#64748b' }}>
+            {address.split(',').slice(1).join(',')}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 
 const formatMinutes = (minutes) => {
@@ -68,10 +121,11 @@ const DailyAttendanceTable = ({
               <th>Shift</th>
               <th className="text-center">Status</th>
               <th className="text-center">Check In</th>
+              <th className="text-center">In Loc</th>
               <th className="text-center">Check Out</th>
-              <th className="text-center">Late (min)</th>
-              <th className="text-center">Early Out (min)</th>
-              <th className="text-center">Overtime (min)</th>
+              <th className="text-center">Out Loc</th>
+              <th className="text-center">Late</th>
+              <th className="text-center">Overtime</th>
               <th className="text-center">Action</th>
             </tr>
           </thead>
@@ -134,10 +188,16 @@ const DailyAttendanceTable = ({
                   </td>
 
                   <td className="text-center">{row.check_in_time || "-"}</td>
+                  <td className="text-center" style={{ minWidth: '100px' }}>
+                    <LocationText coords={row.check_in_location} />
+                  </td>
+
                   <td className="text-center">{row.check_out_time || "-"}</td>
+                  <td className="text-center" style={{ minWidth: '100px' }}>
+                    <LocationText coords={row.check_out_location} />
+                  </td>
 
                   <td className="text-center">{formatMinutes(row.late_minutes)}</td>
-                  <td className="text-center">{formatMinutes(row.early_checkout_minutes)}</td>
                   <td className="text-center">{formatMinutes(row.overtime_minutes)}</td>
 
                   {/* Action */}

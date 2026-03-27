@@ -534,3 +534,31 @@ export const deleteBroadcast = (id) =>
   api(`/api/admin/broadcast/${id}`, {
     method: "DELETE",
   });
+
+/* ===================================================================================
+   ADMIN PROFILE
+   =================================================================================== */
+
+export const getAdminProfile = () =>
+  api("/api/admin/profile");
+
+/**
+ * 🔹 Update Admin Profile (Name, Email, Logo)
+ * Payload can be FormData (multi-part)
+ */
+export const updateAdminProfile = (data) =>
+  api("/api/admin/profile", {
+    method: "PUT",
+    isFormData: data instanceof FormData,
+    body: data,
+  });
+
+/**
+ * 🔹 Update Admin Password
+ * Payload: { current_password, new_password }
+ */
+export const updateAdminPassword = (data) =>
+  api("/api/admin/profile/password", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });

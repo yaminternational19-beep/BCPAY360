@@ -33,6 +33,16 @@ const formatDateOnly = (dt) => {
   return `${y}-${m}-${day}`;
 };
 
+const getS3KeyFromUrl = (url) => {
+  if (!url || !url.startsWith("http")) return url;
+  try {
+    const urlObj = new URL(url);
+    return urlObj.pathname.startsWith("/") ? urlObj.pathname.substring(1) : urlObj.pathname;
+  } catch (e) {
+    return url;
+  }
+};
+
 // Status map matches employee attendance.controller.js numeric codes
 const STATUS_MAP = { 0: "ABSENT", 1: "PRESENT", 2: "LATE", 3: "HALF_DAY" };
 
@@ -238,7 +248,7 @@ export const getHistoryAttendance = async ({
       code: employee.employee_code,
       name: employee.full_name,
       profile_photo_url: employee.profile_photo_url
-        ? await getS3SignedUrl(employee.profile_photo_url)
+        ? await getS3SignedUrl(getS3KeyFromUrl(employee.profile_photo_url))
         : null,
       department: employee.department || "-",
       designation: employee.designation || "-",

@@ -16,6 +16,7 @@ const MainLayout = () => {
     } catch { return null; }
   })();
   const companyLogoUrl = storedProfile?.company_logo_url || null;
+  const companyName = storedProfile?.company_name || "BCPay360"; // Key: Blackcube Solutions when logged in
 
   const toggleTheme = () => setIsDarkTheme(prev => !prev);
 
@@ -28,32 +29,32 @@ const MainLayout = () => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (mobile) setSidebarOpen(false); 
+      if (mobile) setSidebarOpen(false);
       else setSidebarOpen(true);
     };
-    handleResize(); 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleSidebarToggle = () => setSidebarOpen(prev => !prev);
 
-  const sidebarWidth = isMobile 
-    ? (sidebarOpen ? "250px" : "0px") 
+  const sidebarWidth = isMobile
+    ? (sidebarOpen ? "250px" : "0px")
     : (sidebarOpen ? SIDEBAR_OPEN_WIDTH : SIDEBAR_COLLAPSED_WIDTH);
 
   const contentMargin = isMobile ? "0px" : sidebarWidth;
 
   return (
-    <div style={{ 
-      display: "flex", 
-      minHeight: "100vh", 
-      width: "100vw", 
+    <div style={{
+      display: "flex",
+      minHeight: "100vh",
+      width: "100vw",
       backgroundColor: isDarkTheme ? colors.darkBg : colors.layoutBg,
       transition: "background-color 0.3s ease",
       overflowX: "hidden"
     }}>
-      
+
       {/* SIDEBAR */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -62,19 +63,20 @@ const MainLayout = () => {
         onClose={() => setSidebarOpen(false)}
         topOffset={NAVBAR_HEIGHT}
         companyLogoUrl={companyLogoUrl}
+        companyName={companyName}
       />
 
       {/* MOBILE BACKDROP - Starts BELOW Navbar */}
       {isMobile && sidebarOpen && (
-        <div 
+        <div
           onClick={() => setSidebarOpen(false)}
           style={{
-            position: "fixed", 
+            position: "fixed",
             top: NAVBAR_HEIGHT, // 🔥 Starts below Navbar
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)", 
+            backgroundColor: "rgba(0,0,0,0.5)",
             zIndex: 1005, // Above content, below Sidebar
             backdropFilter: "blur(3px)"
           }}
@@ -85,7 +87,7 @@ const MainLayout = () => {
       <div
         style={{
           flexGrow: 1,
-          marginLeft: contentMargin, 
+          marginLeft: contentMargin,
           transition: "marginLeft 0.3s ease",
           display: "flex",
           flexDirection: "column",
@@ -97,13 +99,13 @@ const MainLayout = () => {
           toggleTheme={toggleTheme}
           isDarkTheme={isDarkTheme}
           onOpen={handleSidebarToggle}
-          leftPosition={contentMargin} 
+          leftPosition={contentMargin}
           navbarHeight={NAVBAR_HEIGHT}
         />
 
-        <main style={{ 
+        <main style={{
           marginTop: NAVBAR_HEIGHT,
-          padding: isMobile ? "16px" : "24px", 
+          padding: isMobile ? "16px" : "24px",
           flexGrow: 1,
           overflowY: "auto",
           overflowX: "hidden",

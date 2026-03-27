@@ -7,14 +7,14 @@ import colors from "../../styles/colors";
 import typography from "../../styles/typography";
 import logo from "../../assets/images/AppLogo2.png";
 import { toast } from "react-toastify";
-import api from "../../utils/api"; 
+import api from "../../utils/api";
 
 const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employeeId, employeeCode }) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [showReset, setShowReset] = useState(false);
   const [timer, setTimer] = useState(30);
   const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef([]);
 
   const isOtpFilled = otp.every((d) => d !== "");
@@ -25,7 +25,7 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
     subtitle: isDarkTheme ? colors.darkMuted : colors.textMuted,
     inputBg: isDarkTheme ? colors.darkHover : colors.surface,
     inputBorder: isDarkTheme ? colors.darkBorder : colors.inputBorder,
-    textColor: isDarkTheme ? colors.textLight : "#000000", 
+    textColor: isDarkTheme ? colors.textLight : "#000000",
   };
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
 
       if (flow === "forgot") {
         toast.success("Verified! Please set new password."); // Keep for forgot flow
-        setShowReset(true); 
+        setShowReset(true);
       } else {
         onOtpVerified?.(response.data.token); // Instant callback
       }
@@ -91,34 +91,34 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
   };
 
   const handleResendOtp = async () => {
-  if (timer !== 0 || isLoading) return;
+    if (timer !== 0 || isLoading) return;
 
-  if (!employeeCode) {
-    toast.error("Employee code missing. Please login again.");
-    return;
-  }
+    if (!employeeCode) {
+      toast.error("Employee code missing. Please login again.");
+      return;
+    }
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    await api.post("/auth/resend-login-otp", {
-      employee_code: employeeCode,
-    });
+    try {
+      await api.post("/auth/resend-login-otp", {
+        employee_code: employeeCode,
+      });
 
-    toast.success("New OTP sent successfully!");
+      toast.success("New OTP sent successfully!");
 
-    setTimer(30);
-    setOtp(["", "", "", "", "", ""]);
-    setIsError(false);
-    inputRefs.current[0]?.focus();
+      setTimer(30);
+      setOtp(["", "", "", "", "", ""]);
+      setIsError(false);
+      inputRefs.current[0]?.focus();
 
-  } catch (error) {
-    console.error("Resend OTP error:", error.response || error);
-    toast.error(error.response?.data?.message || "Failed to resend OTP.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+    } catch (error) {
+      console.error("Resend OTP error:", error.response || error);
+      toast.error(error.response?.data?.message || "Failed to resend OTP.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   if (showReset) {
@@ -130,9 +130,9 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
       <div className="auth-overlay" style={{ ...styles.overlay, backgroundColor: theme.overlay }}>
         <div style={styles.modalWrapper}>
           <Card isDark={isDarkTheme} style={{ padding: "40px", position: "relative", boxShadow: colors.dropdownShadow }}>
-            <MdClose 
-              onClick={onClose} 
-              style={styles.closeIcon} 
+            <MdClose
+              onClick={onClose}
+              style={styles.closeIcon}
               onMouseEnter={(e) => (e.target.style.color = colors.primary)}
               onMouseLeave={(e) => (e.target.style.color = colors.textMuted)}
             />
@@ -170,18 +170,18 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
                 />
               ))}
             </div>
-            <Button 
-              label={isLoading ? "Verifying..." : "Verify OTP"} 
-              fullWidth 
-              onClick={handleVerifyOtp} 
-              disabled={isLoading || !isOtpFilled} 
-              style={{ 
-                height: "48px", 
+            <Button
+              label={isLoading ? "Verifying..." : "Verify OTP"}
+              fullWidth
+              onClick={handleVerifyOtp}
+              disabled={isLoading || !isOtpFilled}
+              style={{
+                height: "48px",
                 boxShadow: colors.buttonShadow(colors.primary),
                 opacity: (isLoading || !isOtpFilled) ? 0.5 : 1,
                 cursor: (isLoading || !isOtpFilled) ? "not-allowed" : "pointer",
                 transition: "all 0.3s ease"
-              }} 
+              }}
             />
             <div style={{ textAlign: "center", marginTop: "20px" }}>
               {timer > 0 ? (
@@ -192,19 +192,19 @@ const VerifyOtp = ({ onClose, flow = "login", onOtpVerified, isDarkTheme, employ
               ) : (
                 <p style={{ fontSize: "14px", margin: 0 }}>
                   <span style={{ color: theme.textColor }}>Didn't receive code? </span>
-                <span
-  onClick={timer === 0 && !isLoading ? handleResendOtp : undefined}
-  style={{
-    color: timer === 0 ? colors.primary : "#94a3b8",
-    fontWeight: "700",
-    cursor: timer === 0 ? "pointer" : "not-allowed",
-    textDecoration: "underline",
-    marginLeft: "4px",
-    opacity: isLoading ? 0.6 : 1
-  }}
->
-  Resend OTP
-</span>
+                  <span
+                    onClick={timer === 0 && !isLoading ? handleResendOtp : undefined}
+                    style={{
+                      color: timer === 0 ? colors.primary : "#94a3b8",
+                      fontWeight: "700",
+                      cursor: timer === 0 ? "pointer" : "not-allowed",
+                      textDecoration: "underline",
+                      marginLeft: "4px",
+                      opacity: isLoading ? 0.6 : 1
+                    }}
+                  >
+                    Resend OTP
+                  </span>
 
                 </p>
               )}

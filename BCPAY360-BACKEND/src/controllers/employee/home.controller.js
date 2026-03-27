@@ -118,6 +118,18 @@ export const getEmployeeHome = async (req, res) => {
       4: "LATE_PRESENT"
     };
 
+    /* ---------------------------------
+       3.1️⃣ OVERTIME STATUS
+    --------------------------------- */
+    const [openOt] = await db.query(
+      `SELECT id, DATE_FORMAT(overtime_start, '%H:%i:%s') as overtime_start 
+       FROM overtime_logs 
+       WHERE employee_id = ? AND overtime_end IS NULL`,
+      [employeeId]
+    );
+
+    const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    
     const todayAttendance = attendance
       ? {
         attendance_id: attendance.id,
@@ -133,7 +145,11 @@ export const getEmployeeHome = async (req, res) => {
         is_present:
           attendance.status !== 0 &&
           attendance.session_status !== 0,
-        is_late: attendance.status === 2 || attendance.status === 4
+        is_late: attendance.status === 2 || attendance.status === 4,
+        // Overtime Flags
+        is_ot_session: openOt.length > 0,
+        ot_start_time: openOt.length > 0 ? openOt[0].overtime_start : null,
+        can_start_ot: attendance.session_status === 2 && openOt.length === 0
       }
       : null;
 

@@ -3,7 +3,7 @@
  */
 export const genericTemplate = ({ subject, body }) => {
     return {
-        subject: subject || "BCPAY360 Notification",
+        subject: subject || "BCPay360 Notification",
 
         html: `
         <div style="background-color:#f4f6f8; padding:30px 0; font-family:Arial, sans-serif;">
@@ -11,7 +11,7 @@ export const genericTemplate = ({ subject, body }) => {
 
                 <!-- Header -->
                 <div style="background:#4A90E2; padding:20px; text-align:center;">
-                    <h1 style="color:#ffffff; margin:0; font-size:22px;">BCPAY360</h1>
+                    <h1 style="color:#ffffff; margin:0; font-size:22px;">BCPay360</h1>
                 </div>
 
                 <!-- Body -->
@@ -33,7 +33,7 @@ export const genericTemplate = ({ subject, body }) => {
 
                         <p style="margin-top:20px;">
                             Regards,<br/>
-                            <strong>BCPAY360 Team</strong>
+                            <strong>BCPay360 Team</strong>
                         </p>
                     </div>
                 </div>
@@ -44,7 +44,7 @@ export const genericTemplate = ({ subject, body }) => {
                         This is a system-generated email. Replies to this address are not monitored.
                     </p>
                     <p style="margin:5px 0;">
-                        © ${new Date().getFullYear()} BCPAY360. All rights reserved.
+                        © ${new Date().getFullYear()} BCPay360. All rights reserved.
                     </p>
                 </div>
 
@@ -53,7 +53,7 @@ export const genericTemplate = ({ subject, body }) => {
         `,
 
         text: `
-${subject || "BCPAY360 Notification"}
+${subject || "BCPay360 Notification"}
 
 Dear User,
 
@@ -62,7 +62,7 @@ ${body}
 If you require any assistance, please contact support.
 
 Regards,  
-BCPAY360 Team
+BCPay360 Team
 
 ---
 This is a system-generated email. Replies are not monitored.

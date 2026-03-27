@@ -121,7 +121,7 @@ const Login = () => {
       <div className="login-wrapper">
         <div className="login-card">
           {/* LEFT SIDE */}
-<div className="login-left">           <img src={image} alt="Login Illustration" className="login-image" />
+          <div className="login-left">           <img src={image} alt="Login Illustration" className="login-image" />
 
             <h1 style={{ fontSize: "28px", marginBottom: "10px" }}>
               Employee Portal
@@ -133,19 +133,19 @@ const Login = () => {
           </div>
 
           {/* RIGHT SIDE */}
-         <div className="login-right">
-<div className="login-form">              <div className="login-header">
-                <img
-                  src={logo}
-                  alt="logo"
-                  width={100}
-                  style={{ marginBottom: "10px" }}
-                />
+          <div className="login-right">
+            <div className="login-form">              <div className="login-header">
+              <img
+                src={logo}
+                alt="logo"
+                width={100}
+                style={{ marginBottom: "10px" }}
+              />
 
-             <h2 className="login-title">Welcome Back</h2>
+              <h2 className="login-title">Welcome Back</h2>
 
-               <p className="login-subtitle">Enter your Login Details</p>
-              </div>
+              <p className="login-subtitle">Enter your Login Details</p>
+            </div>
 
               <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
                 <InputField
@@ -167,7 +167,7 @@ const Login = () => {
                   error={errors.password}
                 />
 
-              <div className="forgot-wrapper">
+                <div className="forgot-wrapper">
                   <span
                     onClick={() => {
                       setForgotFlow(true);
@@ -252,24 +252,24 @@ const pageWrapper = {
   alignItems: "center",
   justifyContent: "center",
   fontFamily: "'Inter', sans-serif",
-  backgroundColor: "#ffffff", 
+  backgroundColor: "#ffffff",
 };
 
 const cardStyle = {
   display: "flex",
-  flexDirection: "row", 
+  flexDirection: "row",
   width: "85%",
-  maxWidth: "1000px", 
+  maxWidth: "1000px",
   minHeight: "550px",
   backgroundColor: "#ffffff",
   borderRadius: "20px",
-  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)", 
-  overflow: "hidden", 
+  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
+  overflow: "hidden",
 };
 
 const leftSection = {
   flex: 1,
-  background: "linear-gradient(135deg, #2b5876 0%, #4e4376 100%)", 
+  background: "linear-gradient(135deg, #2b5876 0%, #4e4376 100%)",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -297,7 +297,7 @@ const rightSection = {
 
 const formContainer = {
   width: "100%",
-  maxWidth: "360px", 
+  maxWidth: "360px",
 };
 
 const headerSection = {
@@ -328,7 +328,7 @@ const forgotPasswordWrapper = {
 
 const forgotLinkStyle = {
   cursor: "pointer",
-  color: "#2b5876", 
+  color: "#2b5876",
   fontSize: "13px",
   fontWeight: "600",
   textDecoration: "none",

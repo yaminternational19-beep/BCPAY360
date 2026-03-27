@@ -51,8 +51,8 @@ const Dashboard = ({ isDarkTheme }) => {
       .filter(([_, value]) => value !== null)
       .map(([day, value]) => ({
         day: day.charAt(0).toUpperCase() + day.slice(1),
-        overtime: value.total_overtime_minutes,
-        hours: value.total_hours || 0,
+        worked_minutes: value.total_worked_minutes || 0,
+        formatted_worked_time: value.formatted_worked_time || "0h 0m",
         date: value.date,
       }));
   }, [dashboardData]);

@@ -13,12 +13,12 @@ const SupportGrid = ({ isDarkTheme }) => {
       setLoading(true);
       try {
         const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
-        const response = await fetch("http://13.51.196.99:5000/api/public/content?company_id=1", {
-          method: "GET",
+        const response = await fetch("https://bcpay360.com/api/public/content?company_id=1", {
+          method: "GET",  
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
         });
 
-        const data = await response.json();
+        const data = await response.json();     
         if (data.success) {
           setContentData(data.content_arr || []);
         }

@@ -184,8 +184,7 @@ export const updateEmployeeProfile = async (req, res) => {
       profileUpdateValues.push(profilePhotoPath);
     }
 
-    profileUpdateFields.push("last_updated_by_role = 'EMPLOYEE'");
-    profileUpdateFields.push("last_updated_by_id = ?");
+    profileUpdateFields.push("last_updated_by = ?");
     profileUpdateValues.push(employeeId);
 
     if (profileRow && profileUpdateFields.length > 0) {
@@ -252,7 +251,7 @@ export const updateEmployeeProfile = async (req, res) => {
 
     const [documentRows] = await connection.query(
       `SELECT id, document_type, document_number,
-              file_path, created_at
+              file_url, created_at
        FROM employee_documents
        WHERE employee_id = ?`,
       [employeeId]
@@ -260,7 +259,7 @@ export const updateEmployeeProfile = async (req, res) => {
 
     const personal_documents = await Promise.all(
       documentRows.map(async (doc) => {
-        const key = extractS3Key(doc.file_path);
+        const key = extractS3Key(doc.file_url);
         return {
           id: doc.id,
           document_type: doc.document_type,

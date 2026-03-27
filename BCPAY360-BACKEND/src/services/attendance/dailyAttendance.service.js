@@ -1,9 +1,47 @@
 import db from "../../config/db.js";
 import { getS3SignedUrl } from "../../utils/s3.util.js";
 
+/* ==========================================================
+   HELPERS (matches employee attendance.controller.js exactly)
+   ========================================================== */
+
+// IST-correct time - but for admin we need UTC-safe status comparison
+const getISTNow = () =>
+  new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+
+const minutesToHM = (minutes) => {
+  if (!minutes || minutes <= 0) return "0h 0m";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h}h ${m}m`;
+};
+
+// Format a JS Date object to HH:MM AM/PM display
+const formatTimeDisplay = (dt) => {
+  if (!dt) return null;
+  const d = dt instanceof Date ? dt : new Date(dt);
+  if (isNaN(d)) return null;
+  let h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m} ${ampm}`;
+};
+
+// Format a date to YYYY-MM-DD only (strip time)
+const formatDateOnly = (dt) => {
+  if (!dt) return null;
+  const d = dt instanceof Date ? dt : new Date(dt);
+  if (isNaN(d)) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
 /**
  * DAILY Attendance View (Admin)
- * Date-driven, shift-aware, history-consistent
+ * Date-driven, shift-aware, consistent with employee attendance controller
  */
 export const getDailyAttendance = async ({
   companyId,
@@ -17,39 +55,8 @@ export const getDailyAttendance = async ({
   status = ""
 }) => {
   const offset = (page - 1) * limit;
-  const now = new Date(); // IST
-
-  /* ===========================
-     DATE CONTEXT
-  =========================== */
-  const selectedDate = new Date(date);
-  selectedDate.setHours(0, 0, 0, 0);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const isPast = selectedDate < today;
-  const isToday = selectedDate.getTime() === today.getTime();
-  const isFuture = selectedDate > today;
-
-  /* ===========================
-     HELPERS
-  =========================== */
-  const toLocalDateTime = (d, t) =>
-    new Date(`${d}T${t}+05:30`);
-
-  const formatToTimeOnly = (dateTime) => {
-    if (!dateTime) return null;
-    const date = new Date(dateTime);
-    return date.toTimeString().split(' ')[0]; // Returns HH:MM:SS
-  };
-
-  const minutesToHoursFormat = (minutes) => {
-    if (!minutes || minutes <= 0) return "0h 0m";
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h}h ${m}m`;
-  };
+  const now = getISTNow();
+  const todayStr = formatDateOnly(now);
 
   /* ===========================
      FILTER CONDITIONS
@@ -61,25 +68,11 @@ export const getDailyAttendance = async ({
     conditions.push(`(e.full_name LIKE ? OR e.employee_code LIKE ?)`);
     values.push(`%${search}%`, `%${search}%`);
   }
+  if (branchId) { conditions.push(`e.branch_id = ?`); values.push(branchId); }
+  if (departmentId) { conditions.push(`e.department_id = ?`); values.push(departmentId); }
+  if (shiftId) { conditions.push(`e.shift_id = ?`); values.push(shiftId); }
 
-  if (branchId) {
-    conditions.push(`e.branch_id = ?`);
-    values.push(branchId);
-  }
-
-  if (departmentId) {
-    conditions.push(`e.department_id = ?`);
-    values.push(departmentId);
-  }
-
-  if (shiftId) {
-    conditions.push(`e.shift_id = ?`);
-    values.push(shiftId);
-  }
-
-  const whereClause = conditions.length
-    ? " AND " + conditions.join(" AND ")
-    : "";
+  const whereClause = conditions.length ? " AND " + conditions.join(" AND ") : "";
 
   /* ===========================
      MAIN QUERY
@@ -99,7 +92,12 @@ export const getDailyAttendance = async ({
       sh.grace_minutes,
       a.check_in_time,
       a.check_out_time,
-      a.source AS attendance_source
+      a.work_minutes,
+      a.overtime_minutes,
+      a.late_minutes,
+      a.is_late,
+      a.status AS db_status,
+      a.auto_checkout
     FROM employees e
     LEFT JOIN attendance a
       ON a.employee_id = e.id
@@ -118,90 +116,51 @@ export const getDailyAttendance = async ({
   );
 
   /* ===========================
+     STATUS MAP (matches employee controller numeric codes)
+  =========================== */
+  const STATUS_MAP = { 0: "ABSENT", 1: "PRESENT", 2: "LATE", 3: "HALF_DAY" };
+
+  /* ===========================
      BUSINESS LOGIC
   =========================== */
+  const isFuture = date > todayStr;
+  const isPast = date < todayStr;
+
   const computedData = await Promise.all(
     rows.map(async (row, index) => {
-      let statusComputed = "UNMARKED";
-      let late_minutes = 0;
-      let early_checkout_minutes = 0;
-      let overtime_minutes = 0;
+      // --- Status Resolution ---
+      let resolvedStatus = "UNMARKED";
 
-      let shiftStart = row.shift_start_time
-        ? toLocalDateTime(date, row.shift_start_time)
-        : null;
-
-      let shiftEnd = row.shift_end_time
-        ? toLocalDateTime(date, row.shift_end_time)
-        : null;
-
-      if (shiftStart && shiftEnd && shiftEnd <= shiftStart) {
-        shiftEnd = new Date(shiftEnd.getTime() + 24 * 60 * 60000);
-      }
-
-      const shiftEndWithGrace =
-        shiftEnd && row.grace_minutes
-          ? new Date(shiftEnd.getTime() + row.grace_minutes * 60000)
-          : shiftEnd;
-
-      /* FUTURE */
       if (isFuture) {
-        statusComputed = "UNMARKED";
-      }
-
-      /* CHECK-IN EXISTS */
-      else if (row.check_in_time) {
-        const checkIn = toLocalDateTime(date, row.check_in_time);
-
-        if (shiftStart && checkIn > shiftStart) {
-          const diff = Math.floor((checkIn - shiftStart) / 60000);
-          late_minutes = Math.max(0, diff - (row.grace_minutes || 0));
-        }
-
-        if (!row.check_out_time) {
-          statusComputed = "PRESENT"; // Converted from CHECKED_IN
+        resolvedStatus = "UNMARKED";
+      } else if (row.check_in_time) {
+        // Has checked in — use DB status, map numeric to text
+        if (row.db_status !== null && row.db_status !== undefined) {
+          resolvedStatus = STATUS_MAP[row.db_status] || "PRESENT";
         } else {
-          const checkOut = toLocalDateTime(date, row.check_out_time);
-          statusComputed = "PRESENT";
-
-          if (shiftEnd && checkOut < shiftEnd) {
-            early_checkout_minutes = Math.floor(
-              (shiftEnd - checkOut) / 60000
-            );
-          }
-
-          if (shiftEnd && checkOut > shiftEnd) {
-            overtime_minutes = Math.floor(
-              (checkOut - shiftEnd) / 60000
-            );
-          }
+          resolvedStatus = "PRESENT";
         }
+      } else {
+        // No check-in
+        resolvedStatus = isPast ? "ABSENT" : "UNMARKED";
       }
 
-      /* NO CHECK-IN */
-      else {
-        if (isPast) {
-          statusComputed = "ABSENT";
-        } else if (isToday && shiftEndWithGrace && now > shiftEndWithGrace) {
-          statusComputed = "ABSENT";
-        } else {
-          statusComputed = "UNMARKED";
-        }
-      }
-
-      /* ===========================
-         IMAGE URL HANDLER
-      =========================== */
+      // --- Photo URL ---
       let photoKey = row.profile_photo_url;
-      if (photoKey && photoKey.startsWith('http')) {
-        // Extract key from full URL (handles both .com/ and .com:443/)
+      if (photoKey && photoKey.startsWith("http")) {
         try {
           const urlObj = new URL(photoKey);
-          photoKey = urlObj.pathname.startsWith('/') ? urlObj.pathname.substring(1) : urlObj.pathname;
+          photoKey = urlObj.pathname.startsWith("/")
+            ? urlObj.pathname.substring(1)
+            : urlObj.pathname;
         } catch (e) {
           photoKey = row.profile_photo_url;
         }
       }
+
+      const worked_minutes = row.work_minutes || 0;
+      const overtime_mins = row.overtime_minutes || 0;
+      const late_mins = row.late_minutes || 0;
 
       return {
         sl_no: offset + index + 1,
@@ -212,69 +171,57 @@ export const getDailyAttendance = async ({
         department: row.department || "-",
         designation: row.designation || "-",
         shift_name: row.shift_name || "-",
-        shift_start_time: row.shift_start_time,
-        shift_end_time: row.shift_end_time,
-        status: statusComputed,
-        check_in_time: formatToTimeOnly(row.check_in_time),
-        check_out_time: formatToTimeOnly(row.check_out_time),
-        late_minutes: minutesToHoursFormat(late_minutes),
-        early_checkout_minutes: minutesToHoursFormat(early_checkout_minutes),
-        overtime_minutes: minutesToHoursFormat(overtime_minutes),
-        source: row.attendance_source || "AUTO"
+        shift_start_time: row.shift_start_time || null,
+        shift_end_time: row.shift_end_time || null,
+        status: resolvedStatus,
+        is_late: row.is_late || 0,
+        // Clean "12:13 PM" format
+        check_in_time: formatTimeDisplay(row.check_in_time),
+        check_out_time: formatTimeDisplay(row.check_out_time),
+        // Clean date only (no timestamp)
+        attendance_date: date,
+        // Minutes (raw) + formatted
+        worked_minutes,
+        formatted_worked_time: minutesToHM(worked_minutes),
+        overtime_minutes: overtime_mins,
+        formatted_overtime: minutesToHM(overtime_mins),
+        late_minutes: late_mins,
+        formatted_late: minutesToHM(late_mins),
+        source: row.auto_checkout ? "AUTO_CHECKOUT" : "MANUAL"
       };
     })
   );
 
   /* ===========================
-     SUMMARY (JS-DRIVEN)
+     SUMMARY
   =========================== */
-  const summaryComputed = {
-    total: computedData.length,
-    present: 0,
-    absent: 0,
-    unmarked: 0
-  };
-
+  const summaryComputed = { total: computedData.length, present: 0, half_day: 0, absent: 0, late: 0, unmarked: 0 };
   for (const row of computedData) {
     if (row.status === "PRESENT") summaryComputed.present++;
+    else if (row.status === "LATE") { summaryComputed.present++; summaryComputed.late++; }
+    else if (row.status === "HALF_DAY") summaryComputed.half_day++;
     else if (row.status === "ABSENT") summaryComputed.absent++;
-    else if (row.status === "UNMARKED") summaryComputed.unmarked++;
+    else summaryComputed.unmarked++;
   }
 
   /* ===========================
      STATUS FILTER
   =========================== */
-  const finalData = status
-    ? computedData.filter(d => d.status === status)
-    : computedData;
+  const finalData = status ? computedData.filter(d => d.status === status) : computedData;
 
   /* ===========================
      PAGINATION COUNT
   =========================== */
   const [[{ total_records }]] = await db.query(
-    `
-    SELECT COUNT(*) AS total_records
-    FROM employees
-    WHERE company_id = ?
-      AND employee_status = 'ACTIVE'
-    `,
+    `SELECT COUNT(*) AS total_records FROM employees WHERE company_id = ? AND employee_status = 'ACTIVE'`,
     [companyId]
   );
 
-  /* ===========================
-     FINAL RESPONSE
-  =========================== */
   return {
     viewType: "DAILY",
     date,
     summary: summaryComputed,
     data: finalData,
-    pagination: {
-      page,
-      limit,
-      total_records
-    }
+    pagination: { page, limit, total_records }
   };
 };
-
-

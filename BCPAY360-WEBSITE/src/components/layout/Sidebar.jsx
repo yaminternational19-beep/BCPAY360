@@ -13,7 +13,7 @@ import colors from "../../styles/colors";
 import typography from "../../styles/typography"; 
 import logo from "../../assets/images/AppLogo1.png";
 
-const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset }) => {
+const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset, companyLogoUrl }) => {
   const location = useLocation();
 
   const menuItems = [
@@ -73,7 +73,12 @@ const Sidebar = ({ isOpen, isMobile, width, onClose, topOffset }) => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", transition: "all 0.2s" }}>
-            <img src={logo} alt="logo" style={{ width: "30px", height: "30px", objectFit: "contain" }} />
+            <img
+              src={companyLogoUrl || logo}
+              alt="logo"
+              style={{ width: "30px", height: "30px", objectFit: "contain", borderRadius: "6px" }}
+              onError={(e) => { e.target.src = logo; }}
+            />
             {isOpen && (
               <div style={{ lineHeight: "1.1" }}>
                 <span style={{ fontWeight: "800", fontSize: "14px", color: "#ffffff", display: "block" }}>

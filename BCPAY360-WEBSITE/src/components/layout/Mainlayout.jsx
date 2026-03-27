@@ -9,6 +9,14 @@ const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
+  // Read company logo from stored profile (set at login or profile fetch)
+  const storedProfile = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("userProfile") || sessionStorage.getItem("userProfile") || "null");
+    } catch { return null; }
+  })();
+  const companyLogoUrl = storedProfile?.company_logo_url || null;
+
   const toggleTheme = () => setIsDarkTheme(prev => !prev);
 
   // --- DIMENSIONS ---
@@ -52,7 +60,8 @@ const MainLayout = () => {
         isMobile={isMobile}
         width={sidebarWidth}
         onClose={() => setSidebarOpen(false)}
-        topOffset={NAVBAR_HEIGHT} // Pass the navbar height
+        topOffset={NAVBAR_HEIGHT}
+        companyLogoUrl={companyLogoUrl}
       />
 
       {/* MOBILE BACKDROP - Starts BELOW Navbar */}

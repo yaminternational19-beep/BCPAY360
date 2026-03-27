@@ -117,7 +117,7 @@ const AttendanceHistory = ({ data, isDarkTheme }) => {
                       </div>
                     </td>
                     <td style={{ padding: "12px 16px", fontSize: "13px", fontWeight: "700", color: colors.primary }}>
-                      {getDuration(item.attendance_date, item.check_in_time, item.check_out_time)}
+                      {item.formatted_worked_time || getDuration(item.attendance_date, item.check_in_time, item.check_out_time)}
                     </td>
                   </tr>
                 );

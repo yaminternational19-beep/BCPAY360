@@ -2,13 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-     // 👈 ADD THIS
 
   server: {
     proxy: {
-      "/api": "http://13.51.196.99:5000/api/employee",
+      "/api": "http://[IP_ADDRESS]/api/employee",
     },
   },
 
   plugins: [react()],
-})
+})  

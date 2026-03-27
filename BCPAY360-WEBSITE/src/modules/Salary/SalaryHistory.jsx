@@ -159,7 +159,7 @@ const SalaryHistory = ({ isDarkTheme, data, loading }) => {
                   </td>
 
                   <td style={{ padding: "10px 16px", fontWeight: 700, fontSize: 12, color: theme.text }}>
-                    AED {Number(item.net_salary).toLocaleString("en-IN")}
+                    {Number(item.net_salary).toLocaleString("en-IN")}
                   </td>
 
                   <td style={{ padding: "10px 16px", fontSize: 11, color: theme.muted, whiteSpace: "nowrap" }}>

@@ -7,11 +7,11 @@ const PerformanceChart = ({ isDarkTheme, data }) => {
 
   const safeData = WEEK_DAYS.map((day) => {
     const found = Array.isArray(data) ? data.find((d) => d.day === day) : null;
-    const minutes = found?.overtime ?? found?.hours ?? 0;
+    const minutes = found?.worked_minutes ?? 0;
+    const hours = Number((minutes / 60).toFixed(1));
     return {
       day: day.slice(0, 3), 
-      // Removed the / 60 division so it stays in minutes
-      minutes: Number(minutes) 
+      hours: hours 
     };
   });
 
@@ -37,7 +37,7 @@ const PerformanceChart = ({ isDarkTheme, data }) => {
     >
       {/* Updated Heading to show (Mins) instead of (Hrs) */}
       <h4 style={{ marginBottom: "16px", color: theme.text, fontFamily: typography.fontFamily, fontWeight: "700", fontSize: "14px", margin: "0 0 16px 0" }}>
-        Weekly Overtime (Mins)
+        Weekly Work Hours
       </h4>
 
       <div style={{ flex: 1, minHeight: 0 }}>
@@ -57,8 +57,7 @@ const PerformanceChart = ({ isDarkTheme, data }) => {
               tick={{ fill: colors.textMuted, fontSize: 10, fontWeight: 600 }} 
             />
             <Tooltip
-              // Updated tooltip to say 'mins' instead of 'hrs'
-              formatter={(value) => [`${value} mins`, "Overtime"]}
+              formatter={(value) => [`${value} hrs`, "Worked"]}
               contentStyle={{
                 borderRadius: "8px",
                 border: `1px solid ${theme.grid}`,
@@ -71,8 +70,7 @@ const PerformanceChart = ({ isDarkTheme, data }) => {
             />
             <Line
               type="monotone"
-              // Updated dataKey to "minutes"
-              dataKey="minutes"
+              dataKey="hours"
               stroke={theme.line}
               strokeWidth={3}
               dot={{ r: 3, fill: theme.line, strokeWidth: 2, stroke: theme.bg }}

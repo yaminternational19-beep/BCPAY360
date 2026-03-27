@@ -208,7 +208,7 @@ export const checkOut = async (req, res) => {
     const workMinutes = Math.floor((now - checkInTime) / 60000);
 
     // If worked_minutes < 30 -> do NOT allow checkout (keep IN_PROGRESS).
-    if (workMinutes < 10) {
+    if (workMinutes < 30) {
       return res.status(400).json({
         success: false,
         message: `Minimum 30 minutes required for checkout`

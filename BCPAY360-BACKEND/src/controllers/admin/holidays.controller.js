@@ -107,6 +107,26 @@ export const createBranchHolidays = async (req, res) => {
   }
 
   // ===============================
+  // 1.1 Restriction: Cannot mark holidays > 3 days in the past
+  // ===============================
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  now.setHours(0, 0, 0, 0);
+  const cutoffDate = new Date(now);
+  cutoffDate.setDate(cutoffDate.getDate() - 3);
+
+  const blockedPastDates = dates.filter(dateStr => {
+    const d = new Date(dateStr);
+    return d < cutoffDate;
+  });
+
+  if (blockedPastDates.length > 0) {
+    return res.status(400).json({
+      success: false,
+      message: `Cannot mark holidays more than 3 days in the past. Blocked dates: ${blockedPastDates.join(", ")}`
+    });
+  }
+
+  // ===============================
   // 2. Prepare bulk insert values
   // ===============================
   const values = dates.map(date => {
@@ -370,6 +390,14 @@ export const updateBranchHoliday = async (req, res) => {
     });
   }
 
+  // ===============================
+  // Restriction: Cannot modify holidays > 3 days in the past
+  // ===============================
+  const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  istNow.setHours(0, 0, 0, 0);
+  const cutoffDate = new Date(istNow);
+  cutoffDate.setDate(cutoffDate.getDate() - 3);
+
   try {
     /* ===============================
        CASE 1: SINGLE UPDATE
@@ -387,6 +415,14 @@ export const updateBranchHoliday = async (req, res) => {
 
       if (!holiday) {
         return res.status(404).json({ message: "Holiday not found" });
+      }
+
+      const holidayDate = new Date(holiday.holiday_date);
+      if (holidayDate < cutoffDate) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot modify holidays more than 3 days in the past. Date ${holiday.holiday_date} is too old.`
+        });
       }
 
       const sql = `
@@ -445,6 +481,14 @@ export const updateBranchHoliday = async (req, res) => {
     if (!branch_id || !year || !Array.isArray(dates) || dates.length === 0) {
       return res.status(400).json({
         message: "branch_id, year and dates are required for bulk update"
+      });
+    }
+
+    const blockedDates = dates.filter(d => new Date(d) < cutoffDate);
+    if (blockedDates.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Bulk update contains dates more than 3 days in the past: ${blockedDates.join(", ")}`
       });
     }
 
@@ -515,12 +559,24 @@ export const deleteBranchHoliday = async (req, res) => {
   const company_id = req.user.company_id;
 
   try {
+    const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    istNow.setHours(0, 0, 0, 0);
+    const cutoffDate = new Date(istNow);
+    cutoffDate.setDate(cutoffDate.getDate() - 3);
+
     /**
      * ===============================
      * CASE 1: SINGLE DELETE
      * ===============================
      */
     if (id) {
+      const [[h]] = await db.query(`SELECT holiday_date FROM branch_holidays WHERE id = ?`, [id]);
+      if (h && new Date(h.holiday_date) < cutoffDate) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot remove holidays more than 3 days in the past.`
+        });
+      }
       const sql = `
         UPDATE branch_holidays
         SET
@@ -550,6 +606,14 @@ export const deleteBranchHoliday = async (req, res) => {
     if (!branch_id || !year || !Array.isArray(dates) || dates.length === 0) {
       return res.status(400).json({
         message: "branch_id, year and dates are required for bulk delete"
+      });
+    }
+
+    const blocked = dates.filter(d => new Date(d) < cutoffDate);
+    if (blocked.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot remove holidays more than 3 days in the past: ${blocked.join(", ")}`
       });
     }
 

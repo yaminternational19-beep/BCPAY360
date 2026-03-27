@@ -1,6 +1,20 @@
 import db from "../../config/db.js";
 import { getS3SignedUrl } from "../../utils/s3.util.js";
 
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+
+const formatDateOnly = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+// Status map matches employee attendance.controller.js numeric codes
+const STATUS_MAP = { 0: "ABSENT", 1: "PRESENT", 2: "LATE", 3: "HALF_DAY" };
+
 export const getMonthlyAttendance = async ({
   companyId,
   fromDate,
@@ -11,37 +25,22 @@ export const getMonthlyAttendance = async ({
   departmentId = "",
   shiftId = ""
 }) => {
-  if (!fromDate || !toDate) {
-    throw new Error("fromDate and toDate are required");
-  }
+  if (!fromDate || !toDate) throw new Error("fromDate and toDate are required");
 
   const offset = (page - 1) * limit;
 
-  /* ================= DATE HELPERS ================= */
-
-  const formatDate = d => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
-
-  const today = new Date();
+  const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
   today.setHours(0, 0, 0, 0);
-  const todayStr = formatDate(today);
+  const todayStr = formatDateOnly(today);
 
   const start = new Date(fromDate);
   const end = new Date(toDate);
-
   start.setHours(0, 0, 0, 0);
   end.setHours(0, 0, 0, 0);
 
-  if (start > end) {
-    throw new Error("Invalid date range");
-  }
+  if (start > end) throw new Error("Invalid date range");
 
-  const totalDays =
-    Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+  const totalDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
   /* ================= FILTER ================= */
 
@@ -52,19 +51,10 @@ export const getMonthlyAttendance = async ({
     conditions.push(`(e.full_name LIKE ? OR e.employee_code LIKE ?)`);
     values.push(`%${search}%`, `%${search}%`);
   }
+  if (departmentId) { conditions.push(`e.department_id = ?`); values.push(departmentId); }
+  if (shiftId) { conditions.push(`e.shift_id = ?`); values.push(shiftId); }
 
-  if (departmentId) {
-    conditions.push(`e.department_id = ?`);
-    values.push(departmentId);
-  }
-
-  if (shiftId) {
-    conditions.push(`e.shift_id = ?`);
-    values.push(shiftId);
-  }
-
-  const whereClause =
-    conditions.length ? " AND " + conditions.join(" AND ") : "";
+  const whereClause = conditions.length ? " AND " + conditions.join(" AND ") : "";
 
   /* ================= EMPLOYEES ================= */
 
@@ -84,6 +74,7 @@ export const getMonthlyAttendance = async ({
     LEFT JOIN shifts sh ON sh.id = e.shift_id
     LEFT JOIN employee_profiles ep ON ep.employee_id = e.id
     WHERE e.company_id = ?
+      AND e.employee_status = 'ACTIVE'
       ${whereClause}
     ORDER BY e.employee_code
     LIMIT ? OFFSET ?
@@ -120,9 +111,7 @@ export const getMonthlyAttendance = async ({
 
   const holidayMap = {};
   holidayRows.forEach(row => {
-    if (!holidayMap[row.branch_id]) {
-      holidayMap[row.branch_id] = new Set();
-    }
+    if (!holidayMap[row.branch_id]) holidayMap[row.branch_id] = new Set();
     holidayMap[row.branch_id].add(row.holiday_date);
   });
 
@@ -133,7 +122,10 @@ export const getMonthlyAttendance = async ({
     SELECT
       employee_id,
       DATE_FORMAT(attendance_date,'%Y-%m-%d') AS attendance_date,
-      attendance_status,
+      status,
+      is_late,
+      work_minutes,
+      overtime_minutes,
       check_in_time
     FROM attendance
     WHERE employee_id IN (?)
@@ -144,9 +136,7 @@ export const getMonthlyAttendance = async ({
 
   const attendanceMap = {};
   attendanceRows.forEach(row => {
-    attendanceMap[
-      `${row.employee_id}_${row.attendance_date}`
-    ] = row;
+    attendanceMap[`${row.employee_id}_${row.attendance_date}`] = row;
   });
 
   /* ================= BUILD MONTHLY ================= */
@@ -155,9 +145,13 @@ export const getMonthlyAttendance = async ({
     const days = {};
     const totals = {
       present: 0,
+      half_day: 0,
       absent: 0,
       holiday: 0,
-      unmarked: 0
+      late: 0,
+      unmarked: 0,
+      total_worked_minutes: 0,
+      total_overtime_minutes: 0
     };
 
     const joiningDateStr = emp.joining_date;
@@ -166,8 +160,9 @@ export const getMonthlyAttendance = async ({
       const current = new Date(start);
       current.setDate(start.getDate() + i);
 
-      const dateStr = formatDate(current);
+      const dateStr = formatDateOnly(current);
       const dayNumber = current.getDate();
+      const record = attendanceMap[`${emp.employee_id}_${dateStr}`];
 
       let value;
 
@@ -175,40 +170,38 @@ export const getMonthlyAttendance = async ({
       if (dateStr < joiningDateStr) {
         value = "-";
       }
-
       // FUTURE
       else if (dateStr > todayStr) {
         value = "U";
         totals.unmarked++;
       }
-
       // HOLIDAY
-      else if (
-        holidayMap[emp.branch_id] &&
-        holidayMap[emp.branch_id].has(dateStr)
-      ) {
+      else if (holidayMap[emp.branch_id] && holidayMap[emp.branch_id].has(dateStr)) {
         value = "H";
         totals.holiday++;
       }
-
       // ATTENDANCE EXISTS
-      else if (
-        attendanceMap[`${emp.employee_id}_${dateStr}`]
-      ) {
-        const record =
-          attendanceMap[`${emp.employee_id}_${dateStr}`];
+      else if (record) {
+        // Map numeric DB status to text label
+        const textStatus = STATUS_MAP[record.status] || "ABSENT";
 
-        // 🔥 IMPROVED PRESENT CHECK
-        if (record.attendance_status === "PRESENT" || record.attendance_status === "HALF_DAY" || record.check_in_time) {
+        if (textStatus === "PRESENT" || textStatus === "LATE") {
           value = "P";
           totals.present++;
+          if (record.is_late) totals.late++;
+        } else if (textStatus === "HALF_DAY") {
+          value = "HD";
+          totals.half_day++;
+          totals.present += 0.5;
         } else {
           value = "A";
           totals.absent++;
         }
-      }
 
-      // NO RECORD (After joining, if not holiday/future/present)
+        totals.total_worked_minutes += record.work_minutes || 0;
+        totals.total_overtime_minutes += record.overtime_minutes || 0;
+      }
+      // NO RECORD
       else {
         value = "A";
         totals.absent++;
@@ -217,14 +210,12 @@ export const getMonthlyAttendance = async ({
       days[dayNumber] = value;
     }
 
-    /* ===========================
-       IMAGE URL HANDLER
-    =========================== */
+    /* Photo URL */
     let photoKey = emp.profile_photo_url;
-    if (photoKey && photoKey.startsWith('http')) {
+    if (photoKey && photoKey.startsWith("http")) {
       try {
         const urlObj = new URL(photoKey);
-        photoKey = urlObj.pathname.startsWith('/') ? urlObj.pathname.substring(1) : urlObj.pathname;
+        photoKey = urlObj.pathname.startsWith("/") ? urlObj.pathname.substring(1) : urlObj.pathname;
       } catch (e) {
         photoKey = emp.profile_photo_url;
       }
@@ -238,6 +229,8 @@ export const getMonthlyAttendance = async ({
       profile_photo: await getS3SignedUrl(photoKey),
       department: emp.department || "-",
       shift: emp.shift_name || "-",
+      // Clean joining date (YYYY-MM-DD, no timestamp)
+      joining_date: joiningDateStr,
       days,
       totals
     };
@@ -246,12 +239,7 @@ export const getMonthlyAttendance = async ({
   /* ================= COUNT ================= */
 
   const [[{ total_records }]] = await db.query(
-    `
-    SELECT COUNT(*) AS total_records
-    FROM employees e
-    WHERE e.company_id = ?
-      ${whereClause}
-    `,
+    `SELECT COUNT(*) AS total_records FROM employees e WHERE e.company_id = ? AND e.employee_status = 'ACTIVE' ${whereClause}`,
     values
   );
 
@@ -260,10 +248,6 @@ export const getMonthlyAttendance = async ({
     fromDate,
     toDate,
     data,
-    pagination: {
-      page,
-      limit,
-      total_records
-    }
+    pagination: { page, limit, total_records }
   };
 };

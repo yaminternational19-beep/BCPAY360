@@ -1,23 +1,50 @@
 import db from "../../config/db.js";
 import { getS3SignedUrl } from "../../utils/s3.util.js";
 
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+
+const minutesToHM = (minutes) => {
+  if (!minutes || minutes <= 0) return "0h 0m";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h}h ${m}m`;
+};
+
+const formatTimeDisplay = (dt) => {
+  if (!dt) return null;
+  const d = dt instanceof Date ? dt : new Date(dt);
+  if (isNaN(d)) return null;
+  let h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m} ${ampm}`;
+};
+
+const formatDateOnly = (dt) => {
+  if (!dt) return null;
+  const d = dt instanceof Date ? dt : new Date(dt);
+  if (isNaN(d)) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+// Status map matches employee attendance.controller.js numeric codes
+const STATUS_MAP = { 0: "ABSENT", 1: "PRESENT", 2: "LATE", 3: "HALF_DAY" };
+
 export const getHistoryAttendance = async ({
   companyId,
   employeeId,
   from,
   to
 }) => {
-  const today = new Date();
+  const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
   today.setHours(0, 0, 0, 0);
-
-  const formatDate = d => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
-
-  const todayStr = formatDate(today);
+  const todayStr = formatDateOnly(today);
 
   /* ================= EMPLOYEE ================= */
 
@@ -45,34 +72,23 @@ export const getHistoryAttendance = async ({
     [employeeId, companyId]
   );
 
-  if (!employee) {
-    throw new Error("Employee not found");
-  }
+  if (!employee) throw new Error("Employee not found");
 
   const joiningDateStr = employee.joining_date;
 
   /* ================= DATE RANGE ================= */
 
-  let startDate = from
-    ? new Date(from)
-    : new Date(joiningDateStr);
-
-  let endDate = to
-    ? new Date(to)
-    : today;
+  let startDate = from ? new Date(from) : new Date(joiningDateStr);
+  let endDate = to ? new Date(to) : today;
 
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(0, 0, 0, 0);
 
-  if (startDate > endDate) {
-    throw new Error("Invalid date range");
-  }
+  if (startDate > endDate) throw new Error("Invalid date range");
 
-  const startStr = formatDate(startDate);
-  const endStr = formatDate(endDate);
-
-  const totalDays =
-    Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+  const startStr = formatDateOnly(startDate);
+  const endStr = formatDateOnly(endDate);
+  const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
   /* ================= ATTENDANCE ================= */
 
@@ -80,14 +96,18 @@ export const getHistoryAttendance = async ({
     `
     SELECT
       DATE_FORMAT(attendance_date,'%Y-%m-%d') AS attendance_date,
-      attendance_status AS status,
+      status,
+      is_late,
       check_in_time,
       check_out_time,
+      work_minutes,
+      overtime_minutes,
+      late_minutes,
       check_in_lat,
       check_in_lng,
       check_out_lat,
       check_out_lng,
-      source AS attendance_source
+      auto_checkout
     FROM attendance
     WHERE employee_id = ?
       AND attendance_date BETWEEN ? AND ?
@@ -114,9 +134,7 @@ export const getHistoryAttendance = async ({
     [companyId, employee.branch_id]
   );
 
-  const holidaySet = new Set(
-    holidayRows.map(h => h.holiday_date)
-  );
+  const holidaySet = new Set(holidayRows.map(h => h.holiday_date));
 
   /* ================= BUILD CALENDAR ================= */
 
@@ -126,51 +144,57 @@ export const getHistoryAttendance = async ({
     const current = new Date(startDate);
     current.setDate(startDate.getDate() + i);
 
-    const dateStr = formatDate(current);
+    const dateStr = formatDateOnly(current);
     const att = attendanceMap[dateStr];
 
-    let status;
+    let resolvedStatus;
+    let worked_minutes = 0;
+    let overtime_mins = 0;
+    let late_mins = 0;
+    let is_late = 0;
 
     // BEFORE JOINING
     if (dateStr < joiningDateStr) {
-      status = "-";
+      resolvedStatus = "-";
     }
-
     // FUTURE
     else if (dateStr > todayStr) {
-      status = "UNMARKED";
+      resolvedStatus = "UNMARKED";
     }
-
     // HOLIDAY
     else if (holidaySet.has(dateStr)) {
-      status = "H";
+      resolvedStatus = "HOLIDAY";
     }
-
     // ATTENDANCE EXISTS
     else if (att) {
-      if (
-        att.status === "PRESENT" ||
-        att.status === "HALF_DAY"
-      ) {
-        status = "PRESENT";
-      } else if (att.status === "LEAVE") {
-        status = "L";
-      } else {
-        status = "ABSENT";
-      }
+      // Use numeric status from DB, map to text
+      resolvedStatus = STATUS_MAP[att.status] || "ABSENT";
+      worked_minutes = att.work_minutes || 0;
+      overtime_mins = att.overtime_minutes || 0;
+      late_mins = att.late_minutes || 0;
+      is_late = att.is_late || 0;
     }
-
     // NO RECORD
     else {
-      status = "ABSENT";
+      resolvedStatus = "ABSENT";
     }
 
     data.push({
+      // Clean date only (YYYY-MM-DD)
       date: dateStr,
       shift_name: employee.shift_name || "-",
-      status,
-      check_in_time: att?.check_in_time || null,
-      check_out_time: att?.check_out_time || null,
+      status: resolvedStatus,
+      is_late,
+      // Clean "12:13 PM" format times
+      check_in_time: att ? formatTimeDisplay(att.check_in_time) : null,
+      check_out_time: att ? formatTimeDisplay(att.check_out_time) : null,
+      // Minutes (raw) + formatted
+      worked_minutes,
+      formatted_worked_time: minutesToHM(worked_minutes),
+      overtime_minutes: overtime_mins,
+      formatted_overtime: minutesToHM(overtime_mins),
+      late_minutes: late_mins,
+      formatted_late: minutesToHM(late_mins),
       check_in_location:
         att?.check_in_lat && att?.check_in_lng
           ? `${att.check_in_lat}, ${att.check_in_lng}`
@@ -179,14 +203,35 @@ export const getHistoryAttendance = async ({
         att?.check_out_lat && att?.check_out_lng
           ? `${att.check_out_lat}, ${att.check_out_lng}`
           : null,
-      source: att?.attendance_source || "AUTO"
+      source: att?.auto_checkout ? "AUTO_CHECKOUT" : "MANUAL"
     });
   }
+
+  /* ================= SUMMARY STATS ================= */
+
+  const summary = {
+    total_days: data.filter(d => d.status !== "-").length,
+    present_days: 0,
+    half_days: 0,
+    absent_days: 0,
+    late_days: 0,
+    holiday_days: data.filter(d => d.status === "HOLIDAY").length,
+    total_worked_minutes: 0,
+    total_overtime_minutes: 0
+  };
+
+  data.forEach(d => {
+    if (d.status === "PRESENT") summary.present_days += 1;
+    else if (d.status === "HALF_DAY") { summary.present_days += 0.5; summary.half_days += 1; }
+    else if (d.status === "ABSENT") summary.absent_days += 1;
+    if (d.is_late) summary.late_days += 1;
+    summary.total_worked_minutes += d.worked_minutes;
+    summary.total_overtime_minutes += d.overtime_minutes;
+  });
 
   /* ================= RESPONSE ================= */
 
   return {
-    success: true,
     viewType: "HISTORY",
     employee: {
       id: employee.id,
@@ -198,9 +243,10 @@ export const getHistoryAttendance = async ({
       department: employee.department || "-",
       designation: employee.designation || "-",
       shift: employee.shift_name || "-",
-      status: employee.employee_status
+      status: employee.employee_status,
+      joining_date: joiningDateStr
     },
+    summary,
     data
   };
 };
-

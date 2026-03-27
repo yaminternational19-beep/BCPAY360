@@ -1,18 +1,19 @@
 import React from "react";
 import colors from "../../styles/colors";
 import typography from "../../styles/typography";
-import { MdEvent, MdAccessTime, MdPublic } from "react-icons/md";
+import { MdEvent, MdAccessTime, MdPublic, MdOutlineEventAvailable } from "react-icons/md";
+import { FaCalendarPlus, FaRegCalendarCheck } from "react-icons/fa";
 
 const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
-
   const theme = {
-    bg: isDarkTheme ? colors.darkDropdown : colors.surface,
+    bg: isDarkTheme ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.4)',
     text: isDarkTheme ? colors.textLight : colors.textMain,
     muted: isDarkTheme ? colors.darkMuted : colors.textMuted,
-    border: isDarkTheme ? colors.darkBorder : colors.border,
+    border: isDarkTheme ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
   };
 
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const upcomingHoliday = holidays
     .map(h => ({ ...h, dateObj: new Date(h.date) }))
@@ -24,88 +25,154 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
     : null;
 
   return (
-    <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap", alignItems: "stretch" }}>
+    <div style={{ 
+      display: "flex", 
+      gap: "24px", 
+      marginBottom: "24px", 
+      flexWrap: "wrap", 
+      alignItems: "stretch",
+      userSelect: "none"
+    }}>
 
-      {/* HERO CARD - Compact */}
+      {/* Hero card showing coming event */}
       <div style={{
-        flex: "2",
-        minWidth: "280px",
+        flex: "1 1 500px",
         background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
-        borderRadius: "12px",
-        padding: "20px",
+        borderRadius: "24px",
+        padding: "32px",
         color: "#fff",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        boxShadow: "0 8px 20px -5px rgba(0,0,0,0.15)",
+        boxShadow: "0 10px 30px -10px rgba(37, 99, 235, 0.45)",
         position: "relative",
         overflow: "hidden",
-        minHeight: "130px" // Reduced height
+        minHeight: "180px",
       }}>
-        <MdEvent size={80} style={{ position: "absolute", right: -10, bottom: -20, opacity: 0.15 }} />
-
+        <MdEvent size={200} style={{ position: "absolute", right: -40, bottom: -40, opacity: 0.1 }} />
+        
         {upcomingHoliday ? (
           <>
             <div>
-              <span style={{ fontSize: "10px", fontWeight: "800", opacity: 0.9, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                Coming Up Next
-              </span>
-              <h2 style={{ fontSize: "24px", fontWeight: "800", margin: "4px 0 2px 0", fontFamily: typography.fontFamily }}>
+              <div style={{ 
+                background: "rgba(255,255,255,0.2)", 
+                width: "fit-content", 
+                padding: "4px 12px", 
+                borderRadius: "100px",
+                marginBottom: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px"
+              }}>
+                <MdOutlineEventAvailable size={14} />
+                <span style={{ fontSize: "11px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px" }}>
+                   UPCOMING HOLIDAY
+                </span>
+              </div>
+              <h2 style={{ 
+                fontSize: "32px", 
+                fontWeight: "800", 
+                margin: "0 0 8px 0", 
+                fontFamily: typography.fontFamily,
+                letterSpacing: "-1px"
+              }}>
                 {upcomingHoliday.name}
               </h2>
-              <p style={{ fontSize: "13px", fontWeight: "500", opacity: 0.9, margin: 0 }}>
-                {upcomingHoliday.day}, {upcomingHoliday.date}
+              <p style={{ fontSize: "16px", fontWeight: "600", opacity: 0.9, margin: 0 }}>
+                {upcomingHoliday.day}, {upcomingHoliday.displayDate}
               </p>
             </div>
 
-            <div style={{ marginTop: "16px", display: "inline-flex", gap: "6px", alignItems: "center", background: "rgba(255,255,255,0.2)", width: "fit-content", padding: "4px 10px", borderRadius: "8px" }}>
-              <MdAccessTime size={14} />
-              <span style={{ fontSize: "11px", fontWeight: "700" }}>
-                {daysRemaining === 0 ? "Today" : `${daysRemaining} Days Remaining`}
+            <div style={{ 
+              marginTop: "20px", 
+              fontSize: "13px", 
+              fontWeight: "700", 
+              opacity: 0.95, 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "8px" 
+            }}>
+              <MdAccessTime size={18} />
+              <span>
+                {daysRemaining === 0 ? "TODAY" : `${daysRemaining} days remaining`}
               </span>
             </div>
           </>
         ) : (
-          <h2 style={{ fontSize: "18px", fontWeight: "700" }}>No Upcoming Holidays</h2>
+          <div style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            justifyContent: "center", 
+            alignItems: "center",
+            height: "100%",
+            textAlign: "center",
+            gap: "12px"
+          }}>
+            <MdEvent size={48} />
+            <span style={{ fontSize: "20px", fontWeight: "800" }}>No upcoming holidays found</span>
+          </div>
         )}
       </div>
 
-      {/* TOTAL HOLIDAYS - Compact */}
-      <div style={{
-        flex: "1",
-        display: "flex",
-        minWidth: "200px",
-        backgroundColor: theme.bg,
-        borderRadius: "12px",
-        border: `1px solid ${theme.border}`,
-        padding: "20px",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "relative",
-        overflow: "hidden"
+      {/* Stats side-cards (Glassmorphism) */}
+      <div style={{ 
+        flex: "1 1 300px", 
+        display: "flex", 
+        flexDirection: "column", 
+        gap: "16px" 
       }}>
-        <MdPublic size={60} color={colors.primary} style={{ position: "absolute", right: -10, bottom: -10, opacity: 0.05 }} />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <div style={{
-            width: "32px", height: "32px", borderRadius: "8px",
-            background: `${colors.primary}15`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            marginBottom: "4px"
-          }}>
-            <MdPublic size={18} color={colors.primary} />
-          </div>
-          <span style={{ fontSize: "11px", fontWeight: "700", color: theme.muted, textTransform: "uppercase" }}>
-            Total Holidays
-          </span>
-        </div>
-
-        <span style={{ fontSize: "32px", fontWeight: "800", color: theme.text, fontFamily: typography.fontFamily, lineHeight: 1 }}>
-          {holidays.length}
-        </span>
+        
+        {/* Total card */}
+        <StatCard 
+          theme={theme} 
+          icon={<MdPublic size={20} color={colors.primary} />} 
+          label="Total Holidays" 
+          value={holidays.length}
+          accent={colors.primary}
+        />
+        
+        {/* Public holidays estimated */}
+        <StatCard 
+          theme={theme} 
+          icon={<FaRegCalendarCheck size={18} color={colors.status.absent.dot} />} 
+          label="Confirmed Public" 
+          value={holidays.filter(h => h.type.toLowerCase().includes('public')).length}
+          accent={colors.status.absent.dot}
+        />
       </div>
     </div>
   );
 };
+
+const StatCard = ({ theme, icon, label, value, accent }) => (
+  <div style={{
+    backgroundColor: theme.bg,
+    backdropFilter: "blur(12px)",
+    borderRadius: "20px",
+    padding: "24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    border: `1px solid ${theme.border}`,
+    boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+    flex: 1
+  }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div style={{
+        width: "44px", height: "44px", borderRadius: "14px",
+        background: `${accent}15`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        {icon}
+      </div>
+      <span style={{ fontSize: "14px", fontWeight: "700", color: theme.muted }}>
+        {label}
+      </span>
+    </div>
+    <span style={{ fontSize: "28px", fontWeight: "800", color: theme.text, letterSpacing: "-1px" }}>
+      {value}
+    </span>
+  </div>
+);
 
 export default HolidayStats;

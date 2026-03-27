@@ -77,9 +77,9 @@ const allowedOrigins = [
   "http://127.0.0.1:3000",
 
   // Production
-  "http://13.51.196.99",
-  "http://bcpay360.auby.in",
-  "https://bcpay360.auby.in"
+  "https://bcpay360.com",
+  "http://bcpay360.com",
+  "https://bcpay360.com"
 ];
 
 app.use(

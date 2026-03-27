@@ -1,26 +1,27 @@
 import React from "react";
 import colors from "../../styles/colors";
 import typography from "../../styles/typography";
+import { FaCalendarAlt, FaStar, FaChevronRight } from "react-icons/fa";
 
 const HolidayTimeline = ({ holidays = [], isDarkTheme }) => {
   const theme = {
     bg: isDarkTheme ? colors.darkDropdown : colors.surface,
     text: isDarkTheme ? colors.textLight : colors.textMain,
     muted: isDarkTheme ? colors.darkMuted : colors.textMuted,
-    border: isDarkTheme ? colors.darkBorder : colors.border,
-    line: isDarkTheme ? colors.darkBorder : "#e5e7eb",
+    border: isDarkTheme ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    line: isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
   };
 
-  const getMonthShort = (dateString) => {
+  const getMonthShort = (dateString = "") => {
     const d = new Date(dateString);
-    if (!isNaN(d)) return d.toLocaleString("en-IN", { month: "short" });
-    return dateString.split(" ")[1] || "Unknown";
+    if (!isNaN(d.getTime())) return d.toLocaleString("en-IN", { month: "short" });
+    return "Unknown";
   };
 
-  const getDayNum = (dateString) => {
+  const getDayNum = (dateString = "") => {
     const d = new Date(dateString);
-    if (!isNaN(d)) return d.getDate();
-    return dateString.split(" ")[0] || "--";
+    if (!isNaN(d.getTime())) return d.getDate();
+    return "--";
   };
 
   const groupedHolidays = holidays.reduce((acc, holiday) => {
@@ -33,27 +34,52 @@ const HolidayTimeline = ({ holidays = [], isDarkTheme }) => {
   const monthOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
   return (
-    <div style={{ position: "relative", paddingLeft: "8px", paddingBottom: "10px" }}>
+    <div style={{ position: "relative", paddingLeft: "12px", paddingBottom: "20px" }}>
       {/* Timeline Line */}
-      <div style={{ position: "absolute", left: "15px", top: "10px", bottom: "0", width: "1px", backgroundColor: theme.line, zIndex: 0 }} />
+      <div style={{ 
+        position: "absolute", 
+        left: "19px", 
+        top: "10px", 
+        bottom: "0", 
+        width: "2px", 
+        backgroundColor: theme.line, 
+        zIndex: 0 
+      }} />
 
       {monthOrder.map((month) => {
         const items = groupedHolidays[month];
         if (!items) return null;
 
         return (
-          <div key={month} style={{ marginBottom: "24px", position: "relative", zIndex: 1 }}>
+          <div key={month} style={{ marginBottom: "32px", position: "relative", zIndex: 1 }}>
             
             {/* Month Header */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-              <div style={{ width: "14px", height: "14px", borderRadius: "50%", backgroundColor: colors.primary, border: `3px solid ${isDarkTheme ? colors.darkBg : colors.background}`, marginRight: "16px", flexShrink: 0 }} />
-              <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "1px", color: theme.muted, margin: 0, fontWeight: "800" }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ 
+                  width: "16px", 
+                  height: "16px", 
+                  borderRadius: "50%", 
+                  backgroundColor: colors.primary, 
+                  border: `4px solid ${isDarkTheme ? colors.darkBg : colors.background}`, 
+                  marginRight: "16px", 
+                  flexShrink: 0,
+                  boxShadow: "0 0 10px rgba(37, 99, 235, 0.3)"
+              }} />
+              <h3 style={{ 
+                  fontSize: "13px", 
+                  textTransform: "uppercase", 
+                  letterSpacing: "1.5px", 
+                  color: theme.muted, 
+                  margin: 0, 
+                  fontWeight: "800",
+                  fontFamily: typography.fontFamily 
+              }}>
                 {month} 2026
               </h3>
             </div>
 
             {/* List */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", paddingLeft: "30px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingLeft: "32px" }}>
               {items.map((h) => (
                 <TimelineCard key={h.id} holiday={h} theme={theme} getDayNum={getDayNum} />
               ))}
@@ -83,44 +109,60 @@ const TimelineCard = ({ holiday, theme, getDayNum }) => {
       style={{
         backgroundColor: theme.bg,
         border: `1px solid ${theme.border}`,
-        borderRadius: "12px",
-        padding: "10px 14px", // Compact Padding
+        borderRadius: "16px",
+        padding: "16px 20px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        transition: "all 0.2s ease",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         position: "relative",
         overflow: "hidden",
-        cursor: "default"
+        cursor: "default",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.01)"
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateX(4px)";
+        e.currentTarget.style.transform = "translateX(6px)";
         e.currentTarget.style.borderColor = accent;
+        e.currentTarget.style.boxShadow = `0 4px 20px -5px ${accent}20`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateX(0)";
         e.currentTarget.style.borderColor = theme.border;
+        e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.01)";
       }}
     >
-      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "3px", backgroundColor: accent }} />
+      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "4px", backgroundColor: accent }} />
 
-      <div style={{ display: "flex", alignItems: "center", gap: "16px", paddingLeft: "6px" }}>
-        {/* Date Box */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "36px", height: "36px", backgroundColor: `${accent}10`, borderRadius: "8px", color: accent }}>
-          <span style={{ fontSize: "16px", fontWeight: "800", fontFamily: typography.fontFamily, lineHeight: 1 }}>{dayNum}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        {/* Date Circle */}
+        <div style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "center", 
+          justifyContent: "center", 
+          width: "48px", 
+          height: "48px", 
+          backgroundColor: `${accent}15`, 
+          borderRadius: "14px", 
+          color: accent 
+        }}>
+          <span style={{ fontSize: "18px", fontWeight: "800", fontFamily: typography.fontFamily, lineHeight: 1 }}>{dayNum}</span>
+          <span style={{ fontSize: "9px", fontWeight: "700", opacity: 0.8, textTransform: "uppercase" }}>{holiday.displayDate.split(' ')[1]}</span>
         </div>
         
         {/* Content */}
         <div>
-          <h4 style={{ margin: "0 0 2px 0", fontSize: "14px", color: theme.text, fontWeight: "600" }}>{holiday.name}</h4>
-          <span style={{ fontSize: "11px", color: theme.muted, fontWeight: "500" }}>{holiday.day}</span>
+          <h4 style={{ margin: "0 0 4px 0", fontSize: "16px", color: theme.text, fontWeight: "700" }}>{holiday.name}</h4>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+             <span style={{ fontSize: "12px", color: theme.muted, fontWeight: "600" }}>{holiday.day}</span>
+             <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: theme.muted, opacity: 0.5 }}></span>
+             <span style={{ fontSize: "11px", color: accent, fontWeight: "700", textTransform: "uppercase" }}>{holiday.type}</span>
+          </div>
         </div>
       </div>
 
-      {/* Type Badge */}
-      <span style={{ fontSize: "10px", fontWeight: "700", color: accent, padding: "3px 10px", borderRadius: "10px", backgroundColor: `${accent}10`, border: `1px solid ${accent}20` }}>
-        {holiday.type}
-      </span>
+      {/* Decorative arrow */}
+      <FaChevronRight size={12} color={theme.muted} style={{ opacity: 0.3 }} />
     </div>
   );
 };

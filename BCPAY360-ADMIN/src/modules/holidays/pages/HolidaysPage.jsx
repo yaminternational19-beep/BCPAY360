@@ -22,7 +22,7 @@ const HolidaysPage = () => {
   const { branches, selectedBranch, changeBranch, isSingleBranch } = useBranch();
 
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(0);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
 
   const [holidays, setHolidays] = useState({}); // { YYYY-MM-DD: {id, reasonType, reasonText} }
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,12 @@ const HolidaysPage = () => {
   ========================= */
 
   useEffect(() => {
-    setCurrentMonth(0);
+    const now = new Date();
+    if (selectedYear === now.getFullYear()) {
+      setCurrentMonth(now.getMonth());
+    } else {
+      setCurrentMonth(0);
+    }
   }, [selectedYear]);
 
   useEffect(() => {
@@ -116,8 +121,20 @@ const HolidaysPage = () => {
 
     const m = String(currentMonth + 1).padStart(2, "0");
     const d = String(day).padStart(2, "0");
+    const dateStr = `${selectedYear}-${m}-${d}`;
 
-    setSelectedDate(`${selectedYear}-${m}-${d}`);
+    // Frontend Restriction: Cannot mark > 3 days in past
+    const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    istNow.setHours(0, 0, 0, 0);
+    const cutoff = new Date(istNow);
+    cutoff.setDate(cutoff.getDate() - 3);
+
+    if (new Date(dateStr) < cutoff) {
+      toast.error("Cannot mark holidays more than 3 days in the past");
+      return;
+    }
+
+    setSelectedDate(dateStr);
     setIsBulk(false);
     setModalOpen(true);
   };
@@ -246,14 +263,20 @@ const HolidaysPage = () => {
       return;
     }
 
+    const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    istNow.setHours(0, 0, 0, 0);
+    const cutoff = new Date(istNow);
+    cutoff.setDate(cutoff.getDate() - 3);
+
     const all = getWeekendsOfYear(selectedYear);
     const filtered = all.filter((d) => {
-      const day = new Date(
+      const dObj = new Date(
         Number(d.slice(0, 4)),
         Number(d.slice(5, 7)) - 1,
         Number(d.slice(8, 10))
-      ).getDay();
-      return day === dayIndex;
+      );
+      const day = dObj.getDay(); 
+      return day === dayIndex && dObj >= cutoff;
     });
 
     setBulkDates(filtered);

@@ -90,7 +90,8 @@ export const getEmployeeProfile = async (req, res) => {
         ep.account_number,
         ep.ifsc_code,
         ep.bank_branch_name,
-        ep.profile_photo_url AS profile_photo_path
+        ep.profile_photo_url AS profile_photo_path,
+        c.logo_url AS company_logo_path
       FROM employees e
       JOIN companies c ON c.id = e.company_id
       JOIN departments d ON d.id = e.department_id
@@ -115,6 +116,11 @@ export const getEmployeeProfile = async (req, res) => {
     const profilePhotoKey = extractS3Key(employee.profile_photo_path);
     const profile_photo_url = profilePhotoKey
       ? await getS3SignedUrl(profilePhotoKey, SIGNED_URL_TTL, INLINE)
+      : null;
+
+    const companyLogoKey = extractS3Key(employee.company_logo_path);
+    const company_logo_url = companyLogoKey
+      ? await getS3SignedUrl(companyLogoKey, SIGNED_URL_TTL, INLINE)
       : null;
 
     /* ---------------------------------
@@ -329,6 +335,7 @@ export const getEmployeeProfile = async (req, res) => {
         phone: employee.phone,
         company_id: employee.company_id,
         company_name: employee.company_name,
+        company_logo_url,
         employee_status: employee.employee_status,
         employment_status: employee.employment_status,
         joining_date: employee.joining_date ? new Date(employee.joining_date).toISOString().slice(0, 10) : null,

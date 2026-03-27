@@ -86,16 +86,16 @@ const SalaryBreakdown = ({ isDarkTheme, data }) => {
         }}>
           <span style={{ fontSize: "10px", color: theme.muted, display: "block" }}>Net</span>
           <span style={{ fontSize: "14px", fontWeight: "800", color: theme.text }}>
-            AED {netSalary.toLocaleString("en-IN", { notation: "compact" })}
+            {netSalary.toLocaleString("en-IN", { notation: "compact" })}
           </span>
         </div>
       </div>
 
       {/* Breakdown List */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <BreakdownRow label="Basic Pay" value={`AED ${basic.toLocaleString("en-IN")}`} icon={<MdTrendingUp />} color={colors.status.present.dot} theme={theme} />
-        <BreakdownRow label="Allowances" value={`AED ${allowances.toLocaleString("en-IN")}`} icon={<MdTrendingUp />} color={colors.primary} theme={theme} />
-        <BreakdownRow label="Deductions" value={`- AED ${deductions.toLocaleString("en-IN")}`} icon={<MdTrendingDown />} color={colors.status.absent.dot} theme={theme} isNegative />
+        <BreakdownRow label="Basic Pay" value={basic.toLocaleString("en-IN")} icon={<MdTrendingUp />} color={colors.status.present.dot} theme={theme} />
+        <BreakdownRow label="Allowances" value={allowances.toLocaleString("en-IN")} icon={<MdTrendingUp />} color={colors.primary} theme={theme} />
+        <BreakdownRow label="Deductions" value={`- ${deductions.toLocaleString("en-IN")}`} icon={<MdTrendingDown />} color={colors.status.absent.dot} theme={theme} isNegative />
       </div>
 
       {/* Net Footer */}
@@ -116,7 +116,7 @@ const SalaryBreakdown = ({ isDarkTheme, data }) => {
           color: colors.status.present.dot,
           fontFamily: typography.fontFamily
         }}>
-          AED {netSalary.toLocaleString("en-IN")}
+          {netSalary.toLocaleString("en-IN")}
         </span>
       </div>
     </Card>
@@ -157,7 +157,7 @@ const CustomTooltip = ({ active, payload, theme }) => {
       }}>
         <span style={{ color: data.color, fontWeight: "bold" }}>{data.name}:</span>
         <span style={{ marginLeft: "4px", fontWeight: "600", color: theme.text }}>
-          AED {data.value.toLocaleString("en-IN")}
+          {data.value.toLocaleString("en-IN")}
         </span>
       </div>
     );

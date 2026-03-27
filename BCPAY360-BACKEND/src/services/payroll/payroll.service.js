@@ -344,8 +344,8 @@ export const getEmployeesForPayroll = async (
       employee_id,
       SUM(
         CASE
-          WHEN attendance_status = 'PRESENT' THEN 1
-          WHEN attendance_status = 'HALF_DAY' THEN 0.5
+          WHEN status IN (1, 2) THEN 1
+          WHEN status = 3 THEN 0.5
           ELSE 0
         END
       ) AS present_days,

@@ -71,7 +71,8 @@ const Navbar = ({ onOpen, leftPosition, navbarHeight }) => {
         const userData = {
           name: empData.full_name || empData.name || "User",
           designation: empData.designation || "Employee",
-          photo: empData.profile_photo_url || null
+          photo: empData.profile_photo_url || null,
+          company_logo_url: empData.company_logo_url || null
         };
         setUser(userData);
         localStorage.setItem("userProfile", JSON.stringify(userData));

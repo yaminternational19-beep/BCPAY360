@@ -9,10 +9,10 @@ const SESSION = {
 };
 
 const ACTION = {
-    CHECK_IN: 'CHECK_IN',
-    CHECK_OUT: 'CHECK_OUT',
-    OT_START: 'OT_START',
-    OT_STOP: 'OT_STOP'
+    CHECK_IN: 1,
+    CHECK_OUT: 2,
+    OT_START: 4,
+    OT_STOP: 5
 };
 
 // IST Helper (matching attendance controller)
@@ -128,10 +128,15 @@ export const stopOvertime = async (req, res) => {
         const otStartDT = new Date(ot.overtime_start);
         const durationMinutes = Math.floor((now - otStartDT) / 60000);
         
+        if (durationMinutes < 30) {
+            return res.status(400).json({ success: false, message: "Minimum 30 minutes of overtime required before you can stop." });
+        }
+
         let insertDuration = durationMinutes;
         
-        // Rules: 60 min minimum for OT
-        if (durationMinutes < 60) {
+        // Rules: 60 min minimum for OT? 
+        // User update: durationMinutes < 1 (kept as is for counts)
+        if (durationMinutes < 1) { 
             insertDuration = 0; 
         } else if (durationMinutes > 240) {
             insertDuration = 240; // Cap at 4 hours max per session

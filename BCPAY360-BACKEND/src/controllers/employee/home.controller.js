@@ -12,19 +12,22 @@ export const getEmployeeHome = async (req, res) => {
     --------------------------------- */
     const [[attendance]] = await db.query(
       `SELECT
-        id,
-        attendance_date,
-        check_in_time,
-        check_out_time,
-        NULL AS shift_start,
-        NULL AS shift_end,
-        work_minutes,
-        overtime_minutes,
-        status,
-        session_status = 1 AS is_checked_in_session
-      FROM attendance
-      WHERE employee_id = ?
-        AND attendance_date = CURDATE()
+        a.id,
+        a.attendance_date,
+        a.check_in_time,
+        a.check_out_time,
+        s.start_time AS shift_start,
+        s.end_time AS shift_end,
+        s.is_night_shift,
+        a.work_minutes,
+        a.overtime_minutes,
+        a.status,
+        a.session_status,
+        a.session_status = 1 AS is_checked_in_session
+      FROM attendance a
+      JOIN shifts s ON s.id = a.shift_id
+      WHERE a.employee_id = ?
+        AND a.attendance_date = CURDATE()
       LIMIT 1`,
       [employeeId]
     );
@@ -121,15 +124,24 @@ export const getEmployeeHome = async (req, res) => {
     /* ---------------------------------
        3.1️⃣ OVERTIME STATUS
     --------------------------------- */
-    const [openOt] = await db.query(
-      `SELECT id, DATE_FORMAT(overtime_start, '%H:%i:%s') as overtime_start 
+    const [lastOt] = attendance ? await db.query(
+      `SELECT id, 
+              DATE_FORMAT(overtime_start, '%H:%i:%s') as ot_start_time,
+              DATE_FORMAT(overtime_end, '%H:%i:%s') as ot_end_time,
+              overtime_end IS NULL as is_open,
+              overtime_start
        FROM overtime_logs 
-       WHERE employee_id = ? AND overtime_end IS NULL`,
-      [employeeId]
-    );
+       WHERE attendance_id = ? 
+       ORDER BY id DESC LIMIT 1`,
+      [attendance.id]
+    ) : [[]];
 
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     
+    const ot = lastOt[0] || {};
+    const isOTStarted = !!ot.is_open;
+    const isOTCompleted = !!ot.ot_start_time && !ot.is_open;
+
     const todayAttendance = attendance
       ? {
         attendance_id: attendance.id,
@@ -141,15 +153,18 @@ export const getEmployeeHome = async (req, res) => {
         shift_end: attendance.shift_end,
         worked_minutes: attendance.work_minutes,
         overtime_minutes: attendance.overtime_minutes,
+        session_status: attendance.session_status,
         is_checked_in_session: !!attendance.is_checked_in_session,
         is_present:
           attendance.status !== 0 &&
           attendance.session_status !== 0,
         is_late: attendance.status === 2 || attendance.status === 4,
         // Overtime Flags
-        is_ot_session: openOt.length > 0,
-        ot_start_time: openOt.length > 0 ? openOt[0].overtime_start : null,
-        can_start_ot: attendance.session_status === 2 && openOt.length === 0
+        is_ot_session: isOTStarted,
+        is_ot_start: isOTStarted,
+        is_ot_completed: isOTCompleted,
+        ot_start_time: ot.ot_start_time || null,
+        ot_end_time: ot.ot_end_time || null
       }
       : null;
 

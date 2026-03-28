@@ -63,7 +63,7 @@ const TodaysAttendance = ({ isDarkTheme, data, onAttendanceUpdate }) => {
       return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     };
 
-    if (otStartDateTime && data?.is_ot_session) {
+    if (otStartDateTime && data?.is_ot_start) {
       setOtElapsedTime(calculateHours(otStartDateTime, new Date()));
       interval = setInterval(() => {
         setOtElapsedTime(calculateHours(otStartDateTime, new Date()));
@@ -72,7 +72,7 @@ const TodaysAttendance = ({ isDarkTheme, data, onAttendanceUpdate }) => {
       setOtElapsedTime("00:00:00");
     }
     return () => clearInterval(interval);
-  }, [otStartDateTime, data?.is_ot_session]);
+  }, [otStartDateTime, data?.is_ot_start]);
 
   const getLocation = () =>
     new Promise((resolve, reject) => {
@@ -171,7 +171,7 @@ const TodaysAttendance = ({ isDarkTheme, data, onAttendanceUpdate }) => {
         <StatGroup label="Check Out" value={formatTime(data?.check_out_time)} theme={theme} />
         <StatGroup label="Total Hrs" value={elapsedTime} theme={theme} isBold />
         
-        {data?.is_ot_session && (
+        {data?.is_ot_start && (
            <StatGroup label="OT Timer" value={otElapsedTime} color={colors.primary} theme={theme} isBold />
         )}
 
@@ -184,14 +184,40 @@ const TodaysAttendance = ({ isDarkTheme, data, onAttendanceUpdate }) => {
           )}
           {checkInDateTime && checkOutDateTime && (
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              {data?.is_ot_session ? (
-                <ActionButton onClick={() => handleOvertimeAction("stop")} disabled={loading} icon={<MdLogout size={18}/>} label={loading ? "..." : "Stop OT"} activeColor={colors.status.late.dot} theme={theme} />
-              ) : data?.can_start_ot ? (
-                <ActionButton onClick={() => handleOvertimeAction("start")} disabled={loading} icon={<MdLogin size={18}/>} label={loading ? "..." : "Start OT"} activeColor={colors.primary} theme={theme} />
-              ) : (
-                <div style={{ padding: "8px 16px", fontSize: "13px", fontWeight: "700", color: colors.primary, border: `1px solid ${colors.primary}`, borderRadius: "8px" }}>
-                  Completed
+              {data?.is_ot_start ? (
+                <ActionButton 
+                  onClick={() => handleOvertimeAction("stop")} 
+                  disabled={loading} 
+                  icon={<MdLogout size={18}/>} 
+                  label={loading ? "..." : "Stop OT"} 
+                  activeColor={colors.status.late.dot} 
+                  theme={theme} 
+                />
+              ) : data?.is_ot_completed ? (
+                <div style={{ 
+                  padding: "8px 16px", 
+                  fontSize: "12px", 
+                  fontWeight: "700", 
+                  color: "#10b981", 
+                  border: `1px solid #10b981`, 
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  backgroundColor: "rgba(16, 185, 129, 0.1)"
+                }}>
+                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10b981" }} />
+                  OT Completed
                 </div>
+              ) : (
+                <ActionButton 
+                  onClick={() => handleOvertimeAction("start")} 
+                  disabled={loading} 
+                  icon={<MdLogin size={18}/>} 
+                  label={loading ? "..." : "Start OT"} 
+                  activeColor={colors.primary} 
+                  theme={theme} 
+                />
               )}
             </div>
           )}

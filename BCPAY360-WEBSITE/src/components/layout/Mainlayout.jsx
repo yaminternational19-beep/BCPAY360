@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
+import api from "../../utils/api";
 import colors from "../../styles/colors";
 
 const MainLayout = () => {
@@ -9,14 +10,37 @@ const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  // Read company logo from stored profile (set at login or profile fetch)
-  const storedProfile = (() => {
+  // --- Profile & Branding State ---
+  const [branding, setBranding] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("userProfile") || sessionStorage.getItem("userProfile") || "null");
-    } catch { return null; }
-  })();
-  const companyLogoUrl = storedProfile?.company_logo_url || null;
-  const companyName = storedProfile?.company_name || "BCPay360"; // Key: Blackcube Solutions when logged in
+      const stored = JSON.parse(localStorage.getItem("userProfile") || sessionStorage.getItem("userProfile") || "null");
+      return {
+        logo: stored?.company_logo_url || null,
+        name: stored?.company_name || "BCPay360"
+      };
+    } catch {
+      return { logo: null, name: "BCPay360" };
+    }
+  });
+
+  useEffect(() => {
+    const fetchBranding = async () => {
+      try {
+        const res = await api.get("/profile");
+        const data = res?.data?.employee;
+        if (data) {
+          localStorage.setItem("userProfile", JSON.stringify(data));
+          setBranding({
+            logo: data.company_logo_url,
+            name: data.company_name
+          });
+        }
+      } catch (err) {
+        console.error("Branding fetch failed", err);
+      }
+    };
+    fetchBranding();
+  }, []);
 
   const toggleTheme = () => setIsDarkTheme(prev => !prev);
 
@@ -62,8 +86,8 @@ const MainLayout = () => {
         width={sidebarWidth}
         onClose={() => setSidebarOpen(false)}
         topOffset={NAVBAR_HEIGHT}
-        companyLogoUrl={companyLogoUrl}
-        companyName={companyName}
+        companyLogoUrl={branding.logo}
+        companyName={branding.name}
       />
 
       {/* MOBILE BACKDROP - Starts BELOW Navbar */}
@@ -113,6 +137,33 @@ const MainLayout = () => {
           boxSizing: "border-box"
         }}>
           <Outlet context={{ isDarkTheme }} />
+
+          <footer style={{
+            marginTop: "auto",
+            padding: "24px 0 8px",
+            textAlign: "center",
+            fontSize: "12px",
+            color: isDarkTheme ? colors.darkMuted : colors.textMuted,
+            opacity: 0.8,
+            fontFamily: "'Inter', sans-serif",
+            letterSpacing: "0.4px"
+          }}>
+            Designed and Developed by <a 
+              href="https://blackcube.ae" 
+              target="_blank" 
+              rel="noreferrer" 
+              style={{ 
+                color: colors.primary, 
+                textDecoration: "none", 
+                fontWeight: "700",
+                transition: "color 0.2s ease"
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = colors.primaryHover}
+              onMouseLeave={(e) => e.currentTarget.style.color = colors.primary}
+            >
+              Blackcube Solutions LLC
+            </a>
+          </footer>
         </main>
       </div>
     </div>

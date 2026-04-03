@@ -75,19 +75,15 @@ export const createSupportTicket = async (req, res) => {
          company_id,
          branch_id,
          employee_id,
-         employee_name,
-         employee_email,
          category,
          reason,
          status
        )
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'OPEN')`,
+       VALUES (?, ?, ?, ?, ?, 'OPEN')`,
       [
         company_id,
         branch_id,
         employee_id,
-        full_name,
-        email,
         category,
         reason
       ]

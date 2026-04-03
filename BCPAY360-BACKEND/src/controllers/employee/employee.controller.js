@@ -60,21 +60,24 @@ export const updateEmployeeProfile = async (req, res) => {
     --------------------------------- */
     if (req.file) {
       const [[empContext]] = await connection.query(
-        `SELECT company_id, branch_id, employee_code 
-         FROM employees WHERE id = ?`,
+        `SELECT c.company_name, b.branch_name, e.employee_code 
+         FROM employees e
+         JOIN companies c ON c.id = e.company_id
+         JOIN branches b ON b.id = e.branch_id
+         WHERE e.id = ?`,
         [employeeId]
       );
 
+      if (!empContext) {
+        throw new Error("Employee context not found for S3 upload");
+      }
+
       const s3Key = generateS3Key(
-        {
-          companyId: empContext.company_id,
-          branchId: empContext.branch_id,
-          employeeCode: empContext.employee_code
-        },
-        {
-          fieldname: "PROFILE_PHOTO",
-          originalname: req.file.originalname
-        }
+        empContext.company_name,
+        empContext.branch_name,
+        empContext.employee_code,
+        "profile",
+        req.file.originalname
       );
 
       const { key } = await uploadToS3(

@@ -267,7 +267,7 @@ export const employeeLogin = async (req, res) => {
         token,
         role: "EMPLOYEE",
         employee: {
-          id: employee.id,
+          employee_id: employee.id,
           employee_code: employee.employee_code,
           company_id: employee.company_id,
           branch_id: employee.branch_id

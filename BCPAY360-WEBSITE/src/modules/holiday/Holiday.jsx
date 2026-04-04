@@ -17,14 +17,22 @@ const Holiday = ({ isDarkTheme }) => {
 
   const fetchHolidayData = async () => {
     try {
-      // Use logical current year
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const company_id = user.company_id;
+      const branch_id = user.branch_id;
       const year = new Date().getFullYear();
-      const res = await api.get(`/holidays?year=${year}`);
-      
+
+      if (!company_id || !branch_id) {
+        setLoading(false);
+        return;
+      }
+
+      const res = await api.get(`/holidays?year=${year}&company_id=${company_id}&branch_id=${branch_id}`);
+
       if (!res.data.success) throw new Error("API failed");
 
       const months = res.data.months;
-      
+
       // Map data consistently between frontend and backend
       const allHolidays = Object.entries(months).flatMap(([monthKey, monthHolidays]) =>
         monthHolidays.map((h, index) => ({
@@ -75,19 +83,19 @@ const Holiday = ({ isDarkTheme }) => {
       <ToastContainer hideProgressBar autoClose={2000} />
 
       {/* Header Section */}
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
         alignItems: "center",
         borderBottom: `1px solid ${isDarkTheme ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}`,
         paddingBottom: "16px"
       }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
-            <div style={{ 
-              width: "36px", 
-              height: "36px", 
-              borderRadius: "10px", 
+            <div style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "10px",
               background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%)`,
               display: "flex",
               alignItems: "center",
@@ -115,7 +123,7 @@ const Holiday = ({ isDarkTheme }) => {
 
       <HolidayStats isDarkTheme={isDarkTheme} holidays={holidayData} />
 
-      <div style={{ 
+      <div style={{
         backgroundColor: theme.surface,
         borderRadius: "20px",
         padding: "24px",
@@ -129,12 +137,12 @@ const Holiday = ({ isDarkTheme }) => {
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "40px", color: theme.muted }}>
-             <p style={{ fontSize: "14px" }}>Loading upcoming events...</p>
+            <p style={{ fontSize: "14px" }}>Loading upcoming events...</p>
           </div>
         ) : holidayData.length === 0 ? (
-          <div style={{ 
-            textAlign: "center", 
-            padding: "60px 20px", 
+          <div style={{
+            textAlign: "center",
+            padding: "60px 20px",
             background: isDarkTheme ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
             borderRadius: "16px",
             border: `1px dashed ${isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`

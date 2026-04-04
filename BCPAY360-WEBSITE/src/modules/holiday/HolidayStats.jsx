@@ -25,11 +25,11 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
     : null;
 
   return (
-    <div style={{ 
-      display: "flex", 
-      gap: "24px", 
-      marginBottom: "24px", 
-      flexWrap: "wrap", 
+    <div style={{
+      display: "flex",
+      gap: "24px",
+      marginBottom: "24px",
+      flexWrap: "wrap",
       alignItems: "stretch",
       userSelect: "none"
     }}>
@@ -50,14 +50,14 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
         minHeight: "180px",
       }}>
         <MdEvent size={200} style={{ position: "absolute", right: -40, bottom: -40, opacity: 0.1 }} />
-        
+
         {upcomingHoliday ? (
           <>
             <div>
-              <div style={{ 
-                background: "rgba(255,255,255,0.2)", 
-                width: "fit-content", 
-                padding: "4px 12px", 
+              <div style={{
+                background: "rgba(255,255,255,0.2)",
+                width: "fit-content",
+                padding: "4px 12px",
                 borderRadius: "100px",
                 marginBottom: "12px",
                 display: "flex",
@@ -66,13 +66,13 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
               }}>
                 <MdOutlineEventAvailable size={14} />
                 <span style={{ fontSize: "11px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px" }}>
-                   UPCOMING HOLIDAY
+                  UPCOMING HOLIDAY
                 </span>
               </div>
-              <h2 style={{ 
-                fontSize: "32px", 
-                fontWeight: "800", 
-                margin: "0 0 8px 0", 
+              <h2 style={{
+                fontSize: "32px",
+                fontWeight: "800",
+                margin: "0 0 8px 0",
                 fontFamily: typography.fontFamily,
                 letterSpacing: "-1px"
               }}>
@@ -83,14 +83,14 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
               </p>
             </div>
 
-            <div style={{ 
-              marginTop: "20px", 
-              fontSize: "13px", 
-              fontWeight: "700", 
-              opacity: 0.95, 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "8px" 
+            <div style={{
+              marginTop: "20px",
+              fontSize: "13px",
+              fontWeight: "700",
+              opacity: 0.95,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
             }}>
               <MdAccessTime size={18} />
               <span>
@@ -99,10 +99,10 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
             </div>
           </>
         ) : (
-          <div style={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            justifyContent: "center", 
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
             alignItems: "center",
             height: "100%",
             textAlign: "center",
@@ -115,27 +115,27 @@ const HolidayStats = ({ isDarkTheme, holidays = [] }) => {
       </div>
 
       {/* Stats side-cards (Glassmorphism) */}
-      <div style={{ 
-        flex: "1 1 300px", 
-        display: "flex", 
-        flexDirection: "column", 
-        gap: "16px" 
+      <div style={{
+        flex: "1 1 300px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px"
       }}>
-        
+
         {/* Total card */}
-        <StatCard 
-          theme={theme} 
-          icon={<MdPublic size={20} color={colors.primary} />} 
-          label="Total Holidays" 
+        <StatCard
+          theme={theme}
+          icon={<MdPublic size={20} color={colors.primary} />}
+          label="Total Holidays"
           value={holidays.length}
           accent={colors.primary}
         />
-        
+
         {/* Public holidays estimated */}
-        <StatCard 
-          theme={theme} 
-          icon={<FaRegCalendarCheck size={18} color={colors.status.absent.dot} />} 
-          label="Confirmed Public" 
+        <StatCard
+          theme={theme}
+          icon={<FaRegCalendarCheck size={18} color={colors.status.absent.dot} />}
+          label="Confirmed Public"
           value={holidays.filter(h => h.type.toLowerCase().includes('public')).length}
           accent={colors.status.absent.dot}
         />

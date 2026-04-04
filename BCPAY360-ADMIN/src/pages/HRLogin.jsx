@@ -13,16 +13,25 @@ export default function HRLogin({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [tempLoginId, setTempLoginId] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
 
   const [companies, setCompanies] = useState([]);
-  const [normalizedEmpId, setNormalizedEmpId] = useState("");
 
   const [form, setForm] = useState({
     companyId: "",
-    empIdRaw: "",
+    emp_id: "",
     password: "",
     otp: "",
   });
+
+  // OTP Resend Cooldown Timer
+  useEffect(() => {
+    if (otpResendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpResendCooldown]);
 
   /* ===============================
      LOAD COMPANIES
@@ -36,6 +45,7 @@ export default function HRLogin({ onLogin }) {
         if (!ignore) setCompanies(data);
       } catch (err) {
         // silenced
+        console.error("Failed to load companies", err);
       }
     };
     loadCompanies();
@@ -45,37 +55,92 @@ export default function HRLogin({ onLogin }) {
   /* ===============================
      HR PRE LOGIN
   ================================ */
-  const submitHRLogin = async (e) => {
-    e.preventDefault();
+  // const submitHRLogin = async (e) => {
+  //   e.preventDefault();
 
-    if (!form.companyId || !normalizedEmpId || !form.password) {
-      alert("All fields required");
+  //   if (!form.companyId || !normalizedEmpId || !form.password) {
+  //     alert("All fields required");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const res = await fetch(`${API_BASE}/api/hr/pre-login`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         emp_id: normalizedEmpId,
+  //         password: form.password,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+  //     if (!res.ok) throw new Error(data.message);
+
+  //     setTempLoginId(data.tempLoginId);
+  //     setStep("OTP");
+  //   } catch (err) {
+  //     alert(err.message || "Login failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const submitHRLogin = async (e) => {
+  e.preventDefault();
+
+  if (!form.companyId || !form.emp_id || !form.password) {
+    alert("All fields required");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await fetch(`${API_BASE}/api/hr/pre-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_id: Number(form.companyId),
+        hr_code: form.emp_id,   // FIXED HERE
+        password: form.password,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    // ===== SKIP OTP LOGIN =====
+   if (data.skipOtp) {
+      const authUser = {
+        role: "HR",
+        verified: true,
+        emp_id: form.emp_id,
+        company_id: data.hr.company_id,
+      };
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("auth_user", JSON.stringify(authUser));
+      localStorage.setItem("hr_permissions", JSON.stringify(data.permissions || []));
+
+      if (onLogin) onLogin(authUser);
+
+      navigate("/dashboard", { replace: true });
       return;
     }
 
-    try {
-      setLoading(true);
+    // ===== NORMAL OTP FLOW =====
+    setTempLoginId(data.tempLoginId);
+    setOtpResendCooldown(45);
+    setStep("OTP");
 
-      const res = await fetch(`${API_BASE}/api/hr/pre-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          emp_id: normalizedEmpId,
-          password: form.password,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setTempLoginId(data.tempLoginId);
-      setStep("OTP");
-    } catch (err) {
-      alert(err.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    alert(err.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   /* ===============================
      OTP VERIFY
@@ -115,11 +180,45 @@ export default function HRLogin({ onLogin }) {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("auth_user", JSON.stringify(authUser));
+      localStorage.setItem("hr_permissions", JSON.stringify(data.permissions || []));
 
       if (onLogin) onLogin(authUser);
-      navigate("/admin/dashboard", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       alert(err.message || "OTP verification failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ===============================
+     OTP RESEND
+  ================================ */
+  const handleResendOTP = async (e) => {
+    e.preventDefault();
+
+    if (!tempLoginId || otpResendCooldown > 0) return;
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(`${API_BASE}/api/hr/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "RESEND",
+          tempLoginId,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      if (data.tempLoginId) setTempLoginId(data.tempLoginId);
+      setForm((prev) => ({ ...prev, otp: "" }));
+      setOtpResendCooldown(45);
+    } catch (err) {
+      alert(err.message || "Failed to resend OTP");
     } finally {
       setLoading(false);
     }
@@ -170,12 +269,10 @@ export default function HRLogin({ onLogin }) {
             <input
               className="input-field animate-fade-in-up stagger-2"
               placeholder="Employee ID (e.g. EMP006)"
-              value={form.empIdRaw}
-              onChange={(e) => {
-                const raw = e.target.value;
-                setForm((prev) => ({ ...prev, empIdRaw: raw }));
-                setNormalizedEmpId(normalize_emp_id(raw));
-              }}
+              value={form.emp_id}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, emp_id: e.target.value }))
+              }
               required
             />
 
@@ -236,6 +333,26 @@ export default function HRLogin({ onLogin }) {
 
           <button type="submit" disabled={loading} className="btn-primary animate-fade-in-up stagger-2">
             {loading ? "Verifying..." : "Verify OTP"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResendOTP}
+            disabled={loading || otpResendCooldown > 0}
+            className="resend-otp-btn"
+            style={{ 
+              justifyContent: 'center', 
+              marginTop: '10px',
+              background: 'none',
+              border: 'none',
+              color: otpResendCooldown > 0 ? '#64748b' : '#6366f1',
+              cursor: otpResendCooldown > 0 ? 'not-allowed' : 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            {otpResendCooldown > 0
+              ? `Resend OTP (${otpResendCooldown}s)`
+              : "Resend OTP"}
           </button>
         </form>
       </div>

@@ -13,6 +13,7 @@ import { allowRoles, verifyToken } from "../../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.use(verifyToken);
+router.get("/", allowRoles("COMPANY_ADMIN", "HR"), listShifts);
 router.use(allowRoles("COMPANY_ADMIN"));
 
 router.post("/", verifyToken, createShift);

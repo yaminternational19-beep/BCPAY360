@@ -20,35 +20,73 @@ export default function SuperAdmin() {
     navigate("/login", { replace: true });
   };
 
+  // const sendOtp = async () => {
+  //   if (!login.email || !login.password) {
+  //     alert("Email and password required");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const res = await fetch(`${API_BASE}/api/super-admin/send-otp`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         email: login.email,
+  //         password: login.password,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+  //     if (!res.ok) throw new Error(data.message);
+
+  //     setOtpSent(true);
+  //   } catch (err) {
+  //     alert(err.message || "Failed to send OTP");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
   const sendOtp = async () => {
-    if (!login.email || !login.password) {
-      alert("Email and password required");
+  if (!login.email || !login.password) {
+    alert("Email and password required");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await fetch(`${API_BASE}/api/super-admin/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: login.email,
+        password: login.password,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    // ===== ADD THIS BLOCK =====
+    if (data.skipOtp) {
+      localStorage.setItem("token", data.token);
+      navigate("/super-admin/dashboard", { replace: true });
       return;
     }
+    // ===== END BLOCK =====
 
-    try {
-      setLoading(true);
+    setOtpSent(true);
 
-      const res = await fetch(`${API_BASE}/api/super-admin/send-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: login.email,
-          password: login.password,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setOtpSent(true);
-    } catch (err) {
-      alert(err.message || "Failed to send OTP");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (err) {
+    alert(err.message || "Failed to send OTP");
+  } finally {
+    setLoading(false);
+  }
+};
   const submitLogin = async (e) => {
     e.preventDefault();
 

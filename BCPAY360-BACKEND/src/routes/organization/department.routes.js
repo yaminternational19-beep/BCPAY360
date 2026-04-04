@@ -15,6 +15,7 @@ router.get("/public", verifyToken, listDepartmentsPublic);
 
 /* PROTECTED */
 router.use(verifyToken);
+router.get("/", allowRoles("COMPANY_ADMIN", "HR"), listDepartments);
 router.use(allowRoles("COMPANY_ADMIN"));
 
 router.post("/", verifyToken, createDepartment);

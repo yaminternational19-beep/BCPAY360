@@ -5,6 +5,7 @@ import { TABLES } from "../../../utils/tableNames.js";
 import { generateOTP } from "../../../utils/otp.js";
 import { sendOtpEmail } from "../../../mail/index.js";
 import logger from "../../../utils/logger.js";
+import dotenv from "dotenv";
 
 const MODULE_NAME = "SUPER_ADMIN_CONTROLLER";
 
@@ -86,6 +87,66 @@ export const superAdminLogin = async (req, res) => {
 };
 
 
+// export const sendSuperAdminOTP = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   if (!email || !password) {
+//     return res.status(400).json({ message: "Email and password required" });
+//   }
+
+//   try {
+//     // 1. Fetch admin
+//     const rows = await dbExec(
+//       db,
+//       `SELECT id, password FROM ${TABLES.SUPER_ADMIN}
+//        WHERE email = ? AND is_active = 1
+//        LIMIT 1`,
+//       [email]
+//     );
+
+//     if (!rows.length) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const admin = rows[0];
+
+//     // 2. Verify password
+//     const isMatch = await bcrypt.compare(password, admin.password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     // 3. Invalidate previous OTPs
+//     await dbExec(
+//       db,
+//       `UPDATE super_admin_otps
+//        SET is_used = 1
+//        WHERE super_admin_id = ?`,
+//       [admin.id]
+//     );
+
+//     // 4. Generate & store OTP
+//     const otp = generateOTP(); // 6-digit
+//     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+//     await dbExec(
+//       db,
+//       `INSERT INTO super_admin_otps (super_admin_id, otp, expires_at)
+//        VALUES (?, ?, ?)`,
+//       [admin.id, otp, expiresAt]
+//     );
+
+//     // 5. Send email
+//     await sendOtpEmail(email, otp);
+
+//     return res.json({ message: "OTP sent successfully" });
+
+//   } catch (err) {
+//     logger.error(MODULE_NAME, "Failed to send super admin OTP", err);
+//     return res.status(500).json({ message: "Failed to send OTP" });
+//   }
+// };
+
 export const sendSuperAdminOTP = async (req, res) => {
   const { email, password } = req.body;
 
@@ -115,6 +176,22 @@ export const sendSuperAdminOTP = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // ===== ADD THIS BLOCK HERE =====
+    if (process.env.SUPERADMIN_SKIP_OTP === "true") {
+      const token = generateToken({
+        id: admin.id,
+        role: "SUPER_ADMIN",
+      });
+
+      return res.json({
+        message: "Login successful (OTP skipped)",
+        token,
+        role: "SUPER_ADMIN",
+        skipOtp: true
+      });
+    }
+    // ===== END BLOCK =====
+
     // 3. Invalidate previous OTPs
     await dbExec(
       db,
@@ -125,8 +202,8 @@ export const sendSuperAdminOTP = async (req, res) => {
     );
 
     // 4. Generate & store OTP
-    const otp = generateOTP(); // 6-digit
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     await dbExec(
       db,
@@ -145,7 +222,6 @@ export const sendSuperAdminOTP = async (req, res) => {
     return res.status(500).json({ message: "Failed to send OTP" });
   }
 };
-
 
 /* ============================
    SUPER ADMIN LOGOUT

@@ -392,11 +392,82 @@ export const deleteHR = async (req, res) => {
 /* =====================================================
    HR PRE LOGIN (Modified for hr_code)
 ===================================================== */
+// export const hrPreLogin = async (req, res) => {
+//   const { company_id, hr_code, password } = req.body;
+
+//   if (!company_id || !hr_code || !password) {
+//     return res.status(400).json({ message: "Missing credentials (company_id, hr_code, password)" });
+//   }
+
+//   try {
+//     /* 1️⃣ Fetch HR */
+//     const sql = `
+//       SELECT id, email, password_hash, is_active
+//       FROM ${TABLES.HR_USERS}
+//       WHERE hr_code = ? AND company_id = ?
+//       LIMIT 1
+//     `;
+
+//     const rows = await dbExec(db, sql, [hr_code, company_id]);
+
+//     if (!rows.length) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const hr = rows[0];
+
+//     if (!hr.is_active) {
+//       return res.status(403).json({ message: "HR account disabled" });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, hr.password_hash);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     /* 2️⃣ Invalidate previous OTPs */
+//     await dbExec(db, `UPDATE ${TABLES.AUTH_OTPS} SET is_used = 1 WHERE user_type = 'HR' AND user_id = ? AND is_used = 0`, [hr.id]);
+
+//     /* 3️⃣ Generate OTP */
+//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//     const otpHash = await bcrypt.hash(otp, 10);
+
+//     /* 4️⃣ Store OTP */
+//     const insertSql = `
+//       INSERT INTO ${TABLES.AUTH_OTPS} (user_type, user_id, email, otp_hash, expires_at)
+//       VALUES ('HR', ?, ?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
+//     `;
+
+//     const result = await dbExec(db, insertSql, [hr.id, hr.email, otpHash]);
+
+//     /* 5️⃣ Send OTP Email */
+//     sendSystemEmail({
+//       to: hr.email,
+//       subject: "HR Login OTP",
+//       body: `Your login OTP is <strong>${otp}</strong>. It is valid for 5 minutes.`
+//     }).catch(err => logger.error(MODULE_NAME, "Failed to send HR OTP email", err));
+
+    
+//     return res.json({
+//       success: true,
+//       tempLoginId: result.insertId,
+//       email: hr.email,
+//       message: "OTP sent to registered email",
+//     });
+
+//   } catch (err) {
+//     logger.error(MODULE_NAME, "HR pre-login failed", err);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
 export const hrPreLogin = async (req, res) => {
   const { company_id, hr_code, password } = req.body;
 
   if (!company_id || !hr_code || !password) {
-    return res.status(400).json({ message: "Missing credentials (company_id, hr_code, password)" });
+    return res.status(400).json({
+      message: "Missing credentials (company_id, hr_code, password)"
+    });
   }
 
   try {
@@ -420,38 +491,90 @@ export const hrPreLogin = async (req, res) => {
       return res.status(403).json({ message: "HR account disabled" });
     }
 
+    /* 2️⃣ Verify password */
     const isMatch = await bcrypt.compare(password, hr.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    /* 2️⃣ Invalidate previous OTPs */
-    await dbExec(db, `UPDATE ${TABLES.AUTH_OTPS} SET is_used = 1 WHERE user_type = 'HR' AND user_id = ? AND is_used = 0`, [hr.id]);
+    /* =====================================================
+       3️⃣ SKIP OTP MODE (TESTING)
+    ===================================================== */
+    if (process.env.HR_SKIP_OTP === "true") {
+      const token = generateToken({
+        id: hr.id,
+        role: "HR",
+        company_id: company_id
+      });
 
-    /* 3️⃣ Generate OTP */
+      // Fetch permissions
+      const perms = await dbExec(
+        db,
+        `SELECT module_key FROM ${TABLES.HR_PERMISSIONS} WHERE hr_id = ? AND allowed = 1`,
+        [hr.id]
+      );
+      const permissions = perms.map(p => p.module_key);
+
+      return res.json({
+        message: "Login successful (OTP skipped)",
+        token,
+        role: "HR",
+        hr: {
+          id: hr.id,
+          email: hr.email,
+          company_id: company_id
+        },
+        permissions,
+        skipOtp: true
+      });
+    }
+
+    /* =====================================================
+       4️⃣ NORMAL OTP FLOW
+    ===================================================== */
+
+    // Invalidate previous OTPs
+    await dbExec(
+      db,
+      `UPDATE ${TABLES.AUTH_OTPS}
+       SET is_used = 1
+       WHERE user_type = 'HR'
+         AND user_id = ?
+         AND is_used = 0`,
+      [hr.id]
+    );
+
+    // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpHash = await bcrypt.hash(otp, 10);
 
-    /* 4️⃣ Store OTP */
+    // Store OTP
     const insertSql = `
-      INSERT INTO ${TABLES.AUTH_OTPS} (user_type, user_id, email, otp_hash, expires_at)
+      INSERT INTO ${TABLES.AUTH_OTPS}
+      (user_type, user_id, email, otp_hash, expires_at)
       VALUES ('HR', ?, ?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
     `;
 
-    const result = await dbExec(db, insertSql, [hr.id, hr.email, otpHash]);
+    const result = await dbExec(db, insertSql, [
+      hr.id,
+      hr.email,
+      otpHash
+    ]);
 
-    /* 5️⃣ Send OTP Email */
+    // Send OTP Email
     sendSystemEmail({
       to: hr.email,
       subject: "HR Login OTP",
       body: `Your login OTP is <strong>${otp}</strong>. It is valid for 5 minutes.`
-    }).catch(err => logger.error(MODULE_NAME, "Failed to send HR OTP email", err));
+    }).catch(err =>
+      logger.error(MODULE_NAME, "Failed to send HR OTP email", err)
+    );
 
     return res.json({
       success: true,
       tempLoginId: result.insertId,
       email: hr.email,
-      message: "OTP sent to registered email",
+      message: "OTP sent to registered email"
     });
 
   } catch (err) {
@@ -528,12 +651,21 @@ export const hrVerifyOtp = async (req, res) => {
 
     await dbExec(db, `UPDATE ${TABLES.HR_USERS} SET last_login_at = NOW() WHERE id = ?`, [hr.id]);
 
+    /* Fetch permissions */
+    const perms = await dbExec(
+      db,
+      `SELECT module_key FROM ${TABLES.HR_PERMISSIONS} WHERE hr_id = ? AND allowed = 1`,
+      [hr.id]
+    );
+    const permissions = perms.map(p => p.module_key);
+
     return res.json({
       success: true,
       token,
       hr_code: hr.hr_code,
       company_id: hr.company_id,
-      branch_id: hr.branch_id
+      branch_id: hr.branch_id,
+      permissions
     });
 
   } catch (err) {

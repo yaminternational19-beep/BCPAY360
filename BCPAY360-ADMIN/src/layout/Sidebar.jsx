@@ -166,106 +166,127 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onCloseMobile, user: u
           </div>
         </button>
 
-        {isAdmin && (
+        {(isAdmin || isHR) && (
           <>
-            <button
-              type="button"
-              className={`menu-item expandable ${['branches', 'organization', 'departments', 'employee-types', 'shifts', 'hr-management'].some(p => isActive(p)) ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                safeToggle(setOrgOpen, !orgOpen);
-              }}
-            >
-              <div className="menu-left">
-                <FaBuilding />
-                {!collapsed && <span>Organization</span>}
-              </div>
-              {!collapsed && (orgOpen ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />)}
-            </button>
+            {(isAdmin || 
+              ['BRANCHES', 'EMPLOYEE_CODE', 'DEPARTMENTS', 'EMPLOYEE_TYPES', 'SHIFTS', 'HR_MANAGEMENT', 'GOVERNMENT_FORMS'].some(key => canAccess(key))
+            ) && (
+              <button
+                type="button"
+                className={`menu-item expandable ${['branches', 'organization', 'departments', 'employee-types', 'shifts', 'hr-management'].some(p => isActive(p)) ? "active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  safeToggle(setOrgOpen, !orgOpen);
+                }}
+              >
+                <div className="menu-left">
+                  <FaBuilding />
+                  {!collapsed && <span>Organization</span>}
+                </div>
+                {!collapsed && (orgOpen ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />)}
+              </button>
+            )}
 
             {orgOpen && !collapsed && (
               <div className="submenu">
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("branches") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("branches");
-                  }}
-                >
-                  <FaBuilding /> Branches
-                </button>
+                {canAccess("BRANCHES") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("branches") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("branches");
+                    }}
+                  >
+                    <FaBuilding /> Branches
+                  </button>
+                )}
 
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("organization/emp-code") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("organization/emp-code");
-                  }}
-                >
-                  <FaIdCard /> Employee Code
-                </button>
+                {canAccess("EMPLOYEE_CODE") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("organization/emp-code") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("organization/emp-code");
+                    }}
+                  >
+                    <FaIdCard /> Employee Code
+                  </button>
+                )}
 
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("departments") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("departments");
-                  }}
-                >
-                  <FaBuilding /> Departments
-                </button>
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("employee-types") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("employee-types");
-                  }}
-                >
-                  <FaUserTag /> Employee Types
-                </button>
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("shifts") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("shifts");
-                  }}
-                >
-                  <FaBusinessTime /> Shifts
-                </button>
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("hr-management") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("hr-management");
-                  }}
-                >
-                  <FaIdCard /> Add HR
-                </button>
+                {canAccess("DEPARTMENTS") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("departments") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("departments");
+                    }}
+                  >
+                    <FaBuilding /> Departments
+                  </button>
+                )}
 
-                <button
-                  type="button"
-                  className={`submenu-item ${isActive("organization/documents") ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    go("organization/documents");
-                  }}
-                >
-                  <FaFileInvoice /> Add Documents
-                </button>
+                {canAccess("EMPLOYEE_TYPES") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("employee-types") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("employee-types");
+                    }}
+                  >
+                    <FaUserTag /> Employee Types
+                  </button>
+                )}
+
+                {canAccess("SHIFTS") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("shifts") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("shifts");
+                    }}
+                  >
+                    <FaBusinessTime /> Shifts
+                  </button>
+                )}
+
+                {canAccess("HR_MANAGEMENT") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("hr-management") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("hr-management");
+                    }}
+                  >
+                    <FaIdCard /> Add HR
+                  </button>
+                )}
+
+                {canAccess("GOVERNMENT_FORMS") && (
+                  <button
+                    type="button"
+                    className={`submenu-item ${isActive("organization/documents") ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      go("organization/documents");
+                    }}
+                  >
+                    <FaFileInvoice /> Add Documents
+                  </button>
+                )}
               </div>
             )}
           </>
@@ -367,137 +388,183 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onCloseMobile, user: u
           </>
         )}
 
-        {isAdmin && (
+        {(isAdmin || isHR) && (
           <>
-            <button
-              type="button"
-              className={`menu-item expandable ${isActive('forms') ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                safeToggle(setFormsOpen, !formsOpen);
-              }}
-            >
-              <div className="menu-left">
-                <FaWpforms />
-                {!collapsed && <span>Forms</span>}
-              </div>
-              {!collapsed && (formsOpen ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />)}
-            </button>
+            {(isAdmin || canAccess("GOVERNMENT_FORMS") || canAccess("PF_FORMS") || canAccess("ESIC_FORMS")) && (
+              <>
+                <button
+                  type="button"
+                  className={`menu-item expandable ${isActive('forms') ? "active" : ""}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    safeToggle(setFormsOpen, !formsOpen);
+                  }}
+                >
+                  <div className="menu-left">
+                    <FaWpforms />
+                    {!collapsed && <span>Forms</span>}
+                  </div>
+                  {!collapsed && (formsOpen ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />)}
+                </button>
 
-            {formsOpen && !collapsed && (
-              <div className="submenu">
-                {Object.values(FORMS_CONFIG).map((form) => (
-                  <button
-                    key={form.id}
-                    type="button"
-                    className={`submenu-item ${isActive(`forms/${form.id}`) ? "active" : ""}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      go(`forms/${form.id}`);
-                    }}
-                  >
-                    {FORM_ICONS[form.id] || <FaFileAlt />} {form.title}
-                  </button>
-                ))}
-              </div>
+                {formsOpen && !collapsed && (
+                  <div className="submenu">
+                    {Object.values(FORMS_CONFIG).map((form) => {
+                      // Map form IDs to their permission keys
+                      const formPermMap = {
+                        pf: "PF_FORMS",
+                        esic: "ESIC_FORMS",
+                        "income-tax": "FORM_16",
+                        bonus: "BONUS_ACT",
+                        labour: "LABOUR_LAW",
+                        factories: "FACTORIES_ACT",
+                        gratuity: "GRATUITY_ACT"
+                      };
+                      const permKey = formPermMap[form.id];
+                      
+                      if (isAdmin || canAccess(permKey)) {
+                        return (
+                          <button
+                            key={form.id}
+                            type="button"
+                            className={`submenu-item ${isActive(`forms/${form.id}`) ? "active" : ""}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              go(`forms/${form.id}`);
+                            }}
+                          >
+                            {FORM_ICONS[form.id] || <FaFileAlt />} {form.title}
+                          </button>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                )}
+              </>
             )}
 
-            <button
-              type="button"
-              className={`menu-item expandable ${isActive('reports') ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                safeToggle(setReportsOpen, !reportsOpen);
-              }}
-            >
-              <div className="menu-left">
-                <FaChartLine />
-                {!collapsed && <span>Reports</span>}
-              </div>
-              {!collapsed && (reportsOpen ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />)}
-            </button>
+            {(isAdmin || canAccess("EMPLOYEE_REPORTS") || canAccess("ATTENDANCE_REPORTS") || canAccess("LEAVE_REPORTS") || canAccess("SALARY_REPORTS")) && (
+              <>
+                <button
+                  type="button"
+                  className={`menu-item expandable ${isActive('reports') ? "active" : ""}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    safeToggle(setReportsOpen, !reportsOpen);
+                  }}
+                >
+                  <div className="menu-left">
+                    <FaChartLine />
+                    {!collapsed && <span>Reports</span>}
+                  </div>
+                  {!collapsed && (reportsOpen ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />)}
+                </button>
 
-            {reportsOpen && !collapsed && (
-              <div className="submenu">
-                {Object.values(REPORTS_CONFIG).map((report) => (
-                  <button
-                    key={report.id}
-                    type="button"
-                    className={`submenu-item ${isActive(`reports/${report.id}`) ? "active" : ""}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      go(`reports/${report.id}`);
-                    }}
-                  >
-                    {REPORT_ICONS[report.id] || <FaChartLine />} {report.title}
-                  </button>
-                ))}
-              </div>
+                {reportsOpen && !collapsed && (
+                  <div className="submenu">
+                    {Object.values(REPORTS_CONFIG).map((report) => {
+                      const reportPermMap = {
+                        employee: "EMPLOYEE_REPORTS",
+                        attendance: "ATTENDANCE_REPORTS",
+                        leave: "LEAVE_REPORTS",
+                        salary: "SALARY_REPORTS"
+                      };
+                      const permKey = reportPermMap[report.id];
+                      
+                      if (isAdmin || canAccess(permKey)) {
+                        return (
+                          <button
+                            key={report.id}
+                            type="button"
+                            className={`submenu-item ${isActive(`reports/${report.id}`) ? "active" : ""}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              go(`reports/${report.id}`);
+                            }}
+                          >
+                            {REPORT_ICONS[report.id] || <FaChartLine />} {report.title}
+                          </button>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                )}
+              </>
             )}
 
-            <button
-              type="button"
-              className={`menu-item ${isActive("manage-content") ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                go("manage-content");
-              }}
-            >
-              <div className="menu-left">
-                <FaFileAlt />
-                {!collapsed && <span>Manage Content</span>}
-              </div>
-            </button>
+            {(isAdmin || canAccess("MANAGE_CONTENT")) && (
+              <button
+                type="button"
+                className={`menu-item ${isActive("manage-content") ? "active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  go("manage-content");
+                }}
+              >
+                <div className="menu-left">
+                  <FaFileAlt />
+                  {!collapsed && <span>Manage Content</span>}
+                </div>
+              </button>
+            )}
 
-            <button
-              type="button"
-              className={`menu-item ${isActive("help-support") ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                go("help-support");
-              }}
-            >
-              <div className="menu-left">
-                <FaQuestionCircle />
-                {!collapsed && <span>Help & Support</span>}
-              </div>
-            </button>
+            {(isAdmin || canAccess("SUPPORT_TICKETS")) && (
+              <button
+                type="button"
+                className={`menu-item ${isActive("help-support") ? "active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  go("help-support");
+                }}
+              >
+                <div className="menu-left">
+                  <FaQuestionCircle />
+                  {!collapsed && <span>Help & Support</span>}
+                </div>
+              </button>
+            )}
 
-            <button
-              type="button"
-              className={`menu-item ${isActive("faq") ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                go("faq");
-              }}
-            >
-              <div className="menu-left">
-                <FaQuestionCircle />
-                {!collapsed && <span>FAQ</span>}
-              </div>
-            </button>
+            {(isAdmin || canAccess("FAQ_MANAGEMENT")) && (
+              <button
+                type="button"
+                className={`menu-item ${isActive("faq") ? "active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  go("faq");
+                }}
+              >
+                <div className="menu-left">
+                  <FaQuestionCircle />
+                  {!collapsed && <span>FAQ</span>}
+                </div>
+              </button>
+            )}
 
-            <button
-              type="button"
-              className={`menu-item ${isActive("manage-broadcast") ? "active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                go("manage-broadcast");
-              }}
-            >
-              <div className="menu-left">
-                <FaBullhorn />
-                {!collapsed && <span>Manage Broadcast</span>}
-              </div>
-            </button>
+            {(isAdmin || canAccess("BROADCAST")) && (
+              <button
+                type="button"
+                className={`menu-item ${isActive("manage-broadcast") ? "active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  go("manage-broadcast");
+                }}
+              >
+                <div className="menu-left">
+                  <FaBullhorn />
+                  {!collapsed && <span>Manage Broadcast</span>}
+                </div>
+              </button>
+            )}
           </>
         )}
       </nav>

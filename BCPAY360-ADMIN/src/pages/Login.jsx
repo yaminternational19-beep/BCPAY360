@@ -8,7 +8,7 @@ export default function Login({ onLogin }) {
   const navigate = useNavigate();
 
   const [role, setRole] = useState(null);
-  const [step, setStep] = useState("ROLE"); // ROLE | LOGIN | HR_LOGIN | OTP
+  const [step, setStep] = useState("ROLE"); // ROLE | LOGIN | OTP
   const [loading, setLoading] = useState(false);
 
   const [companies, setCompanies] = useState([]);
@@ -24,7 +24,6 @@ export default function Login({ onLogin }) {
     companyId: "",
     email: "",
     password: "",
-    emp_id: "",
     otp: "",
   });
 
@@ -34,7 +33,6 @@ export default function Login({ onLogin }) {
       companyId: "",
       email: "",
       password: "",
-      emp_id: "",
       otp: "",
     });
     setShowPassword(false);
@@ -106,79 +104,100 @@ export default function Login({ onLogin }) {
   /* =============================
      COMPANY ADMIN LOGIN
   ============================= */
+  // const submitAdminLogin = async (e) => {
+  //   e.preventDefault();
+
+  //   if (!form.companyId || !form.email || !form.password) {
+  //     alert("All fields required");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+
+  //     const res = await fetch(`${API_BASE}/api/company-admins/pre-login`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         company_id: Number(form.companyId),
+  //         email: form.email,
+  //         password: form.password,
+  //       }),
+
+  //     });
+
+  //     const data = await res.json();
+  //     if (!res.ok) throw new Error(data.message);
+
+  //     setTempLoginId(data.tempLoginId);
+  //     setUserEmail(form.email);
+  //     setOtpResendCooldown(45);
+  //     setStep("OTP");
+  //   } catch (err) {
+  //     alert(err.message || "Login failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const submitAdminLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.companyId || !form.email || !form.password) {
-      alert("All fields required");
-      return;
-    }
+  if (!form.companyId || !form.email || !form.password) {
+    alert("All fields required");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const res = await fetch(`${API_BASE}/api/company-admins/pre-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_id: Number(form.companyId),
-          email: form.email,
-          password: form.password,
-        }),
+    const res = await fetch(`${API_BASE}/api/company-admins/pre-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_id: Number(form.companyId),
+        email: form.email,
+        password: form.password,
+      }),
+    });
 
-      });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+    // ===== ADD THIS BLOCK =====
+    if (data.skipOtp) {
+        const authUser = {
+          role: data.role,
+          verified: true,
+          email: data.company.email,
+          company_id: data.company.id,
+          name: data.company.name
+        };
 
-      setTempLoginId(data.tempLoginId);
-      setUserEmail(form.email);
-      setOtpResendCooldown(45);
-      setStep("OTP");
-    } catch (err) {
-      alert(err.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("auth_user", JSON.stringify(authUser));
+
+        if (onLogin) onLogin(authUser);
+
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+    // ===== END BLOCK =====
+
+    // Normal OTP flow
+    setTempLoginId(data.tempLoginId);
+    setUserEmail(form.email);
+    setOtpResendCooldown(45);
+    setStep("OTP");
+
+  } catch (err) {
+    alert(err.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
-  /* =============================
-     HR LOGIN
-  ============================= */
-  const submitHRLogin = async (e) => {
-    e.preventDefault();
-
-    if (!form.emp_id || !form.password) {
-      alert("Emp ID and Password required");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const res = await fetch(`${API_BASE}/api/hr/pre-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          emp_id: form.emp_id,
-          password: form.password,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setTempLoginId(data.tempLoginId);
-      setUserEmail(data.email || "your registered email");
-      setOtpResendCooldown(45);
-      setStep("OTP");
-    } catch (err) {
-      alert(err.message || "HR login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /* =============================
      OTP SUBMIT
@@ -188,17 +207,14 @@ export default function Login({ onLogin }) {
 
     if (!tempLoginId) {
       alert("Session expired");
-      setStep(role === "HR" ? "HR_LOGIN" : "LOGIN");
+      setStep("LOGIN");
       return;
     }
 
     try {
       setLoading(true);
 
-      const url =
-        role === "HR"
-          ? `${API_BASE}/api/hr/verify-otp`
-          : `${API_BASE}/api/company-admins/verify-otp`;
+      const url = `${API_BASE}/api/company-admins/verify-otp`;
 
       const res = await fetch(url, {
         method: "POST",
@@ -212,20 +228,11 @@ export default function Login({ onLogin }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      const user =
-        role === "HR"
-          ? {
-            role: "HR",
-            verified: true,
-            emp_id: data.emp_id,
-            department: data.department,
-            company_id: data.company_id,
-          }
-          : {
-            role: "COMPANY_ADMIN",
-            verified: true,
-            company_id: data.company_id,
-          };
+      const user = {
+        role: "COMPANY_ADMIN",
+        verified: true,
+        company_id: data.company_id,
+      };
 
       if (data.token) {
         localStorage.setItem("token", data.token);
@@ -234,10 +241,7 @@ export default function Login({ onLogin }) {
       localStorage.setItem("auth_user", JSON.stringify(user));
       onLogin(user);
 
-      navigate(
-        role === "HR" ? "/" : "/dashboard",
-        { replace: true }
-      );
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       alert(err.message || "OTP verification failed");
     } finally {
@@ -258,10 +262,7 @@ export default function Login({ onLogin }) {
     try {
       setLoading(true);
 
-      const url =
-        role === "HR"
-          ? `${API_BASE}/api/hr/verify-otp`
-          : `${API_BASE}/api/company-admins/verify-otp`;
+      const url = `${API_BASE}/api/company-admins/verify-otp`;
 
       const res = await fetch(url, {
         method: "POST",
@@ -422,74 +423,7 @@ export default function Login({ onLogin }) {
     );
   }
 
-  /* =============================
-     UI - HR LOGIN (FALLBACK/IN-PAGE)
-  ============================= */
-  if (step === "HR_LOGIN") {
-    const isHRFormValid = form.emp_id && form.password;
 
-    return (
-      <div className="login-root">
-        <div className="bg-orb orb-indigo"></div>
-        <div className="bg-orb orb-purple"></div>
-
-        <div className="glass-card">
-          <button
-            type="button"
-            className="btn-ghost back-btn"
-            onClick={handleBackToRole}
-          >
-            ← Change Role
-          </button>
-
-          <div className="card-header">
-            <h2>HR Login</h2>
-            <p>Access your dashboard</p>
-          </div>
-
-          <form className="form-group" onSubmit={submitHRLogin}>
-            <input
-              className="input-field animate-fade-in-up stagger-1"
-              placeholder="Emp ID"
-              value={form.emp_id}
-              onChange={(e) =>
-                setForm({ ...form, emp_id: e.target.value })
-              }
-              required
-            />
-
-            <div className="password-wrapper animate-fade-in-up stagger-2">
-              <input
-                className="input-field"
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm({ ...form, password: e.target.value })
-                }
-                required
-              />
-              <span
-                className="eye-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                title={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
-              </span>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || !isHRFormValid}
-              className="btn-primary animate-fade-in-up stagger-3"
-            >
-              {loading ? "Checking..." : "Continue"}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   /* =============================
      UI - OTP VERIFICATION

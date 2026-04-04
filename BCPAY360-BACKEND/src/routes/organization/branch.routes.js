@@ -13,8 +13,9 @@ const router = express.Router();
 
 /* PROTECTED ROUTES */
 
-router.use(verifyToken); // ✅ FIRST
-router.use(allowRoles("COMPANY_ADMIN")); // ✅ SECOND
+router.use(verifyToken);
+router.get("/", allowRoles("COMPANY_ADMIN", "HR"), listBranches);
+router.use(allowRoles("COMPANY_ADMIN"));
 
 router.post("/", createBranch);
 router.get("/", listBranches);

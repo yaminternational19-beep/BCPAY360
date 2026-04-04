@@ -148,7 +148,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="departments"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <DepartmentDesignation user={user} />
                   </RoleProtectedRoute>
                 }
@@ -156,7 +156,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="employee-types"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <EmployeeTypeList user={user} />
                   </RoleProtectedRoute>
                 }
@@ -164,7 +164,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="shifts"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <ShiftList user={user} />
                   </RoleProtectedRoute>
                 }
@@ -172,7 +172,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="branches"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <BranchList user={user} />
                   </RoleProtectedRoute>
                 }
@@ -180,7 +180,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="organization/emp-code"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <EmpCode user={user} />
                   </RoleProtectedRoute>
                 }
@@ -188,7 +188,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="organization/documents"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <Documents />
                   </RoleProtectedRoute>
                 }
@@ -214,7 +214,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="reports"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <SoftwareReportsDashboard />
                   </RoleProtectedRoute>
                 }
@@ -222,7 +222,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="reports/:reportType"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <SoftwareReportsPage />
                   </RoleProtectedRoute>
                 }
@@ -230,7 +230,7 @@ const AdminLayout = ({ user, setUser }) => {
               <Route
                 path="forms/*"
                 element={
-                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN"]} user={user}>
+                  <RoleProtectedRoute allowedRoles={["COMPANY_ADMIN", "HR"]} user={user}>
                     <FormsRouter />
                   </RoleProtectedRoute>
                 }
@@ -289,7 +289,7 @@ export default function App() {
           <Route path="/super-admin/*" element={<SuperAdminRoutes />} />
           <Route path="/role" element={<RoleGate />} />
           <Route path="/verify" element={<CodeVerify onVerify={setUser} />} />
-          <Route path="/hr/login" element={<HRLogin on_login={handle_login} />} />
+          <Route path="/hr/login" element={<HRLogin onLogin={handle_login} />} />
 
           {/* ONLY ONE AdminLayout */}
           <Route

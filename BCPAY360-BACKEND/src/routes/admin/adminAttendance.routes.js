@@ -20,6 +20,6 @@ router.options("*", (_, res) => res.sendStatus(200));
  * HISTORY:
  *   ?viewType=HISTORY&employeeId=ID&from=YYYY-MM-DD&to=YYYY-MM-DD
  */
-router.get("/", verifyToken, allowRoles("COMPANY_ADMIN", "SUPER_ADMIN"), getAdminAttendance);
+router.get("/", verifyToken, allowRoles("COMPANY_ADMIN", "SUPER_ADMIN", "HR"), getAdminAttendance);
 
 export default router;

@@ -14,13 +14,191 @@ const MODULE_NAME = "EMPLOYEE_AUTH_CONTROLLER";
 import { sendSystemEmail } from "../../mail/index.js";
 
 
+// export const employeeLogin = async (req, res) => {
+//   try {
+//     const { employee_code, password, player_id, device_type } = req.body;
+
+//     /* ---------------------------------
+//        1️⃣ BASIC INPUT VALIDATION
+//     --------------------------------- */
+//     if (!employee_code || !password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Employee code and password are required"
+//       });
+//     }
+
+//     /* ---------------------------------
+//        2️⃣ FETCH EMPLOYEE + AUTH
+//     --------------------------------- */
+//     const [rows] = await db.query(
+//       `SELECT 
+//          e.id,
+//          e.employee_code,
+//          e.company_id,
+//          e.email,
+//          ea.password_hash,
+//          ea.is_active
+//        FROM employees e
+//        JOIN employee_auth ea ON ea.employee_id = e.id
+//        WHERE e.employee_code = ?`,
+//       [employee_code]
+//     );
+
+//     /* ---------------------------------
+//        3️⃣ AUTH FAILURE CASES (EXPLICIT)
+//     --------------------------------- */
+//     if (!rows.length) {
+//       const [caseRows] = await db.query(
+//         `SELECT employee_code
+//         FROM employees
+//         WHERE LOWER(employee_code) = LOWER(?)`,
+//         [employee_code]
+//       );
+
+//       if (caseRows.length) {
+//         return res.status(401).json({
+//           success: false,
+//           message: "Employee id mismatch. Please check your employee Id"
+//         });
+//       }
+
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid employee id"
+//       });
+//     }
+
+
+//     const employee = rows[0];
+
+//     if (!employee.is_active) {
+//       return res.status(403).json({
+//         success: false,
+//         message: "Your account is inactive"
+//       });
+//     }
+
+//     const passwordMatch = await bcrypt.compare(password, employee.password_hash);
+//     if (!passwordMatch) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Incorrect password"
+//       });
+//     }
+
+//     if (!employee.email) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Email not registered"
+//       });
+//     }
+
+//     /* ---------------------------------
+//        4️⃣ DEVICE VALIDATION
+//     --------------------------------- */
+//     if (!device_type || typeof device_type !== "string" || !device_type.trim()) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "device_type is required"
+//       });
+//     }
+
+//     // player_id is OPTIONAL now
+//     const safePlayerId = player_id || null;
+
+//     /* ---------------------------------
+//        5️⃣ UPSERT DEVICE
+//     --------------------------------- */
+//     /* ---------------------------------
+//    5️⃣ INSERT DEVICE (NO UPSERT)
+// --------------------------------- */
+//     // await db.query(
+//     //   `INSERT INTO employee_devices
+//     //   (employee_id, player_id, device_type, last_login_at)
+//     //   VALUES (?, ?, ?, NOW())`,
+//     //   [employee.id, safePlayerId, device_type]
+//     // );
+
+//     /* ---------------------------------
+//    5️⃣ UPSERT DEVICE (PRODUCTION SAFE)
+// --------------------------------- */
+// if (safePlayerId) {
+//   await db.query(
+//     `
+//     INSERT INTO employee_devices
+//       (employee_id, player_id, device_type, is_active, last_login_at)
+//     VALUES (?, ?, ?, 1, NOW())
+//     ON DUPLICATE KEY UPDATE
+//       employee_id = VALUES(employee_id),
+//       device_type = VALUES(device_type),
+//       is_active = 1,
+//       last_login_at = NOW()
+//     `,
+//     [employee.id, safePlayerId, device_type]
+//   );
+// }
+
+
+
+//     /* ---------------------------------
+//        6️⃣ GENERATE OTP
+//     --------------------------------- */
+//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+//     // Invalidate old LOGIN OTPs
+//     await db.query(
+//       `UPDATE employee_otps
+//    SET is_used = 1
+//    WHERE employee_id = ?
+//      AND purpose = 'LOGIN'
+//      AND is_used = 0`,
+//       [employee.id]
+//     );
+
+
+//     await db.query(
+//       `INSERT INTO employee_otps
+//    (employee_id, otp, purpose, is_used, expires_at, created_at)
+//    VALUES (?, ?, 'LOGIN', 0, ?, NOW())`,
+//       [employee.id, otp, expiresAt]
+//     );
+
+
+//     /* ---------------------------------
+//        7️⃣ SEND OTP EMAIL
+//     --------------------------------- */
+//     await sendSystemEmail({
+//       to: employee.email,
+//       subject: "Your Login OTP",
+//       body: `Your OTP for login is: ${otp}. This OTP is valid for 5 minutes.`
+//     });
+
+//     /* ---------------------------------
+//        8️⃣ SUCCESS RESPONSE
+//     --------------------------------- */
+//     res.json({
+//       success: true,
+//       otp_required: true,
+//       employee_id: employee.id,
+//       employee_code: employee.employee_code,
+//       message: "The OTP has been successfully sent to your registered email"
+//     });
+
+//   } catch (err) {
+//     logger.error(MODULE_NAME, "Employee login failed", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Something went wrong. Please try again later."
+//     });
+//   }
+// };
+
 export const employeeLogin = async (req, res) => {
   try {
     const { employee_code, password, player_id, device_type } = req.body;
 
-    /* ---------------------------------
-       1️⃣ BASIC INPUT VALIDATION
-    --------------------------------- */
     if (!employee_code || !password) {
       return res.status(400).json({
         success: false,
@@ -28,9 +206,6 @@ export const employeeLogin = async (req, res) => {
       });
     }
 
-    /* ---------------------------------
-       2️⃣ FETCH EMPLOYEE + AUTH
-    --------------------------------- */
     const [rows] = await db.query(
       `SELECT 
          e.id,
@@ -45,30 +220,12 @@ export const employeeLogin = async (req, res) => {
       [employee_code]
     );
 
-    /* ---------------------------------
-       3️⃣ AUTH FAILURE CASES (EXPLICIT)
-    --------------------------------- */
     if (!rows.length) {
-      const [caseRows] = await db.query(
-        `SELECT employee_code
-        FROM employees
-        WHERE LOWER(employee_code) = LOWER(?)`,
-        [employee_code]
-      );
-
-      if (caseRows.length) {
-        return res.status(401).json({
-          success: false,
-          message: "Employee id mismatch. Please check your employee Id"
-        });
-      }
-
       return res.status(401).json({
         success: false,
         message: "Invalid employee id"
       });
     }
-
 
     const employee = rows[0];
 
@@ -94,106 +251,102 @@ export const employeeLogin = async (req, res) => {
       });
     }
 
-    /* ---------------------------------
-       4️⃣ DEVICE VALIDATION
-    --------------------------------- */
-    if (!device_type || typeof device_type !== "string" || !device_type.trim()) {
+    /* =====================================================
+       SKIP OTP MODE (TESTING)
+    ===================================================== */
+    if (process.env.EMPLOYEE_SKIP_OTP === "true") {
+      const token = generateToken({
+        id: employee.id,
+        role: "EMPLOYEE",
+        company_id: employee.company_id
+      });
+
+      return res.json({
+        success: true,
+        message: "Login successful (OTP skipped)",
+        token,
+        role: "EMPLOYEE",
+        employee: {
+          id: employee.id,
+          employee_code: employee.employee_code,
+          company_id: employee.company_id,
+          branch_id: employee.branch_id
+        },
+        skipOtp: true
+      });
+    }
+
+    /* =====================================================
+       NORMAL OTP FLOW
+    ===================================================== */
+
+    if (!device_type || typeof device_type !== "string") {
       return res.status(400).json({
         success: false,
         message: "device_type is required"
       });
     }
 
-    // player_id is OPTIONAL now
     const safePlayerId = player_id || null;
 
-    /* ---------------------------------
-       5️⃣ UPSERT DEVICE
-    --------------------------------- */
-    /* ---------------------------------
-   5️⃣ INSERT DEVICE (NO UPSERT)
---------------------------------- */
-    // await db.query(
-    //   `INSERT INTO employee_devices
-    //   (employee_id, player_id, device_type, last_login_at)
-    //   VALUES (?, ?, ?, NOW())`,
-    //   [employee.id, safePlayerId, device_type]
-    // );
+    if (safePlayerId) {
+      await db.query(
+        `
+        INSERT INTO employee_devices
+          (employee_id, player_id, device_type, is_active, last_login_at)
+        VALUES (?, ?, ?, 1, NOW())
+        ON DUPLICATE KEY UPDATE
+          employee_id = VALUES(employee_id),
+          device_type = VALUES(device_type),
+          is_active = 1,
+          last_login_at = NOW()
+        `,
+        [employee.id, safePlayerId, device_type]
+      );
+    }
 
-    /* ---------------------------------
-   5️⃣ UPSERT DEVICE (PRODUCTION SAFE)
---------------------------------- */
-if (safePlayerId) {
-  await db.query(
-    `
-    INSERT INTO employee_devices
-      (employee_id, player_id, device_type, is_active, last_login_at)
-    VALUES (?, ?, ?, 1, NOW())
-    ON DUPLICATE KEY UPDATE
-      employee_id = VALUES(employee_id),
-      device_type = VALUES(device_type),
-      is_active = 1,
-      last_login_at = NOW()
-    `,
-    [employee.id, safePlayerId, device_type]
-  );
-}
-
-
-
-    /* ---------------------------------
-       6️⃣ GENERATE OTP
-    --------------------------------- */
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    // Invalidate old LOGIN OTPs
     await db.query(
       `UPDATE employee_otps
-   SET is_used = 1
-   WHERE employee_id = ?
-     AND purpose = 'LOGIN'
-     AND is_used = 0`,
+       SET is_used = 1
+       WHERE employee_id = ?
+         AND purpose = 'LOGIN'
+         AND is_used = 0`,
       [employee.id]
     );
 
-
     await db.query(
       `INSERT INTO employee_otps
-   (employee_id, otp, purpose, is_used, expires_at, created_at)
-   VALUES (?, ?, 'LOGIN', 0, ?, NOW())`,
+       (employee_id, otp, purpose, is_used, expires_at, created_at)
+       VALUES (?, ?, 'LOGIN', 0, ?, NOW())`,
       [employee.id, otp, expiresAt]
     );
 
-
-    /* ---------------------------------
-       7️⃣ SEND OTP EMAIL
-    --------------------------------- */
     await sendSystemEmail({
       to: employee.email,
       subject: "Your Login OTP",
       body: `Your OTP for login is: ${otp}. This OTP is valid for 5 minutes.`
     });
 
-    /* ---------------------------------
-       8️⃣ SUCCESS RESPONSE
-    --------------------------------- */
     res.json({
       success: true,
       otp_required: true,
       employee_id: employee.id,
       employee_code: employee.employee_code,
-      message: "The OTP has been successfully sent to your registered email"
+      message: "OTP sent to your registered email"
     });
 
   } catch (err) {
     logger.error(MODULE_NAME, "Employee login failed", err);
     res.status(500).json({
       success: false,
-      message: "Something went wrong. Please try again later."
+      message: "Something went wrong"
     });
   }
 };
+
 /* -----------------------------------------
    EMPLOYEE OTP VERIFY (STATIC)
 ----------------------------------------- */

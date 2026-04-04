@@ -14,6 +14,7 @@ const router = express.Router();
 /* PROTECTED */
 router.use(verifyToken);
 
+router.get("/", allowRoles("COMPANY_ADMIN", "HR"), listDesignations);
 router.use(allowRoles("COMPANY_ADMIN"));
 
 router.post("/", verifyToken, createDesignation);

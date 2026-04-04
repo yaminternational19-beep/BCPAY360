@@ -275,7 +275,7 @@ const HolidaysPage = () => {
         Number(d.slice(5, 7)) - 1,
         Number(d.slice(8, 10))
       );
-      const day = dObj.getDay(); 
+      const day = dObj.getDay();
       return day === dayIndex && dObj >= cutoff;
     });
 
@@ -368,21 +368,21 @@ const HolidaysPage = () => {
             </button>
 
 
-        <div className="hf-select-group">
-          
-          <select
-            className="hf-select"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-          >
-            {Array.from({ length: 6 }).map((_, i) => {
-              const y = new Date().getFullYear() - 1 + i;
-              return (
-                <option key={y} value={y}>{y}</option>
-              );
-            })}
-          </select>
-        </div>
+            <div className="hf-select-group">
+
+              <select
+                className="hf-select"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+              >
+                {Array.from({ length: 6 }).map((_, i) => {
+                  const y = new Date().getFullYear() - 1 + i;
+                  return (
+                    <option key={y} value={y}>{y}</option>
+                  );
+                })}
+              </select>
+            </div>
 
             <div className="bulk-actions">
               <button onClick={() => markWeekend(6, "All Saturdays")}>

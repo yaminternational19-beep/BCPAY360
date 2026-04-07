@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import logger from "./utils/logger.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const MODULE_NAME = "APP";
 
@@ -213,5 +218,10 @@ app.use("/api/employee/notifications", notificationRoutes);
 
 /* --- PUBLIC --- */
 app.use("/api/public", publicContentRoutes);
+
+// Public Support Page (bcpay360.com/support)
+app.get("/support", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "support.html"));
+});
 
 export default app;

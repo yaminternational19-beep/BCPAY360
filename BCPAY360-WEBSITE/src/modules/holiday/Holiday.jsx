@@ -17,17 +17,9 @@ const Holiday = ({ isDarkTheme }) => {
 
   const fetchHolidayData = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const company_id = user.company_id;
-      const branch_id = user.branch_id;
       const year = new Date().getFullYear();
 
-      if (!company_id || !branch_id) {
-        setLoading(false);
-        return;
-      }
-
-      const res = await api.get(`/holidays?year=${year}&company_id=${company_id}&branch_id=${branch_id}`);
+      const res = await api.get(`/holidays?year=${year}`);
 
       if (!res.data.success) throw new Error("API failed");
 

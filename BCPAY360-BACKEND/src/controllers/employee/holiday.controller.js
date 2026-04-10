@@ -5,12 +5,26 @@ const MODULE_NAME = "HOLIDAY_CONTROLLER";
 
 export const getEmployeeHolidays = async (req, res) => {
   try {
-    const { company_id, branch_id } = req.user;
+    let { company_id, branch_id, id: userId } = req.user;
     const { year } = req.query;
 
+    // 1️⃣ Fallback: If not in token, fetch from DB
+    if (!company_id || !branch_id) {
+      const [empRows] = await db.query(
+        "SELECT company_id, branch_id FROM employees WHERE id = ?",
+        [userId]
+      );
+      if (empRows.length > 0) {
+        company_id = empRows[0].company_id;
+        branch_id = empRows[0].branch_id;
+      }
+    }
+
     if (!company_id || !branch_id || !year) {
+      logger.warn(MODULE_NAME, "Missing required fields", { company_id, branch_id, year, userId });
       return res.status(400).json({
         message: "company_id, branch_id and year are required",
+        debug: { hasYear: !!year, hasCompany: !!company_id, hasBranch: !!branch_id }
       });
     }
 

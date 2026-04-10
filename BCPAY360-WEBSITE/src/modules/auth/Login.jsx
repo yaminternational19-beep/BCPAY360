@@ -116,79 +116,79 @@ const Login = () => {
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const newErrors = {};
+    const newErrors = {};
 
-  if (!employeeId) newErrors.employeeId = "Employee ID is required";
-  if (!password) newErrors.password = "Password is required";
+    if (!employeeId) newErrors.employeeId = "Employee ID is required";
+    if (!password) newErrors.password = "Password is required";
 
-  setErrors(newErrors);
+    setErrors(newErrors);
 
-  if (Object.keys(newErrors).length > 0) {
-    toast.error("Please fill in all required fields");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const finalPlayerId = playerId || generateUUID();
-
-    const response = await api.post("/auth/login", {
-      employee_code: employeeId,
-      password,
-      device_type: "web",
-      player_id: finalPlayerId,
-    });
-
-    const data = response.data;
-
-    /* ===============================
-       SKIP OTP LOGIN
-    =============================== */
-    if (data.skipOtp && data.token) {
-      localStorage.setItem("authToken", data.token);
-      
-      const userData = {
-        ...data.employee,
-        employee_id: data.employee.id // Ensure consistency
-      };
-      localStorage.setItem("user", JSON.stringify(userData));
-      sessionStorage.setItem("showWelcomeToast", "true");
-
-      navigate("/dashboard", { replace: true });
-      window.location.reload(); // Force AppRoutes to re-read token
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    /* ===============================
-       OTP REQUIRED
-    =============================== */
-    if (data.otp_required) {
-      setTempData({
-        employee_id: data.employee_id,
-        employee_code: data.employee_code,
+    setIsLoading(true);
+
+    try {
+      const finalPlayerId = playerId || generateUUID();
+
+      const response = await api.post("/auth/login", {
+        employee_code: employeeId,
+        password,
+        device_type: "web",
+        player_id: finalPlayerId,
       });
 
-      setForgotFlow(false);
-      setShowOtp(true);
+      const data = response.data;
 
-      toast.info("OTP sent to your email.");
-      return;
+      /* ===============================
+         SKIP OTP LOGIN
+      =============================== */
+      if (data.skipOtp && data.token) {
+        localStorage.setItem("authToken", data.token);
+
+        const userData = {
+          ...data.employee,
+          employee_id: data.employee.id // Ensure consistency
+        };
+        localStorage.setItem("user", JSON.stringify(userData));
+        sessionStorage.setItem("showWelcomeToast", "true");
+
+        navigate("/dashboard", { replace: true });
+        window.location.reload(); // Force AppRoutes to re-read token
+        return;
+      }
+
+      /* ===============================
+         OTP REQUIRED
+      =============================== */
+      if (data.otp_required) {
+        setTempData({
+          employee_id: data.employee_id,
+          employee_code: data.employee_code,
+        });
+
+        setForgotFlow(false);
+        setShowOtp(true);
+
+        toast.info("OTP sent to your email.");
+        return;
+      }
+
+      toast.error(data.message || "Login failed");
+
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message || "Wrong Password or Employee ID";
+
+      toast.error(errorMsg);
+    } finally {
+      setIsLoading(false);
     }
-
-    toast.error(data.message || "Login failed");
-
-  } catch (error) {
-    const errorMsg =
-      error.response?.data?.message || "Wrong Password or Employee ID";
-
-    toast.error(errorMsg);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <>

@@ -221,7 +221,7 @@ app.use("/api/public", publicContentRoutes);
 
 // Public Support Page (bcpay360.com/api/public/support-page)
 // Visit this URL to view the support page
-app.get("/api/public/support-page", (req, res) => {
+app.get("/support", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "support.html"));
 });
 
